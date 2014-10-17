@@ -1,0 +1,20 @@
+doctype html
+html(lang="en")
+    head
+        title= pageTitle
+        meta(charset='utf-8')
+
+        style(type='text/css').
+            !{__css__}
+    body
+        h1 #{title}
+
+        h2 Data
+        table.data
+            tr
+                each col in cols
+                    th= col
+            each row in rows
+                tr
+                    each col in row
+                        td= col

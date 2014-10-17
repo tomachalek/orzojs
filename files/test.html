@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Orzo - JavaScript code unit tests</title>
+    <meta charset="utf-8" />
+    <script type="text/javascript">
+        var _env = {
+                    inputArgs : []
+                },
+                _mr = {};
+        _mr.applyItems = function () {};
+
+        // Set type is used to simulate Orzo's Java-implemented uniq() function
+        function Set() {
+            this.length = 0;
+            this.items = {};
+            this.add = function (item) {
+                if (!this.hasOwnProperty(item)) {
+                    this.items[item] = true;
+                    this.length += 1;
+                }
+            };
+            this.toArray = function () {
+                var ans = [],
+                    p;
+
+                for (p in this.items) {
+                    ans.push(p);
+                }
+                return ans;
+            }
+        }
+        // simulates Java-implemented functions bootstrap.js relies on
+        window._lib = {
+            isNumber : function (x) {
+                return typeof x === 'number';
+            },
+            doubleVal : function (x) {
+                return x;
+            },
+            dataStructures : {
+                uniq : function (items) {
+                    var s = new Set();
+
+                    items.forEach(function (v) {
+                        s.add(v);
+                    });
+                    return s.toArray();
+                }
+            }
+        };
+    </script>
+    <script type="text/javascript" src="vendor/qunit.js"></script>
+    <script type="text/javascript" src="bootstrap.js"></script>
+    <script type="text/javascript" src="datalib.js"></script>
+    <script type="text/javascript" src="tests/datalib-tests.js"></script>
+    <script type="text/javascript" src="tests/bootstrap-tests.js"></script>
+    <link rel="stylesheet" type="text/css" href="vendor/qunit.css" />
+</head>
+<body>
+<h1 id="qunit-header">Orzo - JavaScript code unit tests</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">test markup, will be hidden</div>
+</body>
+</html>
