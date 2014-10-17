@@ -1,9 +1,6 @@
-var person,
-	objectList,
-	itemList,
-	pi;
-	
-person = {
+importPackage(net.orzo.scripting);
+
+var person = {
 	
 	firstName : 'John',
 	
@@ -24,8 +21,10 @@ function Animal(type) {
 	this.type = type;
 }
 
-objectList = [new Animal('dog'), new Animal('cat'), new Animal('squirrel')];
+var objectList = [new Animal('dog'), new Animal('cat'), new Animal('squirrel')];
 
-itemList = [ person, /* why  1 converts to float?? */ 2, "second", [3, 'item four'] ];
+var itemList = [ person, /* why  1 converts to float?? */ 2, "second", [3, 'item four'] ];
 
-pi = 3.1416;
+var pi = 3.1416;
+
+var javaObjectList = [ new Vehicle(), new Bus() ];

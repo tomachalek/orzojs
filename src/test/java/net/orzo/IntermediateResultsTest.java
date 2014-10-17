@@ -119,6 +119,8 @@ public class IntermediateResultsTest {
 		ir.add("foo", value1);
 		ir.add("foo2", value2);
 		ir.addAll(ir);
+
+		System.out.println(ir.values("foo"));
 	}
 
 }

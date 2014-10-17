@@ -24,13 +24,11 @@ import net.orzo.scripting.SourceCode;
  */
 public class CalculationParams {
 
-	public SourceCode userenvScript;
+	public SourceCode bootstrapScript;
 
 	public SourceCode datalibScript;
 
 	public SourceCode userScript;
-	
-	public SourceCode calculationScript;
 
 	public String modulesPath;
 

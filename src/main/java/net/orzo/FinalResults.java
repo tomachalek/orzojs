@@ -15,14 +15,14 @@
  */
 package net.orzo;
 
-import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import jdk.nashorn.internal.runtime.ScriptFunction;
-
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.ScriptableObject;
 
 public class FinalResults {
 
@@ -33,18 +33,31 @@ public class FinalResults {
 
 	/**
 	 * 
+	 */
+	private final Context context;
+
+	/**
+	 * 
+	 */
+	private final ScriptableObject scope;
+
+	/**
+	 * 
 	 * @param context
 	 * @param scope
 	 */
-	public FinalResults(IntermediateResults results) {
+	public FinalResults(IntermediateResults results, Context context,
+			ScriptableObject scope) {
 		this.results = results;
+		this.context = context;
+		this.scope = scope;
 	}
 
 	/**
 	 * 
 	 * @param fn
 	 */
-	public void each(ScriptFunction fn) {
+	public void each(Function fn) {
 		each(false, fn);
 	}
 
@@ -53,26 +66,29 @@ public class FinalResults {
 	 * <i>fn</i> argument is expected to be a JavaScript callback with signature
 	 * function(key, values)
 	 */
-	public void each(boolean sortKeys, ScriptFunction fn) {
-		MethodHandle mh;
-		
-		try {		
-			if (sortKeys) {
-				for (Object key : sortedKeys()) {
-					mh = fn.getBoundInvokeHandle(null); // TODO scope???
-					mh.invoke(key, this.results.getData().get(key).toArray()); // TODO wrapping???
-				}
-	
-			} else {
-				for (Object key : this.results.getData().keySet()) {
-					mh = fn.getBoundInvokeHandle(null); // TODO scope???
-					mh.invoke(key, this.results.getData().get(key).toArray()); // TODO wrapping???
-				}
-	
+	public void each(boolean sortKeys, Function fn) {
+		if (sortKeys) {
+			for (Object key : sortedKeys()) {
+				fn.call(this.context,
+						this.scope,
+						this.scope,
+						new Object[] {
+								key,
+								Context.javaToJS(this.results.getData()
+										.get(key).toArray(), this.scope) });
 			}
-			
-		} catch (Throwable ex) {
-			throw new RuntimeException(ex); // TODO more specific exception???
+
+		} else {
+			for (Object key : this.results.getData().keySet()) {
+				fn.call(this.context,
+						this.scope,
+						this.scope,
+						new Object[] {
+								key,
+								Context.javaToJS(this.results.getData()
+										.get(key).toArray(), this.scope) });
+			}
+
 		}
 	}
 
@@ -83,14 +99,15 @@ public class FinalResults {
 	 *            a result entry key
 	 */
 	public Object get(String key) {
-		return this.results.getData().get(key); // TODO wrapping???
+		return Context.javaToJS(this.results.getData().get(key), this.scope);
 	}
 
 	/**
 	 * 
 	 */
 	public Object contains(String key) {
-		return this.results.getData().containsKey(key); // TODO wrapping???
+		return Context.javaToJS(this.results.getData().containsKey(key),
+				this.scope);
 	}
 
 	/**
@@ -114,6 +131,6 @@ public class FinalResults {
 	 * Returns a list of alphabetically sorted reduce-emitted keys.
 	 */
 	public Object keys() {
-		return sortedKeys().toArray(); // TODO wrapping???
+		return Context.javaToJS(sortedKeys().toArray(), this.scope);
 	}
 }

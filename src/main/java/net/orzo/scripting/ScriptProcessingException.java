@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright (c) 2013 Tomas Machalek
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.orzo.lib;
+package net.orzo.scripting;
 
 /**
- * General error in Orzo.js core libraries
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
+ * 
  */
-public class LibException extends RuntimeException {
-	
+public class ScriptProcessingException extends Exception {
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 4234785720263204098L;
-	
+	private static final long serialVersionUID = 5377118327425334402L;
+
 	/**
-	 * 
-	 * @param e
+	 * @param message
 	 */
-	public LibException(Throwable e) {
-		super(e);
+	public ScriptProcessingException(String message) {
+		super(message);
+	}
+
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public ScriptProcessingException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 }

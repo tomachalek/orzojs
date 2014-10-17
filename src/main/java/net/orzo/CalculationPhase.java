@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright (c) 2013 Tomas Machalek
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.orzo;
 
 /**
+ * Works as an identifier of a context (in an abstract sense) in which a script
+ * is running. This helps the bootstrap.js' functions to decide what to do (e.g.
+ * there is only one reduce function which does different things in different
+ * calculation phases)
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
+ * 
  */
-public class CalculationException extends Exception {
+public interface CalculationPhase {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2709776634004687856L;
+	public static final int MAP = 0;
 
-	public CalculationException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public CalculationException(String message) {
-		super(message);
-	}
-
+	public static final int OTHER = 1;
 }

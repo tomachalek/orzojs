@@ -21,10 +21,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
-
 import net.orzo.tools.ResourceLoader;
 
 /**
@@ -41,12 +37,7 @@ public class SourceCode {
 	/**
 	 * 
 	 */
-	private final String fullyQualifiedName;
-
-	/**
-	 * 
-	 */
-	private final String name;
+	private final String id;
 
 	/**
 	 * 
@@ -59,9 +50,8 @@ public class SourceCode {
 	 * @param contents
 	 *            source code of the script
 	 */
-	public SourceCode(String fullyQualifiedName, String name, String contents) {
-		this.fullyQualifiedName = fullyQualifiedName;
-		this.name = name != null ? name : "unnamed";
+	public SourceCode(String id, String contents) {
+		this.id = id != null ? id : "unnamed";
 		this.contents = contents != null ? contents : "";
 	}
 
@@ -70,24 +60,15 @@ public class SourceCode {
 	 */
 	@Override
 	public String toString() {
-		return String.format("<%s> (length: %s)", this.fullyQualifiedName,
-				this.contents.length());
+		return String.format("<%s>: %s", this.id, this.contents);
 	}
 
 	/**
-	 * Returns informative name of the script (it can be e.g. a file name)
-	 */
-	public String getName() {
-		return this.name;
-	}
-
-	/**
-	 * Returns full identification of the script (e.g. resource path, file path)
 	 * 
 	 * @return
 	 */
-	public String getFullyQualifiedName() {
-		return this.fullyQualifiedName;
+	public String getId() {
+		return id;
 	}
 
 	/**
@@ -99,16 +80,6 @@ public class SourceCode {
 	}
 
 	/**
-	 * 
-	 * @param compilable
-	 * @return
-	 * @throws ScriptException
-	 */
-	public CompiledScript compile(Compilable compilable) throws ScriptException {
-		return compilable.compile(getContents());
-	}
-
-	/**
 	 * Creates source code object using contents of provided file.
 	 * 
 	 * @param f
@@ -116,21 +87,20 @@ public class SourceCode {
 	 * @return source code containing contents of file f
 	 */
 	public static SourceCode fromFile(File f) throws IOException {
-		try (BufferedReader bReader = new BufferedReader(new FileReader(f))) {
-			StringBuffer buffer = new StringBuffer();
-			String line;
-			while ((line = bReader.readLine()) != null) {
-				buffer.append(line).append("\n");
-			}
-			bReader.close();
-			return new SourceCode(f.getAbsolutePath(), f.getName(),
-					buffer.toString());
+		FileReader freader = new FileReader(f);
+		BufferedReader bReader = new BufferedReader(freader);
+		StringBuffer buffer = new StringBuffer();
+		String line;
+		while ((line = bReader.readLine()) != null) {
+			buffer.append(line).append("\n");
 		}
+		bReader.close();
+		return new SourceCode(f.getName(), buffer.toString());
 	}
 
 	/**
 	 * Creates source code from a Java resource identified by its absolute path
-	 * (e.g. net/orzo/userenv.js)
+	 * (e.g. net/orzo/bootstrap.js)
 	 * 
 	 * @param res
 	 * 
@@ -139,8 +109,8 @@ public class SourceCode {
 		String id = res.substring(Math.max(0, res.lastIndexOf("/") + 1));
 		String source = new ResourceLoader().getResourceAsString(res);
 		if (source == null) {
-			throw new IOException("Failed to load data from resource " + res);
+			throw new IOException("Failed to find resource " + res);
 		}
-		return new SourceCode(res, id, source);
+		return new SourceCode(id, source);
 	}
 }

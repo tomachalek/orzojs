@@ -31,6 +31,8 @@ import net.orzo.data.FilePartReaderFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ScriptableObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +45,16 @@ import org.slf4j.LoggerFactory;
 public class Files {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Files.class);
+
+	private final ScriptableObject jsScope;
+
+	/**
+	 * 
+	 * @param jsScope
+	 */
+	public Files(ScriptableObject jsScope) {
+		this.jsScope = jsScope;
+	}
 
 	/**
 	 * Obtains an iterator which reads provided file (specified by path) line by
@@ -61,7 +73,7 @@ public class Files {
 
 			@Override
 			public Object next() {
-				return itr.nextLine(); // TODO wrapping???
+				return Context.javaToJS(itr.nextLine(), Files.this.jsScope);
 			}
 
 			@Override

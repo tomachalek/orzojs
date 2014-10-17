@@ -15,14 +15,14 @@
  */
 package net.orzo.lib;
 
-import java.lang.invoke.MethodHandle;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import jdk.nashorn.internal.runtime.ScriptFunction;
-
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.ScriptableObject;
 
 /**
  * 
@@ -30,6 +30,16 @@ import jdk.nashorn.internal.runtime.ScriptFunction;
  * 
  */
 public class DataStructures {
+
+	private final ScriptableObject jsScope;
+
+	/**
+	 * 
+	 * @param jsScope
+	 */
+	public DataStructures(ScriptableObject jsScope) {
+		this.jsScope = jsScope;
+	}
 
 	/**
 	 * Creates a native JavaScript array. It should be faster than doing this in
@@ -39,7 +49,7 @@ public class DataStructures {
 	 * @return native JavaScript array
 	 */
 	public Object array(int size) {
-		return new Object[size]; // TODO wrapping???
+		return Context.javaToJS(new Object[size], this.jsScope);
 	}
 
 	/**
@@ -50,7 +60,7 @@ public class DataStructures {
 	 * @return native JavaScript array
 	 */
 	public Object zeroFillArray(int size) {
-		return new double[size]; // TODO wrapping ???
+		return Context.javaToJS(new double[size], this.jsScope);
 	}
 
 	/**
@@ -60,7 +70,7 @@ public class DataStructures {
 	 * @return
 	 */
 	public Object numericMatrix(int width, int height) {
-		return new double[width][height]; // TODO wrapping???
+		return Context.javaToJS(new double[width][height], this.jsScope);
 	}
 
 	/**
@@ -69,7 +79,8 @@ public class DataStructures {
 	 * @return
 	 */
 	public Object flattenMatrix(Object inMatrix) {
-		double[][] arr = (double[][]) inMatrix; // TODO wrapping ???
+		double[][] arr = (double[][]) Context.jsToJava(inMatrix,
+				double[][].class);
 		double[] ans = new double[arr.length * arr[0].length];
 
 		// this method is less then 1% slower then System.arraycopy
@@ -79,7 +90,7 @@ public class DataStructures {
 				ans[i * arr[i].length + j] = arr[i][j];
 			}
 		}
-		return ans; // TODO wrapping???
+		return Context.javaToJS(ans, this.jsScope);
 	}
 
 	/**
@@ -93,7 +104,7 @@ public class DataStructures {
 	 *            is also possible (in such case, the value itself is used)
 	 * @return a JavaScript array with unique items
 	 */
-	public Object uniq(Object jsArray, ScriptFunction key) {
+	public Object uniq(Object jsArray, Function key) {
 		Set<Object> set = new HashSet<Object>();
 		Collection<?> origData;
 
@@ -101,23 +112,19 @@ public class DataStructures {
 			origData = Arrays.asList(jsArray);
 
 		} else {
-			origData = (Collection<?>) jsArray; // TODO wrapping???
+			origData = (Collection<?>) Context.jsToJava(jsArray,
+					Collection.class);
 		}
 
-		try {
-			if (key == null) {
-				set.addAll(origData);
-	
-			} else {
-				for (Object item : origData) {
-					MethodHandle mh = key.getBoundInvokeHandle(item);
-					set.add(mh.invoke(item));
-				}
+		if (key == null) {
+			set.addAll(origData);
+
+		} else {
+			for (Object item : origData) {
+				set.add(key.call(Context.enter(), this.jsScope, null,
+						new Object[] { item }));
 			}
-			return set; // TODO wrapping???
-			
-		} catch (Throwable ex) {
-			throw new LibException(ex);
 		}
+		return Context.javaToJS(set, this.jsScope);
 	}
 }

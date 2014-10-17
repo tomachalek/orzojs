@@ -15,6 +15,8 @@
  */
 package net.orzo.lib;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ScriptableObject;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -26,19 +28,26 @@ import org.testng.annotations.Test;
  */
 public class DataStructuresTest {
 
+	private Context cx;
+
+	private ScriptableObject scope;
+
 	@BeforeTest
 	public void setUp() {
+		this.cx = Context.enter();
+		this.scope = this.cx.initStandardObjects();
 	}
 
 	@Test
 	public void testFlattenMatrix() {
-		DataStructures ds = new DataStructures();
+		DataStructures ds = new DataStructures(this.scope);
 
 		double[][] data = new double[][] { { 1.2, 0.3, 0.4, 7.1 },
 				{ 0.1, 0.2, 0.3, 3.1 }, { 10.1, 10.7, 12.8, 10.4 } };
 
 		Object ans = ds.flattenMatrix(data);
-		double[] unwrappedAns = (double[])ans; // TODO wrapping???
+		double[] unwrappedAns = (double[]) Context
+				.jsToJava(ans, double[].class);
 
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data[i].length; j++) {

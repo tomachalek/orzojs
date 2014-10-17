@@ -18,8 +18,10 @@ package net.orzo;
 import java.util.concurrent.Callable;
 
 import net.orzo.scripting.EnvParams;
-import net.orzo.scripting.JsEngineAdapter;
+import net.orzo.scripting.JsEngineFacade;
 import net.orzo.scripting.SourceCode;
+
+import org.mozilla.javascript.Context;
 
 /**
  * Handles a processing thread of the REDUCE phase.
@@ -31,15 +33,15 @@ public class ReduceWorker implements Callable<IntermediateResults> {
 
 	private final EnvParams envParams;
 
-	private final SourceCode userScript;
-	
 	private final SourceCode[] sources;
+
+	private final MultiThreadPhaseHandler workerOps;
 
 	private final IntermediateResults mapResults;
 
 	private final IntermediateResults resultData;
 
-	private final JsEngineAdapter jsEngine;
+	private final JsEngineFacade jsEngine;
 
 	/**
 	 * 
@@ -47,13 +49,14 @@ public class ReduceWorker implements Callable<IntermediateResults> {
 	 * @param workerOps
 	 * @param sourceCodes
 	 */
-	public ReduceWorker(EnvParams envParams,
-			IntermediateResults mapResults, SourceCode userScript, SourceCode... sourceCodes) {
+	public ReduceWorker(EnvParams envParams, MultiThreadPhaseHandler workerOps,
+			IntermediateResults mapResults, SourceCode... sourceCodes) {
 		this.envParams = envParams;
+		this.workerOps = workerOps;
 		this.mapResults = mapResults;
-		this.userScript = userScript;
 		this.resultData = new IntermediateResults();
-		this.jsEngine = new JsEngineAdapter(this.envParams, this.resultData);
+		this.jsEngine = new JsEngineFacade(this.envParams, this.workerOps,
+				this.resultData);
 		this.sources = sourceCodes;
 	}
 
@@ -61,10 +64,16 @@ public class ReduceWorker implements Callable<IntermediateResults> {
 	public IntermediateResults call() throws Exception {
 		this.jsEngine.beginWork();
 		this.jsEngine.runCode(this.sources);
-		this.jsEngine.runFunction("initReduce");
-		this.jsEngine.runCode(this.userScript);
+
 		for (Object key : this.mapResults.keys()) {
-			this.jsEngine.runFunction("runReduce", key, this.mapResults.values(key));			
+			this.workerOps.callReduceFunction(
+					this.jsEngine.getContext(),
+					this.jsEngine.getScope(),
+					this.jsEngine.getScope(),
+					new Object[] {
+							key,
+							Context.javaToJS(this.mapResults.values(key),
+									this.jsEngine.getScope()) });
 		}
 		return this.resultData;
 	}

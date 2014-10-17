@@ -17,14 +17,11 @@ package net.orzo.scripting;
 
 import java.io.IOException;
 
-import javax.script.Bindings;
-import javax.script.Compilable;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
 import net.orzo.tools.ResourceLoader;
+
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.Scriptable;
 
 /**
  * 
@@ -36,25 +33,22 @@ public class GeneralScriptingTest {
 	/**
 	 * 
 	 */
-	private ScriptContext context;
+	private Context context;
 
 	/**
 	 * 
 	 */
-	private Bindings scope;
+	private Scriptable scope;
 
 	/**
 	 * 
 	 * @param script
 	 * @return
-	 * @throws ScriptException 
 	 */
-	public Object runScript(String script) throws ScriptException {
-		ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-		this.context = engine.getContext();
-		this.scope = this.context.getBindings(ScriptContext.GLOBAL_SCOPE); // TODO do we need this?
-		Compilable compilable = (Compilable)engine;
-		return compilable.compile(script);
+	public Object runScript(String script) {
+		this.context = Context.enter();
+		this.scope = new ImporterTopLevel(this.context);
+		return context.evaluateString(scope, script, "<script>", 1, null);
 	}
 
 	/**
@@ -62,9 +56,8 @@ public class GeneralScriptingTest {
 	 * @param resource
 	 * @return
 	 * @throws IOException
-	 * @throws ScriptException 
 	 */
-	public Object runScriptResource(String resource) throws IOException, ScriptException {
+	public Object runScriptResource(String resource) throws IOException {
 		return runScript(new ResourceLoader().getResourceAsString(resource));
 	}
 
@@ -72,14 +65,14 @@ public class GeneralScriptingTest {
 	 * 
 	 * @return
 	 */
-	public Bindings getScope() {
+	public Scriptable getScope() {
 		return this.scope;
 	}
 
 	/**
 	 * 
 	 */
-	public ScriptContext getContext() {
+	public Context getContext() {
 		return this.context;
 	}
 
@@ -89,7 +82,7 @@ public class GeneralScriptingTest {
 	 * @return
 	 */
 	public Object getValue(String id) {
-		return this.scope.get(id);
+		return this.scope.get(id, this.scope);
 	}
 
 }

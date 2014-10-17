@@ -19,7 +19,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -27,12 +29,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.script.ScriptException;
-
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.orzo.scripting.EnvParams;
-import net.orzo.scripting.JsEngineAdapter;
+import net.orzo.scripting.JsEngineFacade;
+import net.orzo.scripting.ScriptProcessingException;
+import net.orzo.scripting.SourceCode;
 
+import org.mozilla.javascript.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +49,44 @@ public class Calculation {
 	/**
 	 * 
 	 */
+	public static final int CALC_PHASE_MAP = 0;
+
+	/**
+	 * 
+	 */
+	public static final int CALC_PHASE_REDUCE = 1;
+
+	/**
+	 * 
+	 */
+	public static final int CALC_PHASE_OTHER = 2;
+
+	/**
+	 * 
+	 */
 	private static final Logger LOG = LoggerFactory
 			.getLogger(Calculation.class);
-	
-	private final CalculationParams params;
+
+	/**
+	 * 
+	 */
+	private final MainThreadPhaseHandler mainScopeOps;
+
+	/**
+	 * Contains pack of useful functions.
+	 */
+	private final SourceCode datalibScript;
+
+	/**
+	 * This script is needed to connect the JavaScript environment with Java
+	 * back end properly.
+	 */
+	private final SourceCode bootstrapScript;
+
+	/**
+	 * User's script
+	 */
+	private final SourceCode userScript;
 
 	/**
 	 * 
@@ -65,11 +101,15 @@ public class Calculation {
 	/**
 	 * 
 	 * @param mainThreadOps
-	 * @param userenvScript
+	 * @param bootstrapScript
 	 * @param userScript
 	 */
-	public Calculation(CalculationParams params) {
-		this.params = params;
+	public Calculation(MainThreadPhaseHandler mainScopeOps,
+			CalculationParams params) {
+		this.mainScopeOps = mainScopeOps;
+		this.bootstrapScript = params.bootstrapScript;
+		this.datalibScript = params.datalibScript;
+		this.userScript = params.userScript;
 		this.inputValues = params.inputValues;
 		this.modulesPaths = new ArrayList<String>();
 		this.modulesPaths.add(params.modulesPath);
@@ -81,76 +121,67 @@ public class Calculation {
 	/**
 	 * Starts and controls the calculation.
 	 * 
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws ScriptProcessingException
 	 */
-	public void run() throws CalculationException {
+	public void run() throws ScriptProcessingException {
 		IntermediateResults mapResults;
 		IntermediateResults reduceResults = null;
-		int numChunks;
-		int numReduceWorkers;
 		long startTime = System.currentTimeMillis();
-		CalculationInfo calcInfo = new CalculationInfo();
+		Map<String, Object> calcInfo = new HashMap<String, Object>();
 		calcInfo.put("datetime", getCurrentDate());
-		
-		try {
-			ScriptObjectMirror prepareData = runPrepare();
-			numReduceWorkers = (int)prepareData.get("numReduceWorkers");
-			numChunks = (int)prepareData.get("numChunks");
-			
-			mapResults = runMap(numChunks);
-	
-			if (!mapResults.hasErrors()) {
-				reduceResults = runReduce(numReduceWorkers, mapResults);
-			}
+
+		mapResults = runMap();
+
+		if (!mapResults.hasErrors()) {
+			reduceResults = runReduce(mapResults);
+		}
+
+		if (reduceResults != null && !reduceResults.hasErrors()) {
+			EnvParams envParams = new EnvParams();
+			envParams.calculationPhase = CALC_PHASE_OTHER;
+			envParams.inputArgs = this.inputValues;
+			envParams.modulesPaths = this.modulesPaths;
+
+			JsEngineFacade jse = new JsEngineFacade(envParams,
+					this.mainScopeOps);
+			jse.beginWork();
+
+			FinalResults fr = new FinalResults(reduceResults, jse.getContext(),
+					jse.getScope());
 			calcInfo.put("duration",
 					(System.currentTimeMillis() - startTime) / 1000.0);
+
 			System.err.printf("\n\nFinished in %01.3f seconds.\n",
-					calcInfo.get("duration"));		
-	
-			if (reduceResults != null && !reduceResults.hasErrors()) {
-				runFinish(reduceResults, calcInfo);
-	
-			} else {
-				System.err.println("Failed to execute the script.");
-	
-				if (mapResults.hasErrors()) {
-					System.err.println("Map errors:\n");
-					for (Exception e : mapResults.getErrors()) {
-						System.err.println(e);
-					}
-				}
-	
-				if (reduceResults == null) {
-					System.err.println("Reduce phase not run.");
-	
-				} else if (reduceResults.hasErrors()) {
-					System.err.print("Reduce errors:\n");
-					for (Exception e : reduceResults.getErrors()) {
-						System.err.println(e);
-					}
+					calcInfo.get("duration"));
+
+			this.mainScopeOps.callFinishFunction(jse.getContext(),
+					jse.getScope(), jse.getScope(),
+					new Object[] { Context.javaToJS(fr, jse.getScope()),
+							Context.javaToJS(calcInfo, jse.getScope()) });
+			jse.endWork();
+
+		} else {
+			System.err.println("Failed to execute the script.");
+
+			if (mapResults.hasErrors()) {
+				System.err.println("Map errors:\n");
+				for (Exception e : mapResults.getErrors()) {
+					System.err.println(e);
 				}
 			}
-			
-		} catch (ScriptException | NoSuchMethodException e) {
-			throw new CalculationException("Calculation failed: " + e.getMessage(), e);
+
+			if (reduceResults == null) {
+				System.err.println("Reduce phase not run.");
+
+			} else if (reduceResults.hasErrors()) {
+				System.err.print("Reduce errors:\n");
+				for (Exception e : reduceResults.getErrors()) {
+					System.err.println(e);
+				}
+			}
 		}
-	}
-	
-	private EnvParams createEnvParams() {
-		EnvParams envParams = new EnvParams();
-		envParams.inputArgs = this.inputValues;
-		envParams.modulesPaths = this.modulesPaths;
-		return envParams;
-	}
-	
-	private ScriptObjectMirror runPrepare() throws ScriptException, NoSuchMethodException {
-		JsEngineAdapter jsEngine = new JsEngineAdapter(createEnvParams());
-		jsEngine.beginWork();
-		jsEngine.runCode(this.params.calculationScript,
-				this.params.userenvScript,
-				this.params.datalibScript);
-		jsEngine.runFunction("prepare");
-		jsEngine.runCode(this.params.userScript);
-		return (ScriptObjectMirror)jsEngine.runFunction("getParams");				
 	}
 
 	/**
@@ -160,24 +191,34 @@ public class Calculation {
 	 * 
 	 * @return key => [value1, value2,..., valueN] for all emitted keys and
 	 *         values
-	 * @throws ScriptException 
 	 */
-	private IntermediateResults runMap(int numWorkers) throws ScriptException {
+	private IntermediateResults runMap() throws ScriptProcessingException {
 		ExecutorService executor;
 		List<Future<IntermediateResults>> threadList = new ArrayList<Future<IntermediateResults>>();
 		Callable<IntermediateResults> worker;
 		IntermediateResults mapResults = new IntermediateResults();
 
-		executor = Executors.newFixedThreadPool(numWorkers);
+		EnvParams envParams = new EnvParams();
+		envParams.calculationPhase = CalculationPhase.OTHER;
+		envParams.inputArgs = this.inputValues;
+		envParams.modulesPaths = this.modulesPaths;
+
+		JsEngineFacade jse = new JsEngineFacade(envParams, this.mainScopeOps);
+		jse.beginWork();
+		jse.runCode(new SourceCode[] { this.bootstrapScript,
+				this.datalibScript, this.userScript });
+
+		executor = Executors.newFixedThreadPool(mainScopeOps.getNumChunks());
 		EnvParams workerEnvParams;
-		for (int i = 0; i < numWorkers; i++) {
-			workerEnvParams = createEnvParams();
+		for (int i = 0; i < this.mainScopeOps.getNumChunks(); i++) {
+			workerEnvParams = new EnvParams();
 			workerEnvParams.workerId = i;
+			workerEnvParams.calculationPhase = CALC_PHASE_MAP;
+			workerEnvParams.inputArgs = inputValues;
+			workerEnvParams.modulesPaths = this.modulesPaths;
 			worker = new MapWorker(workerEnvParams,
-					this.params.userScript,
-					this.params.calculationScript,
-					this.params.userenvScript,
-					this.params.datalibScript);
+					new MultiThreadPhaseHandler(), this.bootstrapScript,
+					this.datalibScript, this.userScript);
 			Future<IntermediateResults> submit = executor.submit(worker);
 			threadList.add(submit);
 		}
@@ -204,30 +245,34 @@ public class Calculation {
 	 * 
 	 * @return key => "object" for all emitted keys and values
 	 */
-	private IntermediateResults runReduce(int numWorkers, IntermediateResults mapResults) {
+	private IntermediateResults runReduce(IntermediateResults mapResults) {
 		ExecutorService executor;
 		List<Future<IntermediateResults>> threadList = new ArrayList<Future<IntermediateResults>>();
 		IntermediateResults reduceResults = new IntermediateResults();
+		int numReduceWorkers = this.mainScopeOps.getNumReduceWorkers();
 
 		IntermediateResults[] mapResultPortions = groupResults(mapResults,
-				numWorkers);
+				numReduceWorkers);
 
-		System.err.printf("Starting %d reduce workers: ", numWorkers);
+		System.err.printf("Starting %d reduce workers: ", numReduceWorkers);
 
-		executor = Executors.newFixedThreadPool(numWorkers);
-		for (int i = 0; i < numWorkers; i++) {
-			EnvParams workerEnvParams = createEnvParams();
+		executor = Executors.newFixedThreadPool(numReduceWorkers);
+		for (int i = 0; i < numReduceWorkers; i++) {
+			EnvParams workerEnvParams = new EnvParams();
 			workerEnvParams.workerId = i;
+			workerEnvParams.calculationPhase = CALC_PHASE_REDUCE;
+			workerEnvParams.inputArgs = inputValues;
+			workerEnvParams.modulesPaths = this.modulesPaths;
 
-			ReduceWorker reduceWorker = new ReduceWorker(workerEnvParams, mapResultPortions[i],
-					this.params.userScript, this.params.calculationScript, 
-					this.params.userenvScript, this.params.datalibScript);
+			ReduceWorker reduceWorker = new ReduceWorker(workerEnvParams,
+					new MultiThreadPhaseHandler(), mapResultPortions[i],
+					this.bootstrapScript, this.datalibScript, this.userScript);
 			Future<IntermediateResults> submit = executor.submit(reduceWorker);
 			threadList.add(submit);
 		}
 		System.err.printf("DONE\n");
 
-		for (int i = 0; i < numWorkers; i++) {
+		for (int i = 0; i < numReduceWorkers; i++) {
 			try {
 				reduceResults.addAll(threadList.get(i).get());
 
@@ -242,23 +287,6 @@ public class Calculation {
 		}
 		executor.shutdown();
 		return reduceResults;
-	}
-	
-	private void runFinish(IntermediateResults reduceResults, CalculationInfo calcInfo) throws ScriptException, NoSuchMethodException {
-		EnvParams envParams = createEnvParams();	
-
-		JsEngineAdapter jse = new JsEngineAdapter(envParams);			
-		FinalResults fr = new FinalResults(reduceResults);
-		
-		jse.beginWork();
-		jse.runCode(
-				this.params.calculationScript,
-				this.params.userenvScript,
-				this.params.datalibScript);
-		jse.runFunction("initFinish");
-		jse.runCode(this.params.userScript);
-		jse.runFunction("runFinish", fr, calcInfo);
-		jse.endWork();
 	}
 
 	/**

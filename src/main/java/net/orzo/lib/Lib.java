@@ -16,13 +16,13 @@
 package net.orzo.lib;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandle;
 
-import jdk.nashorn.internal.runtime.Context;
-import jdk.nashorn.internal.runtime.ScriptFunction;
 import net.orzo.data.Templating;
 import net.orzo.data.graphics.GreyscalePicture;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.ScriptableObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +35,11 @@ import org.slf4j.LoggerFactory;
  * same object).
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
+ * @todo refactor this (too many unrelated functions)
  */
 public class Lib {
+
+	private final ScriptableObject jsScope;
 
 	public final Files files;
 
@@ -51,11 +54,13 @@ public class Lib {
 
 	/**
 	 * 
+	 * @param jsScope
 	 */
-	public Lib() {
-		this.files = new Files();
-		this.strings = new Strings();
-		this.dataStructures = new DataStructures();
+	public Lib(ScriptableObject jsScope) {
+		this.jsScope = jsScope;
+		this.files = new Files(this.jsScope);
+		this.strings = new Strings(this.jsScope);
+		this.dataStructures = new DataStructures(this.jsScope);
 		this.templating = new Templating();
 	}
 
@@ -76,16 +81,10 @@ public class Lib {
 	 * @param function
 	 * @return time in milliseconds
 	 */
-	public long measureTime(ScriptFunction function) {
+	public long measureTime(Function function) {
 		long startTime = System.currentTimeMillis();
-		MethodHandle mh = function.getBoundInvokeHandle(Context.getContext());
-
-		try {
-			mh.invoke();
-
-		} catch (Throwable e) {
-			throw new LibException(e);
-		}
+		function.call(Context.getCurrentContext(), this.jsScope, null,
+				new Object[] {});
 		return System.currentTimeMillis() - startTime;
 	}
 

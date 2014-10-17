@@ -39,6 +39,7 @@
 
     // initialization of env values
     scope.env.workerId = scope._env.workerId;
+    scope.env.calculationPhase = scope._env.calculationPhase;
     scope.env.inputArgs = []; // arguments passed via command-line
 
     (function () {
@@ -797,6 +798,18 @@
         }
     };
 
+
+    // ---------------------------------------
+    // initial pre-processing
+    // ---------------------------------------
+
+    // we set the default chunk resolver first
+    // in case user does not define the applyItems() function
+    scope._mr.applyItems(function (dataChunk, map) {
+        while (dataChunk.hasNext()) {
+            map(dataChunk.next());
+        }
+    });
 
 }(this));
 

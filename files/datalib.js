@@ -21,6 +21,20 @@
 
     /**
      *
+     * @param x
+     * @returns {*}
+     */
+    function importValFromJava(x) {
+        if (scope._lib.isNumber(x)) {
+            return scope._lib.doubleVal(x);
+
+        } else {
+            return x;
+        }
+    }
+
+    /**
+     *
      * @param data
      * @param accessFn
      * @constructor
@@ -28,10 +42,14 @@
     function Data(data, accessFn) {
         this.data = data;
         if (typeof accessFn === 'function') {
-            this.accessorFunc = accessFn;
+            this.accessorFunc = function (x) {
+                return importValFromJava(accessFn(x));
+            }
 
         } else {
-            this.accessorFunc = function (x) { return x; }
+            this.accessorFunc = function (x) {
+                return importValFromJava(x);
+            }
         }
     }
 

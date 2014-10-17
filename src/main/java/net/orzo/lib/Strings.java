@@ -15,8 +15,9 @@
  */
 package net.orzo.lib;
 
-
 import org.apache.commons.codec.digest.DigestUtils;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ScriptableObject;
 
 /**
  * 
@@ -24,6 +25,16 @@ import org.apache.commons.codec.digest.DigestUtils;
  * 
  */
 public class Strings {
+
+	private final ScriptableObject jsScope;
+
+	/**
+	 * 
+	 * @param jsScope
+	 */
+	public Strings(ScriptableObject jsScope) {
+		this.jsScope = jsScope;
+	}
 
 	/**
 	 * Prints a string to the standard output.
@@ -48,7 +59,7 @@ public class Strings {
 	 * @return
 	 */
 	public Object sprintf(String s, Object... args) {
-		return String.format(s, args); // TODO wrapping ???
+		return Context.javaToJS(String.format(s, args), this.jsScope);
 	}
 
 	/**

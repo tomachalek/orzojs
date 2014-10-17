@@ -47,13 +47,20 @@ public final class App {
 	 */
 	private final CommandLineParser cliParser;
 
-	private final static String USERENV_PATH = "net/orzo/userenv.js";
+	/**
+	 * 
+	 */
+	private final static String BOOTSTRAP_PATH = "net/orzo/bootstrap.js";
 
+	/**
+	 * 
+	 */
 	private final static String DATALIB_SCRIPT = "net/orzo/datalib.js";
 
+	/**
+	 * 
+	 */
 	private final static String DEMO_SCRIPT = "net/orzo/demo1.js";
-	
-	private final static String CALCULATION_SCRIPT = "net/orzo/calculation.js";
 
 	/**
 	 * 
@@ -124,8 +131,7 @@ public final class App {
 			log = LoggerFactory.getLogger(App.class);
 
 			CalculationParams params = new CalculationParams();
-			params.userenvScript = SourceCode.fromResource(USERENV_PATH);
-			params.calculationScript = SourceCode.fromResource(CALCULATION_SCRIPT);
+			params.bootstrapScript = SourceCode.fromResource(BOOTSTRAP_PATH);
 
 			// datalib file
 			if (cmd.hasOption("s")) {
@@ -163,7 +169,9 @@ public final class App {
 			}			
 
 			Runtime.getRuntime().addShutdownHook(new ShutdownHook(app));
-			Calculation proc = new Calculation(params);
+
+			MainThreadPhaseHandler mainScopeOps = new MainThreadPhaseHandler();
+			Calculation proc = new Calculation(mainScopeOps, params);
 			proc.run();
 
 		} catch (Exception ex) {

@@ -36,9 +36,9 @@ public class SourceCodeTest {
 	public void testInit() {
 		final String id = "test 1";
 		final String code = "var x = 3 + 7;";
-		SourceCode src = new SourceCode(id, id, code);
+		SourceCode src = new SourceCode(id, code);
 		assertEquals(src.getContents(), code);
-		assertEquals(src.getName(), id);
+		assertEquals(src.getId(), id);
 	}
 
 	/**
@@ -46,8 +46,8 @@ public class SourceCodeTest {
 	 */
 	@Test
 	public void testInitByNullValues() {
-		SourceCode src = new SourceCode(null, null, null);
-		assertEquals(src.getName(), "unnamed");
+		SourceCode src = new SourceCode(null, null);
+		assertEquals(src.getId(), "unnamed");
 		assertEquals(src.getContents(), "");
 	}
 
@@ -60,7 +60,7 @@ public class SourceCodeTest {
 		SourceCode src = SourceCode.fromFile(new File("test-data/script.js"));
 		assertEquals(src.getContents(),
 				"function add(x, y) { return x + y; }\n");
-		assertEquals(src.getName(), "script.js");
+		assertEquals(src.getId(), "script.js");
 	}
 
 	/**
@@ -82,8 +82,8 @@ public class SourceCodeTest {
 				.fromResource("net/orzo/scripting/calculation.js");
 		assertEquals(
 				src.getContents().trim().replaceAll("\\s+", " "),
-				"(function(scope) { 'use strict'; scope.x1 = 100; scope.x2 = 12; scope.multiply = function (a, b) { return a + b; } }(this));");
-		assertEquals(src.getName(), "calculation.js");
+				"function multiply(a, b) { return a * b; } var x1 = 100; var x2 = 12; var y = multiply(x1, x2);");
+		assertEquals(src.getId(), "calculation.js");
 	}
 
 	/**

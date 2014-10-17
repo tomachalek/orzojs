@@ -18,7 +18,7 @@ package net.orzo;
 import java.util.concurrent.Callable;
 
 import net.orzo.scripting.EnvParams;
-import net.orzo.scripting.JsEngineAdapter;
+import net.orzo.scripting.JsEngineFacade;
 import net.orzo.scripting.SourceCode;
 
 /**
@@ -30,11 +30,13 @@ import net.orzo.scripting.SourceCode;
  */
 public class MapWorker implements Callable<IntermediateResults> {
 
-	private final JsEngineAdapter jsEngine;
-	
-	private final SourceCode userScript;
+	private final EnvParams envParams;
 
-	private final SourceCode[] sources;		
+	private final JsEngineFacade jsEngine;
+
+	private final SourceCode[] sources;
+
+	private final MultiThreadPhaseHandler workerOps;
 
 	private final IntermediateResults intermediateData;
 
@@ -44,11 +46,13 @@ public class MapWorker implements Callable<IntermediateResults> {
 	 * @param workerOps
 	 * @param sourceCodes
 	 */
-	public MapWorker(EnvParams envParams, SourceCode userScript,
+	public MapWorker(EnvParams envParams, MultiThreadPhaseHandler workerOps,
 			SourceCode... sourceCodes) {
+		this.envParams = envParams;
+		this.workerOps = workerOps;
 		this.intermediateData = new IntermediateResults();
-		this.jsEngine = new JsEngineAdapter(envParams, this.intermediateData);
-		this.userScript = userScript;
+		this.jsEngine = new JsEngineFacade(envParams, this.workerOps,
+				this.intermediateData);
 		this.sources = sourceCodes;
 	}
 
@@ -59,9 +63,15 @@ public class MapWorker implements Callable<IntermediateResults> {
 	public IntermediateResults call() throws Exception {
 		this.jsEngine.beginWork();
 		this.jsEngine.runCode(this.sources);
-		this.jsEngine.runFunction("initMap");
-		this.jsEngine.runCode(this.userScript);
-		this.jsEngine.runFunction("runMap");
+
+		Object dataChunk = this.workerOps.callDataChunks(
+				this.jsEngine.getContext(), this.jsEngine.getScope(),
+				this.jsEngine.getScope(),
+				new Object[] { this.envParams.workerId });
+		this.workerOps.callApplyItems(this.jsEngine.getContext(),
+				this.jsEngine.getScope(), this.jsEngine.getScope(),
+				new Object[] { dataChunk, this.workerOps.getMapFunction() });
+
 		this.jsEngine.endWork();
 		return this.intermediateData;
 	}

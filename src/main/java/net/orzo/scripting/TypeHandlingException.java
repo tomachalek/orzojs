@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Tomas Machalek
+ * Copyright (c) 2013 Tomas Machalek
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,38 +15,33 @@
  */
 package net.orzo.scripting;
 
-import java.util.List;
-
-import net.orzo.CalculationPhase;
-
 /**
- * This class wraps some essential parameters all Orzo's JavaScript processing
- * needs.
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
+ * 
  */
-public class EnvParams {
+public class TypeHandlingException extends RuntimeException {
 
 	/**
-	 * Identifies calculation worker
-	 */
-	public int workerId;
-
-	/**
-	 * Identifies a calculation phase
 	 * 
-	 * @see CalculationPhase
 	 */
-	public int calculationPhase;
+	private static final long serialVersionUID = -8145078916100673940L;
 
 	/**
-	 * Contains parameters user provided via command line
+	 * 
+	 * @param message
+	 * @param cause
 	 */
-	public String[] inputArgs;
+	public TypeHandlingException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
 	/**
-	 * Paths where Orzo looks when CommonJS require() is used
+	 * 
+	 * @param message
 	 */
-	public List<String> modulesPaths;
+	public TypeHandlingException(String message) {
+		super(message);
+	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright (C) 2013 Tomas Machalek
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,40 @@
  */
 package net.orzo.scripting;
 
+import net.orzo.ScriptGlobalFuncHandler;
+
+import org.mozilla.javascript.Function;
+
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
+ * 
  */
-public class ModuleException extends RuntimeException {
+public class DummyScriptGlobalFuncHandler implements ScriptGlobalFuncHandler {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7782810662103453290L;	
-
-	/**
-	 * 
-	 * @param message
-	 */
-	public ModuleException(String message) {
-		super(message);
+	@Override
+	public void dataChunks(int numChunks, Function function) {
+		// does nothing
 	}
-	
-	/**
-	 * 
-	 * @param message
-	 * @param error
-	 */
-	public ModuleException(String message, Throwable error) {
-		super(message, error);
+
+	@Override
+	public void applyItems(Function function) {
+		// does nothing
+	}
+
+	@Override
+	public void map(Function function) {
+		// does nothing
+	}
+
+	@Override
+	public void reduce(int numWorkers, Function function) {
+		// does nothing
+	}
+
+	@Override
+	public void finish(Function function) {
+		// does nothing
 	}
 
 }

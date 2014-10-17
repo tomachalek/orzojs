@@ -20,6 +20,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
 
+import net.orzo.scripting.JsTools;
 import net.orzo.tools.ResourceLoader;
 import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.TemplateLoader;
@@ -42,7 +43,7 @@ public class Templating {
 	public String renderTemplate(String templateURI, String cssURI, Object model)
 			throws IOException {
 
-		Map<String, Object> javaModel = (Map<String, Object>) model; // TODO type unwrapping???
+		Map<String, Object> javaModel = JsTools.importObject(model);
 		JadeConfiguration config = new JadeConfiguration();
 		javaModel.put("__css__", loadStylesheet(cssURI));
 

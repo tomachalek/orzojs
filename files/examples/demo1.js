@@ -24,26 +24,22 @@
 // 1 chunk with 800,000 generated items took about 3.3 sec. to process
 // 4 chunks each with 200,000 generated items took about 1.9 sec. to process (about 74% faster)
 
-var x = require('libs/samplelib');
-
-orzo.dump(x.foo());
-
-dataChunks(6, function (idx) {
+dataChunks(4, function (idx) {
     var ans = [],
         i,
         s;
-    for (i  = 0; i < 10000; i += 1) {
-        s = orzo.md5(String(Math.random()));
-        ans.push(s);
+
+    for (i  = 0; i < 60000; i += 1) {
+        s = String(orzo.md5(String(Math.random())));
+        ans.push(s[0]);
     }
     // we return an iterator so we do not need
     // to define a custom applyItems() function
     return iterator(ans);
-
 });
 
-map(function (data) {
-    emit(data.slice(0, 1), 1);
+map(function (data) { 
+    emit(data, 1);
 });
 
 function sum(items) {
@@ -56,16 +52,13 @@ function sum(items) {
     return ans;
 }
 
-reduce(6, function (key,  values) {
+reduce(4, function (key,  values) {
     emit(key, D(values).sum());
 });
 
 
 finish(function (results) {
-    var t= orzo.measureTime(function () {
-        results.each(function (k, v) {
-            orzo.printf('%s => %s\n', k, v[0]);
-        });
+    results.each(function (k, v) {
+        orzo.printf('%s => %s\n', k, v[0]);
     });
-    orzo.print('time: ' + t);
 });
