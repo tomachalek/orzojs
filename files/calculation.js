@@ -20,7 +20,7 @@
     /*
      * Important notes:
      *
-     * This code is loaded first (even before corelib.js).
+     * This code is loaded first (even before userenv.js).
      * It means that no Orzo's functions are available here.
      *
      * Both Worker and Main types must provide the same interface
@@ -28,6 +28,7 @@
      * user does not care about processing internals - she just
      * defines 'map', 'reduce', etc. functions)
      */
+
 
     /**
      * A multi-thread phase controller
@@ -154,6 +155,26 @@
      * reduce, finish)
      ************************************************** */
 
+    /**
+     * Returns an information about number
+     * of threads to be used for map and reduce phases.
+     * The function may be dynamically changed between different
+     * calculation phases. Initially it just throws an exception.
+     *
+     * @return {{ numReduceWorkers : number, numChunks : number}}
+     */
+    scope.getParams = function () {
+        throw new Error('Function getParams() not defined');
+    };
+
+    // reference to a current calculation controller
+    scope._mr = null;
+
+    /**
+     * Runs the 'prepare' phase which means setting proper controller
+     * (the '_mr' variable) for the subsequent phase and also setting
+     * getParams() function based on user's script properties.
+     */
     scope.prepare = function () {
         scope._mr = new Main();
         scope.getParams = function () {
@@ -165,7 +186,7 @@
     };
 
     /**
-     * Initializes JS environment for the 'map' operation
+     * Initializes JS environment for the 'map' phase
      */
     scope.initMap = function () {
         scope._mr = new Worker();
