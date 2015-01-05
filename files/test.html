@@ -30,14 +30,8 @@
                 return ans;
             }
         }
-        // simulates Java-implemented functions bootstrap.js relies on
+        // simulates Java-implemented functions userenv.js relies on
         window._lib = {
-            isNumber : function (x) {
-                return typeof x === 'number';
-            },
-            doubleVal : function (x) {
-                return x;
-            },
             dataStructures : {
                 uniq : function (items) {
                     var s = new Set();
@@ -51,7 +45,7 @@
         };
     </script>
     <script type="text/javascript" src="vendor/qunit.js"></script>
-    <script type="text/javascript" src="bootstrap.js"></script>
+    <script type="text/javascript" src="userenv.js"></script>
     <script type="text/javascript" src="datalib.js"></script>
     <script type="text/javascript" src="tests/datalib-tests.js"></script>
     <script type="text/javascript" src="tests/bootstrap-tests.js"></script>
