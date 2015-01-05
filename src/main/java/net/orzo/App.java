@@ -17,7 +17,9 @@ package net.orzo;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Properties;
 
 import net.orzo.scripting.SourceCode;
 import net.orzo.tools.ResourceLoader;
@@ -27,6 +29,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,16 +39,10 @@ import org.slf4j.LoggerFactory;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public final class App {
-
-	/**
-	 * 
-	 */
+	
+	protected final Properties props;
+	
 	private final Options cliOptions;
-
-	/**
-	 * 
-	 */
-	private final CommandLineParser cliParser;
 
 	private final static String USERENV_PATH = "net/orzo/userenv.js";
 
@@ -59,8 +56,9 @@ public final class App {
 	 * 
 	 */
 	public App() {
-		this.cliParser = new GnuParser();
-		this.cliOptions = new Options();
+		this.props = new Properties();		
+		this.cliOptions = new Options();		
+		this.cliOptions.addOption("v", false, "shows version information");
 		this.cliOptions
 				.addOption("g", true,
 						"custom path to a Logback configuration XML file (default is ./logback.xml)");
@@ -77,7 +75,15 @@ public final class App {
 						"additional module path (the directory where your script is located is always included)");
 		this.cliOptions
 				.addOption("t", false,
-						"writes a code template to a specified file or to the standard output");
+						"writes a code template to a specified file or to the standard output");		
+	}
+	
+	/**
+	 * 
+	 */
+	private CommandLine init(String[] args) throws IOException, ParseException {
+		this.props.load(App.class.getClassLoader().getResourceAsStream("net/orzo/app.properties"));		
+		return (new GnuParser()).parse(this.cliOptions, args);		
 	}
 
 	/**
@@ -86,9 +92,10 @@ public final class App {
 	public static void main(final String[] args) {
 		final App app = new App();
 		Logger log = null;
+		CommandLine cmd;
 
 		try {
-			CommandLine cmd = app.cliParser.parse(app.cliOptions, args);
+			cmd = app.init(args);
 
 			if (cmd.hasOption("h")) {
 				HelpFormatter formatter = new HelpFormatter();
@@ -96,6 +103,10 @@ public final class App {
 						.printHelp(
 								"orzo [options] user_script [user_arg1 [user_arg2 [...]]]\n(to generate a template: orzo -t [file path])",
 								app.cliOptions);
+				System.exit(0);
+				
+			} else if (cmd.hasOption("v")) {
+				System.out.printf("Orzo.js version %s\n", app.props.get("orzo.version"));
 				System.exit(0);
 
 			} else if (cmd.hasOption("t")) {
