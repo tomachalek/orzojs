@@ -209,7 +209,8 @@ public class JsEngineAdapter {
 			Bindings engineScope = context
 					.getBindings(ScriptContext.ENGINE_SCOPE);
 			SourceCode modEnv = SourceCode.fromResource("net/orzo/modenv.js");
-			engineScope.put("require", this.require);
+			engineScope.put("require", this.require);		
+			engineScope.put("orzo", this.scope.get("orzo"));
 			this.engine.eval(modEnv.getContents(), context);
 			this.engine.eval(code.getContents(), context);
 
