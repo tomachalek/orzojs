@@ -70,7 +70,7 @@ public class DirectoryReader {
 
 		if (this.fileList == null) {
 			this.fileList = fetchFileList();
-			this.filesPerChunk = (int) Math.ceil(this.fileList.size()
+			this.filesPerChunk = (int) Math.ceil((float)this.fileList.size()
 					/ this.numChunks);
 		}
 		rightIdx = Math.min(this.filesPerChunk * (idx + 1),
