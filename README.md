@@ -14,10 +14,15 @@ When your script's execution starts, *Orzo.js* attaches each data chunk to its o
 
 Orzo.js comes with some predefined functions you can use to perform your calculations. You can also define your own modules or use 3rd party ones because Orzo.js supports CommonJS compliant module importing.
 
+Available versions
+------------------
+
+Original development begun using **Mozilla Rhino** JavaScript engine. Latest version based on Rhino is 0.3. Even though the engine performs well, it started to appear that its development was slowing down and at the same time a new engine **Nashorn** appeared. Because it is now the default JavaScript engine in Java 8, the decision has been made to rewrite related parts of Orzo.js to be compatible with Nashorn. Currently, there is no official release yet but current development version of Orzo.js is almost ready to replace version 0.3. 
+
 How to build the application from source
 ----------------------------------------
 
-To build *Orzo.js* from sources, you need the JDK 6+, a working Maven installation and an Internet connection to be able to download required dependencies (Maven does it automatically). In the directory where *Orzo.js* sources are located (*pom.xml* file should be there) type:
+To build *Orzo.js* from sources, you need the JDK 8+ (JDK 6+ for version 0.3), a working Maven installation and an Internet connection to be able to download required dependencies (Maven does it automatically). In the directory where *Orzo.js* sources are located (*pom.xml* file should be there) type:
 
 ```bash
 mvn clean dependency:copy-dependencies package

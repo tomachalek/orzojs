@@ -142,6 +142,12 @@ public class Calculation {
 		return envParams;
 	}
 	
+	/**
+	 * Runs preparation phase when user script is loaded (= all the respective functions are 
+	 * registered but no real processing is done yet).
+	 * 
+	 * @return
+	 */
 	private ScriptObjectMirror runPrepare() throws ScriptException, NoSuchMethodException {
 		JsEngineAdapter jsEngine = new JsEngineAdapter(createEnvParams());
 		jsEngine.beginWork();

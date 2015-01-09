@@ -24,9 +24,7 @@
 // 1 chunk with 800,000 generated items took about 3.3 sec. to process
 // 4 chunks each with 200,000 generated items took about 1.9 sec. to process (about 74% faster)
 
-var x = require('libs/samplelib');
 
-orzo.dump(x.foo());
 
 dataChunks(6, function (idx) {
     var ans = [],
@@ -62,10 +60,7 @@ reduce(6, function (key,  values) {
 
 
 finish(function (results) {
-    var t= orzo.measureTime(function () {
-        results.each(function (k, v) {
-            orzo.printf('%s => %s\n', k, v[0]);
-        });
+    results.each(function (k, v) {
+        orzo.printf('%s => %s\n', k, v[0]);
     });
-    orzo.print('time: ' + t);
 });
