@@ -25,7 +25,6 @@ import net.orzo.scripting.SourceCode;
 import net.orzo.tools.ResourceLoader;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -59,6 +58,7 @@ public final class App {
 		this.props = new Properties();		
 		this.cliOptions = new Options();		
 		this.cliOptions.addOption("v", false, "shows version information");
+		this.cliOptions.addOption("d", false, "runs a demo program");
 		this.cliOptions
 				.addOption("g", true,
 						"custom path to a Logback configuration XML file (default is ./logback.xml)");
@@ -89,11 +89,11 @@ public final class App {
 	/**
 	 * 
 	 */
-	public static void main(final String[] args) {
+	public static void main(final String[] args) {		
 		final App app = new App();
 		Logger log = null;
 		CommandLine cmd;
-
+		
 		try {
 			cmd = app.init(args);
 
@@ -158,12 +158,16 @@ public final class App {
 				params.userScript = SourceCode.fromFile(userScriptFile);
 				params.modulesPath = userScriptFile.getParent();
 
-			} else {
+			} else if (cmd.hasOption("d")) {
 				System.err
 						.printf("Running demo script %s.\nUse the -h parameter for more information.\n",
 								DEMO_SCRIPT);
 				params.userScript = SourceCode.fromResource(DEMO_SCRIPT);
 				params.modulesPath = ".";
+				
+			} else {
+				System.err.println("Invalid parameters. Try -h for more information.");
+				System.exit(1);
 			}
 			
 			if (cmd.getArgs().length > 0) {
