@@ -62,22 +62,6 @@ public class StringsTest {
 	
 	
 	@Test
-	public void testPrintln() {
-		final String id = "<Hi, this is me>";
-		Object foo = new Object() {
-			@Override
-			public String toString() {
-				return id;
-			}
-		};
-		Strings lib = new Strings();
-		lib.println(foo);
-		this.mockOut.flush();
-		Assert.assertEquals(this.out.toString(), id + String.format("%n"));
-	}
-	
-	
-	@Test
 	public void testPrint() {
 		final String id = "<Hi, this is me>";
 		Object foo = new Object() {
@@ -89,7 +73,7 @@ public class StringsTest {
 		Strings lib = new Strings();
 		lib.print(foo);
 		this.mockOut.flush();
-		Assert.assertEquals(this.out.toString(), id);
+		Assert.assertEquals(this.out.toString(), id + String.format("%n"));
 	}
 
 	

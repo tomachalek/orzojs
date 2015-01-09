@@ -35,15 +35,8 @@ public class Strings {
 	/**
 	 * Prints an object to the standard output and appends a new line.
 	 */
-	public void println(Object o) {
-		System.out.println(o);
-	}
-	
-	/**
-	 * Prints an object to the standard output.
-	 */
 	public void print(Object o) {
-		System.out.print(o);
+		System.out.println(o);
 	}
 
 	/**
