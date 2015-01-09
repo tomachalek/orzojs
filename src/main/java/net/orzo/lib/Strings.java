@@ -16,7 +16,12 @@
 package net.orzo.lib;
 
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -24,12 +29,21 @@ import org.apache.commons.codec.digest.DigestUtils;
  * 
  */
 public class Strings {
+	
+	private static Logger LOG = LoggerFactory.getLogger(Strings.class);
 
 	/**
-	 * Prints a string to the standard output.
+	 * Prints an object to the standard output and appends a new line.
+	 */
+	public void println(Object o) {
+		System.out.println(o);
+	}
+	
+	/**
+	 * Prints an object to the standard output.
 	 */
 	public void print(Object o) {
-		System.out.println(o);
+		System.out.print(o);
 	}
 
 	/**
@@ -38,17 +52,38 @@ public class Strings {
 	 * @param args
 	 */
 	public void printf(String s, Object... args) {
-		System.out.printf(s, args);
+		System.out.print(sprintf(s, args));
 	}
 
 	/**
+	 * Works in a similar way to Java's String.format but with respect to JavaScript numeric type
+	 * (= you can pass a JS number to the %d flag).
 	 * 
 	 * @param s
 	 * @param args
-	 * @return
+	 * @return formatted string with flags replaced by passed values
 	 */
 	public Object sprintf(String s, Object... args) {
-		return String.format(s, args); // TODO wrapping ???
+		// we must deal here with the problem that in JavaScript there is only a single numeric type
+		// Number which is converted to Double. If a user wants to print integers, then %d flag does
+		// not work.
+		Pattern p = Pattern.compile("(?<!%)%(0[0-9]+|\\+|,|-|\\.\\d|\\d\\.\\d)?(s|d|f|n|tB|td|te|ty|tY|tl|tM|tp|tD)");		
+		Matcher m = p.matcher(s);
+		Object[] modArgs = new Object[args.length];
+		int i = 0;
+		while (m.find()) {
+			if (m.group().endsWith("d") && args[i] instanceof Double) {				
+				modArgs[i] = (int)Math.round((double)args[i]);
+				if ((int)modArgs[i] != (double)args[i]) {
+					LOG.warn(String.format("Lost precision in sprintf (%s rounded to %d)", (double)args[i], modArgs[i]));
+				}
+				
+			} else {
+				modArgs[i] = args[i];
+			}
+			i++;
+		}
+		return String.format(s, modArgs); // TODO wrapping ???
 	}
 
 	/**
@@ -56,6 +91,12 @@ public class Strings {
 	 */
 	public Object md5(String value) {
 		return DigestUtils.md5Hex(value);
+	}
+	
+	public static void main(String[] args) {
+		String s = "%%d foo %1.3f, ## %04d ## %s";
+		String s2 = (String) new Strings().sprintf(s, 3.1416, 1.7, "A");
+		System.out.println(s2);
 	}
 
 }
