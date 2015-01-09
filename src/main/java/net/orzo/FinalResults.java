@@ -23,13 +23,37 @@ import java.util.List;
 
 import jdk.nashorn.internal.runtime.ScriptFunction;
 
-
+/**
+ * 
+ * @author Tomas Machalek <tomas.machalek@gmail.com>
+ *
+ */
 public class FinalResults {
+	
+	/**
+	 * To make Nashorn expose FinalResults' 'sorted' property
+	 * (which is an anonymous class) a public interface must be defined.
+	 */
+	public interface SortedResults {
+		void each(ScriptFunction fn);
+	}
 
 	/**
 	 * 
 	 */
 	private final IntermediateResults results;
+	
+	/**
+	 * This object makes JavaScript API nicer (but maybe less concise). 
+	 * It allows using sorted results by calling
+	 * result.sorted.each(fn) instead of result(true, fn) from
+	 * older Orzo.js versions.
+	 */
+	public SortedResults sorted = new SortedResults() {
+		public void each(ScriptFunction fn) {
+			FinalResults.this.each(fn, true);
+		}		
+	};
 
 	/**
 	 * 
@@ -45,7 +69,7 @@ public class FinalResults {
 	 * @param fn
 	 */
 	public void each(ScriptFunction fn) {
-		each(false, fn);
+		each(fn, false);
 	}
 
 	/**
@@ -53,7 +77,7 @@ public class FinalResults {
 	 * <i>fn</i> argument is expected to be a JavaScript callback with signature
 	 * function(key, values)
 	 */
-	public void each(boolean sortKeys, ScriptFunction fn) {
+	private void each(ScriptFunction fn, boolean sortKeys) {
 		MethodHandle mh;
 		
 		try {		
