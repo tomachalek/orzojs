@@ -639,61 +639,15 @@
     };
 
     /**
-     * @typedef {object} Report
-     * @property {function} title get or set title
-     * @property {function} cols get or set column headers
-     * @property {function} addRow adds a new data row
-     * @property {function} close generates HTML report and closes all resources
-     */
-
-    /**
+     * Renders Orzo's Jade template with custom CSS file
      *
-     * @param {string} outputPath
-     * @returns {Report}
+     * @param templatePath
+     * @param cssPath
+     * @param data
+     * @return {string} resulting HTML
      */
-    scope.orzo.report = function (outputPath) {
-        var fileWriter = scope.orzo.fileWriter(outputPath);
-
-        return {
-            data : {
-                title : 'Orzo.js - a result report',
-                cols : [],
-                rows : []
-            },
-
-            title : function (title) {
-                if (typeof title !== 'undefined') {
-                    this.data.title = title;
-
-                } else {
-                    return this.data.title;
-                }
-
-            },
-            cols : function () {
-                if (arguments.length > 0) {
-                    this.data.cols = fetchArgumentList(arguments);
-
-                } else {
-                    return this.data.cols;
-                }
-            },
-            addRow : function () {
-                this.data.rows.push(fetchArgumentList(arguments));
-            },
-            close : function () {
-                try {
-                    fileWriter.write(
-                        scope._lib.templating.renderTemplate("net/orzo/report1.jade",
-                            "net/orzo/orzo.css",
-                            this.data)
-                    );
-
-                } finally {
-                    fileWriter.close();
-                }
-            }
-        };
+    scope.orzo.renderTemplate = function (templatePath, cssPath, data) {
+        return scope._lib.templating.renderTemplate(templatePath, cssPath, data);
     };
 
     /**
