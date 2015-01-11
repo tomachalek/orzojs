@@ -31,11 +31,26 @@ public class CalculationParams {
 	public SourceCode userScript;
 	
 	public SourceCode calculationScript;
+	
+	/**
+	 * Orzo's extended library path (i.e. libraries except
+	 * the core ones(= orzo, data)
+	 */
+	public String orzoModulesPath;
 
-	public String modulesPath;
+	/**
+	 * A directory where user script is located.
+	 */
+	public String workingDirModulesPath;	
 
+	/**
+	 * An additional user-defined libs location
+	 */
 	public String optionalModulesPath;
 
+	/**
+	 * Command line parameters for the script
+	 */
 	public String[] inputValues;
 
 }

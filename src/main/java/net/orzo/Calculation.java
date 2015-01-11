@@ -72,7 +72,10 @@ public class Calculation {
 		this.params = params;
 		this.inputValues = params.inputValues;
 		this.modulesPaths = new ArrayList<String>();
-		this.modulesPaths.add(params.modulesPath);
+		this.modulesPaths.add(params.workingDirModulesPath);
+		if (params.orzoModulesPath != null) {
+			this.modulesPaths.add(params.orzoModulesPath);
+		}		
 		if (params.optionalModulesPath != null) {
 			this.modulesPaths.add(params.optionalModulesPath);
 		}

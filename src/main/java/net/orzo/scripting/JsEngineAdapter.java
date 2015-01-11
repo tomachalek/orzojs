@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -83,6 +84,8 @@ public class JsEngineAdapter {
 	 * 
 	 */
 	private final Map<String, Object> modules;
+	
+	private static final String MODULE_SEPARATOR = "/";
 
 	/**
 	 * 
@@ -119,16 +122,21 @@ public class JsEngineAdapter {
 	 *             if you try to load non-sandboxed module
 	 */
 	public static File findModule(List<String> modulePaths, String moduleId) {
-		if (moduleId.startsWith("./") || moduleId.startsWith("../")
-				|| moduleId.startsWith("/")) {
+		if (moduleId.startsWith(String.format(".%s", File.separator)) 
+				|| moduleId.startsWith(String.format("..%s", File.separator))
+				|| moduleId.startsWith(File.separator)
+				|| moduleId.startsWith(String.format(".%s", MODULE_SEPARATOR))
+				|| moduleId.startsWith(String.format("..%s", MODULE_SEPARATOR))
+				|| moduleId.startsWith(MODULE_SEPARATOR)) {
 			throw new ModuleException(
 					"Orzo.js supports only sandboxed module loading");
 		}
-		String[] moduleElms = moduleId.split("/");
-		String fsCompatibleId = Joiner.on(File.separator).join(moduleElms);
+		String[] moduleElms = moduleId.split(MODULE_SEPARATOR);
+		String fsCompatibleId = Joiner.on(MODULE_SEPARATOR).join(moduleElms);
 
 		for (String mp : modulePaths) {
-			File f = new File(String.format("%s%s%s.js", mp, File.separator,
+			String sysDepPath = mp.replaceAll("/", File.separator);
+			File f = new File(String.format("%s%s%s.js", sysDepPath, File.separator,
 					fsCompatibleId));
 			if (f.isFile()) {
 				return f;

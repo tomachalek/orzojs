@@ -92,7 +92,7 @@ public final class App {
 	public static void main(final String[] args) {		
 		final App app = new App();
 		Logger log = null;
-		CommandLine cmd;
+		CommandLine cmd;		
 		
 		try {
 			cmd = app.init(args);
@@ -135,6 +135,10 @@ public final class App {
 			log = LoggerFactory.getLogger(App.class);
 
 			CalculationParams params = new CalculationParams();
+			if (System.getProperty("orzodir") != null) { // defined by exe4j executable				
+				params.orzoModulesPath = new File(String.format("%s%slib",
+						System.getProperty("orzodir"), File.separator)).getAbsolutePath();
+			}
 			params.userenvScript = SourceCode.fromResource(USERENV_PATH);
 			params.calculationScript = SourceCode.fromResource(CALCULATION_SCRIPT);
 
@@ -156,14 +160,14 @@ public final class App {
 			if (cmd.getArgs().length > 0) {
 				File userScriptFile = new File(cmd.getArgs()[0]);
 				params.userScript = SourceCode.fromFile(userScriptFile);
-				params.modulesPath = userScriptFile.getParent();
+				params.workingDirModulesPath = userScriptFile.getParent();
 
 			} else if (cmd.hasOption("d")) {
 				System.err
 						.printf("Running demo script %s.\nUse the -h parameter for more information.\n",
 								DEMO_SCRIPT);
 				params.userScript = SourceCode.fromResource(DEMO_SCRIPT);
-				params.modulesPath = ".";
+				params.workingDirModulesPath = ".";
 				
 			} else {
 				System.err.println("Invalid parameters. Try -h for more information.");
