@@ -531,6 +531,16 @@
     };
 
     /**
+     * Pauses current worker for t seconds. Fractions of second
+     * are permitted (e.g. sleep(3.7)).
+     *
+     * @param t time in seconds
+     */
+    scope.orzo.sleep = function (t) {
+        scope._lib.sleep(t);
+    };
+
+    /**
      * Returns a number of available processors. Please note that Intel CPUs with
      * hyper-threading report twice as high as is actual number of physical
      * cores.

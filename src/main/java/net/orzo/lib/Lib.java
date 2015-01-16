@@ -58,6 +58,15 @@ public class Lib {
 		this.dataStructures = new DataStructures();
 		this.templating = new Templating();
 	}
+	
+	/**
+	 * 
+	 * @param t time in seconds (fractions are available, e.g. sleep(3.7))
+	 * @throws InterruptedException
+	 */
+	public void sleep(double t) throws InterruptedException {
+		Thread.sleep(Math.round(t * 1000));
+	}
 
 	/**
 	 * Returns a number of available processors. Please note that Intel CPUs
