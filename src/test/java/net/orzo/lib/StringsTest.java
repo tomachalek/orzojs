@@ -93,5 +93,36 @@ public class StringsTest {
 		String ans = (String)lib.sprintf("foo %s, bar %1.3f, baz %04d", "?", 3.1416, 3.7);
 		Assert.assertEquals(ans, "foo ?, bar 3.142, baz 0004");
 	}
+	
+	@Test
+	public void testHash() {
+		String inValue = "lorem ipsum dolor sit amet";
+		Strings lib = new Strings();
+		
+		Assert.assertEquals(lib.hash(inValue, "md5"), "201730d4278e576b25515bd90c6072d3");
+		Assert.assertEquals(lib.hash(inValue, "sha1"), "530ec607b1e73e922f3767aa2ca64f05b5a1dc31");
+		Assert.assertEquals(lib.hash(inValue, "sha256"), "2f8586076db2559d3e72a43c4ae8a1f5957abb23ca4a1f46e380dd640536eedb");
+		Assert.assertEquals(lib.hash(inValue, "sha384"), "00548f2253566369e807f0f4f7bf02dac13bde6fb603ec064bdb9a6075df18efd4169e76f18dccffaa3646e5fca8c05e");
+		Assert.assertEquals(lib.hash(inValue, "sha512"), "bafa0732d3b1a1d95431bd6fff46b35ac6b60c64ac8ea8b11cb05f7c1a706469aa04c181172bd5e303c3a1f19eef35469500fe9866e6b4c7bbc12759fee8e735");
+	}
+	
+	@Test(expectedExceptions={RuntimeException.class})
+	public void testHashUnknownAlgorithm() {
+		Strings lib = new Strings();
+		lib.hash("foo", "crc32");
+	}
+	
+	@Test
+	public void testHashAcceptUpperAndLowerAlg() {
+		String inVal = "foo";
+		Strings lib = new Strings();
+		Assert.assertTrue(lib.hash(inVal, "md5").equals(lib.hash(inVal, "MD5")));
+	}
+	
+	@Test(expectedExceptions={RuntimeException.class})
+	public void testHashNullNotAccepted() {
+		Strings lib = new Strings();
+		lib.hash(null, "sha1");
+	}
 
 }

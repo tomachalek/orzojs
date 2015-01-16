@@ -521,13 +521,14 @@
     };
 
     /**
-     * Calculates a md5 hash of an object
+     * Calculates a hash value of an object based on passed algorithm name
      *
-     * @param  {object} s object with some string representation
-     * @return {string} md5 hash of provided object (toString() is used to convert it)
+     * @param {object} s object with some string representation
+     * @param {string} algorithm {md5, sha1, sha256, sha384, sha512} (values can be also in upper-case)
+     * @return {string} hash of provided object (toString() is used to convert it)
      */
-    scope.orzo.md5 = function (s) {
-        return String(scope._lib.strings.md5(s.toString()));
+    scope.orzo.hash = function (s, algorithm) {
+        return String(scope._lib.strings.hash(s.toString(), algorithm));
     };
 
     /**

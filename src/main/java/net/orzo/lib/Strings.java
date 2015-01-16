@@ -82,14 +82,24 @@ public class Strings {
 	/**
 	 * 
 	 */
-	public Object md5(String value) {
-		return DigestUtils.md5Hex(value);
-	}
-	
-	public static void main(String[] args) {
-		String s = "%%d foo %1.3f, ## %04d ## %s";
-		String s2 = (String) new Strings().sprintf(s, 3.1416, 1.7, "A");
-		System.out.println(s2);
+	public Object hash(String value, String algorithm) {
+		if (value == null) {
+			throw new RuntimeException("null value not accepted in hash() function");
+		}
+		switch (algorithm.toLowerCase()) {
+		case "md5":
+			return DigestUtils.md5Hex(value);
+		case "sha1":
+			return DigestUtils.sha1Hex(value);
+		case "sha256":
+			return DigestUtils.sha256Hex(value);
+		case "sha384":
+			return DigestUtils.sha384Hex(value);
+		case "sha512":
+			return DigestUtils.sha512Hex(value);			
+		default:
+			throw new RuntimeException(String.format("Unknown hash function '%s'", algorithm));
+		}
 	}
 
 }
