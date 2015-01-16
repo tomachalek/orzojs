@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Miscellaneous utilities and backend-related functionality for the JavaScript
  * environment. Please note that this object is not state-less. Some operations
- * create persistent objects which are reused. This diminishes the need for
+ * create persistent objects which are reused. This diminishes need for
  * global objects within user scripts (e.g. you can create the same chunked file
- * reader multiple times within your dataChunks() function and it is still the
+ * reader multiple times in your dataChunks() function and it is still the
  * same object).
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
@@ -96,24 +96,6 @@ public class Lib {
 			throw new LibException(e);
 		}
 		return System.currentTimeMillis() - startTime;
-	}
-
-	/**
-	 * 
-	 * @param val
-	 * @return
-	 */
-	public boolean isNumber(Object val) {
-		return val instanceof Number;
-	}
-
-	/**
-	 * 
-	 * @param val
-	 * @return
-	 */
-	public double doubleVal(Object val) {
-		return (Double) val;
 	}
 
 	/**
