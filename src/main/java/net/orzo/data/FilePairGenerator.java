@@ -27,50 +27,42 @@ import java.util.List;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  * 
  */
-public class FilePairGenerator {
+public class FilePairGenerator extends AbstractListGenerator<String[]> {
 
+	
 	private final DirectoryReader directoryReader;
 
-	private final int numChunks;
-
-	private List<String[]> pairList;
-
-	private int itemsPerChunk;
-
+	/**
+	 * 
+	 * @param pathList
+	 * @param numChunks
+	 * @param filter
+	 */
 	public FilePairGenerator(String[] pathList, int numChunks, String filter) {
-		this.numChunks = numChunks;
+		super(numChunks, new ArrayList<String[]>());
 		this.directoryReader = new DirectoryReader(pathList, 1, filter);
-		this.pairList = null;
-		this.itemsPerChunk = 0;
 	}
 
+	/**
+	 * 
+	 * @param chunkId
+	 * @return
+	 */
 	public Iterator<String[]> getIterator(int chunkId) {
-		int rightIdx;
-
-		if (this.pairList == null) {
-			this.pairList = new ArrayList<String[]>();
+		if (isEmpty()) {
 			Iterator<String> iter = this.directoryReader.getIterator(0);
-			ArrayList<String> items = new ArrayList<String>();
+			final List<String> visitedItems = new ArrayList<String>();
+			String currItem;
 
 			while (iter.hasNext()) {
-				items.add(iter.next());
-			}
-			for (int i = 0; i < items.size(); i++) {
-				for (int j = 0; j < i; j++) {
-					this.pairList
-							.add(new String[] { items.get(i), items.get(j) });
+				currItem = iter.next();
+				for (String visitedItem : visitedItems) {
+					addItem(new String[] { currItem, visitedItem });
 				}
+				visitedItems.add(currItem);
 			}
-
-			this.itemsPerChunk = (int) Math.ceil(this.pairList.size()
-					/ this.numChunks);
 		}
-
-		rightIdx = Math.min(this.itemsPerChunk * (chunkId + 1),
-				this.pairList.size());
-
-		return this.pairList.subList(chunkId * this.itemsPerChunk, rightIdx)
-				.iterator();
+		return subList(chunkId).iterator();
 	}
 
 }
