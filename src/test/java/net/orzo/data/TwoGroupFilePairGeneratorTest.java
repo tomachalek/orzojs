@@ -26,31 +26,19 @@ import org.testng.annotations.Test;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  *
  */
-public class FilePairGeneratorTest extends AbstractFilePairTest {
+public class TwoGroupFilePairGeneratorTest extends AbstractFilePairTest {
 	
-		
 	@BeforeClass
 	public void setupExpected() {
-		addExpected(new String[]{ "./test-data/dir1/dir2a/file2a-1.txt", 
-				"./test-data/dir1/dir1a/file1a-1.txt" });
-		addExpected(new String[]{ "./test-data/dir1/file1-1.txt", 
-				"./test-data/dir1/dir1a/file1a-1.txt" });
-		addExpected(new String[]{ "./test-data/dir1/file1-1.txt", 
+		addExpected(new String[]{ "./test-data/dir1/dir1a/file1a-1.txt", 
 				"./test-data/dir1/dir2a/file2a-1.txt" });
-		addExpected(new String[]{ "./test-data/dir1/file1-2.txt", 
-				"./test-data/dir1/dir1a/file1a-1.txt" });
-		addExpected(new String[]{ "./test-data/dir1/file1-2.txt", 
-				"./test-data/dir1/dir2a/file2a-1.txt" });
-		addExpected(new String[]{ "./test-data/dir1/file1-2.txt", 
-				"./test-data/dir1/file1-1.txt" });
 	}
 
-	
-
 	@Test
-	public void testNonEmptyDirectory() {
-		FilePairGenerator fpg = new FilePairGenerator(
-				new String[]{"./test-data/dir1"}, 1, null);
+	public void testSimple() {
+		TwoGroupFilePairGenerator fpg = new TwoGroupFilePairGenerator(
+				new String[]{"./test-data/dir1/dir1a"}, 
+				new String[]{"./test-data/dir1/dir2a"}, 1, null);
 		Iterator<String[]> itr = fpg.getIterator(0);		
 		int total = 0;		
 		while (itr.hasNext()) {
