@@ -39,12 +39,12 @@ public class IntermediateResultsTest {
 		Assert.assertTrue(ir.keys().contains("bar"));
 		Assert.assertEquals(ir.keys().size(), 2);
 
-		Assert.assertEquals(ir.values("foo")[0], value1);
-		Assert.assertEquals(ir.values("foo").length, 1);
+		Assert.assertEquals(ir.values("foo").get(0), value1);
+		Assert.assertEquals(ir.values("foo").size(), 1);
 
-		Assert.assertEquals(ir.values("bar")[0], value2);
-		Assert.assertEquals(ir.values("bar")[1], value3);
-		Assert.assertEquals(ir.values("bar").length, 2);
+		Assert.assertEquals(ir.values("bar").get(0), value2);
+		Assert.assertEquals(ir.values("bar").get(1), value3);
+		Assert.assertEquals(ir.values("bar").size(), 2);
 	}
 
 	@Test(expectedExceptions = { NullPointerException.class })
@@ -59,7 +59,7 @@ public class IntermediateResultsTest {
 		Object value1 = new Object();
 		ir.add("foo", value1);
 
-		Assert.assertEquals(ir.values("bar").length, 0);
+		Assert.assertEquals(ir.values("bar").size(), 0);
 	}
 
 	@Test
@@ -80,12 +80,12 @@ public class IntermediateResultsTest {
 		Assert.assertTrue(ir.keys().contains("bar2"));
 		Assert.assertEquals(ir.keys().size(), 3);
 
-		Assert.assertEquals(ir.values("foo")[0], value1);
-		Assert.assertEquals(ir.values("foo").length, 1);
-		Assert.assertEquals(ir.values("foo2")[0], value2);
-		Assert.assertEquals(ir.values("foo2").length, 1);
-		Assert.assertEquals(ir.values("bar2")[0], value3);
-		Assert.assertEquals(ir.values("bar2").length, 1);
+		Assert.assertEquals(ir.values("foo").get(0), value1);
+		Assert.assertEquals(ir.values("foo").size(), 1);
+		Assert.assertEquals(ir.values("foo2").get(0), value2);
+		Assert.assertEquals(ir.values("foo2").size(), 1);
+		Assert.assertEquals(ir.values("bar2").get(0), value3);
+		Assert.assertEquals(ir.values("bar2").size(), 1);
 	}
 
 	@Test

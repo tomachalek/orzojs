@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 
 /**
@@ -35,7 +36,7 @@ public class IntermediateResults {
 	/**
 	 * 
 	 */
-	private final Multimap<Object, Object> data;
+	private final ListMultimap<Object, Object> data;
 
 	/**
 	 * 
@@ -105,8 +106,8 @@ public class IntermediateResults {
 	/**
 	 * Returns all results attached to the specified key
 	 */
-	public Object[] values(Object key) {
-		return data.get(key).toArray();
+	public List<Object> values(Object key) {
+		return this.data.get(key);
 	}
 
 	/**

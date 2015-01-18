@@ -84,13 +84,13 @@ public class FinalResults {
 			if (sortKeys) {
 				for (Object key : sortedKeys()) {
 					mh = fn.getBoundInvokeHandle(null); // TODO scope???
-					mh.invoke(key, this.results.getData().get(key).toArray()); // TODO wrapping???
+					mh.invoke(key, this.results.getData().get(key)); // TODO wrapping???
 				}
 	
 			} else {
 				for (Object key : this.results.getData().keySet()) {
 					mh = fn.getBoundInvokeHandle(null); // TODO scope???
-					mh.invoke(key, this.results.getData().get(key).toArray()); // TODO wrapping???
+					mh.invoke(key, this.results.getData().get(key)); // TODO wrapping???
 				}
 	
 			}
