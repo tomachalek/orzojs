@@ -553,6 +553,17 @@
     };
 
     /**
+     * Sorts Java list using provided cmp function. The passed list
+     * is sorted (i.e. nothing is returned).
+     *
+     * @param {java.util.List} data
+     * @param {function} cmp
+     */
+    scope.orzo.sort = function (data, cmp) {
+        scope._lib.sort(data, cmp);
+    };
+
+    /**
      * Creates a native JavaScript array. It should be faster than doing this in
      * JavaScript.
      *

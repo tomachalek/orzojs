@@ -17,6 +17,8 @@ package net.orzo.lib;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
+import java.util.Collections;
+import java.util.List;
 
 import jdk.nashorn.internal.runtime.Context;
 import jdk.nashorn.internal.runtime.ScriptFunction;
@@ -97,6 +99,21 @@ public class Lib {
 		}
 		return System.currentTimeMillis() - startTime;
 	}
+	
+    /**
+     * 
+     * @param coll
+     * @param cmp
+     * @throws Throwable
+     */
+    public void sortList(List<Object> coll, ScriptFunction cmp) {                       
+        ErrorHandlingComparator javaCmp = new ErrorHandlingComparator(cmp);         
+        Collections.sort(coll, javaCmp);
+        if (javaCmp.lastError() != null) {
+            throw new RuntimeException(String.format("Failed to sort the list: %s", javaCmp.lastError().getMessage()),
+                    javaCmp.lastError());
+        }
+    }
 
 	/**
 	 * 
