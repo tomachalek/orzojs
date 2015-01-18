@@ -59,7 +59,7 @@
 								</resource>
 								<resource>
 									<directory>files/templates</directory>
-									<include>report1.jade</include>								
+									<include>report1.jade</include>
 								</resource>
 								<resource>
 									<directory>files/examples</directory>
@@ -74,7 +74,7 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>true</filtering>		
+				<filtering>true</filtering>
 			</resource>
 		</resources>
 	</build>
@@ -98,6 +98,11 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.3.6</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.opencsv</groupId>
@@ -130,6 +135,11 @@
 			<artifactId>jade4j</artifactId>
 			<version>0.4.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.8.1</version>
+		</dependency>
 	</dependencies>
 	<reporting>
 		<plugins>
@@ -140,4 +150,7 @@
 			</plugin>
 		</plugins>
 	</reporting>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 </project>
