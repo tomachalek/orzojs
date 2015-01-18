@@ -28,6 +28,7 @@ import java.util.Iterator;
 import net.orzo.data.DirectoryReader;
 import net.orzo.data.FilePairGenerator;
 import net.orzo.data.FilePartReaderFactory;
+import net.orzo.data.TwoGroupFilePairGenerator;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
@@ -111,9 +112,29 @@ public class Files {
 		return new DirectoryReader(pathList, numChunks, filter);
 	}
 
+	/**
+	 * 
+	 * @param pathList
+	 * @param numChunks
+	 * @param filter
+	 * @return
+	 */
 	public FilePairGenerator filePairGenerator(String[] pathList,
 			int numChunks, String filter) {
 		return new FilePairGenerator(pathList, numChunks, filter);
+	}
+	
+	/**
+	 * 
+	 * @param pathList1
+	 * @param pathList2
+	 * @param numChunks
+	 * @param filter
+	 * @return
+	 */
+	public TwoGroupFilePairGenerator twoGroupFilePairGenerator(String[] pathList1,
+			String[] pathList2, int numChunks, String filter) {
+		return new TwoGroupFilePairGenerator(pathList1, pathList2, numChunks, filter);
 	}
 
 	/**
@@ -148,6 +169,11 @@ public class Files {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param path
+	 * @return
+	 */
 	public String readText(String path) {
 		String ans = null;
 

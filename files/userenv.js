@@ -292,17 +292,30 @@
      * @returns {BaseIterator}
      */
     function generalDirectoryReader(pathInfo, chunkId, filter, javaFnName, itemExtract) {
+        // TODO : refactor this mess
         var iterator = {},
             reader,
-            pathList;
+            pathList,
+            pathList2 = null;
 
-        if (typeof pathInfo === 'string') {
-            pathList = [pathInfo];
+        function normalizePathInfo(pinfo) {
+            if (typeof pinfo === 'string') {
+                return [pinfo];
 
-        } else {
-            pathList = pathInfo;
+            } else {
+                return pinfo;
+            }
         }
 
+        if (typeof pathInfo === 'object') {
+            pathList = normalizePathInfo(pathInfo.a);
+            pathList2 = normalizePathInfo(pathInfo.b);
+
+        } else {
+            pathList = normalizePathInfo(pathInfo);
+        }
+        orzo.print('pathList 1 = ' + pathList);
+        orzo.print('pathList 2 = ' + pathList2);
         if ({}.toString.call(filter) === '[object RegExp]') {
             filter = filter.toString();
 
@@ -310,7 +323,13 @@
             throw new Error('The filter must be either a string or a RegExp. Type found: ' + (typeof filter));
         }
 
-        reader = scope._lib.files[javaFnName](pathList, scope.env.numChunks, filter || null);
+        if (pathList2) {
+            reader = scope._lib.files[javaFnName](pathList, pathList2, scope.env.numChunks, filter || null);
+
+        } else {
+            reader = scope._lib.files[javaFnName](pathList, scope.env.numChunks, filter || null);
+        }
+
         iterator._javaIterator = reader.getIterator(chunkId);
 
         iterator.hasNext = function () {
@@ -374,6 +393,26 @@
             chunkId,
             filter,
             'filePairGenerator',
+            function (x) {
+                return [String(x[0]), String(x[1])];
+            }
+        );
+    };
+
+    /**
+     *
+     * @param pathInfo1
+     * @param pathInfo2
+     * @param chunkId
+     * @param filter
+     * @returns {BaseIterator}
+     */
+    scope.orzo.twoGroupFilePairGenerator = function (pathInfo1, pathInfo2, chunkId, filter) {
+        return generalDirectoryReader(
+            {a : pathInfo1, b : pathInfo2 },
+            chunkId,
+            filter,
+            'twoGroupFilePairGenerator',
             function (x) {
                 return [String(x[0]), String(x[1])];
             }
