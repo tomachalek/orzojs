@@ -653,8 +653,8 @@
      * @param {java.util.List} data
      * @param {function} cmp
      */
-    scope.orzo.sort = function (data, cmp) {
-        scope._lib.sort(data, cmp);
+    scope.orzo.sortList = function (data, cmp) {
+        scope._lib.sortList(data, cmp);
     };
 
     /**
