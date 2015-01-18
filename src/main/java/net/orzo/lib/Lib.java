@@ -22,6 +22,7 @@ import java.util.List;
 
 import jdk.nashorn.internal.runtime.Context;
 import jdk.nashorn.internal.runtime.ScriptFunction;
+import net.orzo.data.Http;
 import net.orzo.data.Templating;
 import net.orzo.data.graphics.GreyscalePicture;
 
@@ -41,6 +42,8 @@ import org.slf4j.LoggerFactory;
 public class Lib {
 
 	public final Files files;
+	
+	public final Http http;
 
 	public final Strings strings;
 
@@ -56,6 +59,7 @@ public class Lib {
 	 */
 	public Lib() {
 		this.files = new Files();
+		this.http = new Http();
 		this.strings = new Strings();
 		this.dataStructures = new DataStructures();
 		this.templating = new Templating();

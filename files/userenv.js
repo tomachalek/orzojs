@@ -560,6 +560,61 @@
     };
 
     /**
+     * Fetches a content (as a string) from an HTTP server using GET method.
+     *
+     * @param url
+     * @returns {string}
+     */
+    scope.orzo.httpGet = function (url) {
+        return scope._lib.http.get(url);
+    };
+
+
+    function fetchObjectsFromPage(url, selects, fetchFn) {
+        var data,
+            ans = {},
+            i;
+
+        if (!selects) {
+            selects = ['body'];
+        }
+        data = fetchFn(url, selects);
+        for (i = 0; i < data.length; i += 1) {
+            ans[selects[i]] = data[i];
+        }
+        return ans;
+    }
+
+    /**
+     * Fetches texts from specified elements of a page.
+     *
+     * @param {string} url
+     * @param {...string} selects jQuery-like selects
+     */
+    scope.orzo.fetchFromPage = function (url) {
+        var selects = Array.prototype.slice.call(arguments, 1);
+
+        return fetchObjectsFromPage(url, selects,
+            function (url, selects) { return scope._lib.http.fetchFromPage(url, selects); });
+    };
+
+
+    /**
+     * Fetches links from a web page.
+     *
+     * @param {string} url
+     * @param {...string} selects jQuery-like selects
+     */
+    scope.orzo.fetchLinksFromPage = function (url) {
+        var selects = Array.prototype.slice.call(arguments, 1);
+
+        return fetchObjectsFromPage(url, selects,
+            function (url, selects) {return scope._lib.http.fetchLinksFromPage(url, selects); });
+    };
+
+
+
+    /**
      * Calculates a hash value of an object based on passed algorithm name
      *
      * @param {object} s object with some string representation
