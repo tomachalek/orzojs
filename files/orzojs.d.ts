@@ -25,7 +25,7 @@ interface MapFunction<T> {
  *
  */
 interface Results {
-    each:(v:any)=>void;
+    each(fn:(key:string, values:Array<any>)=>void):void;
 }
 
 /**
