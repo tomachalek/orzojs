@@ -4,6 +4,8 @@
 // in env.inputArgs array.
 // /////////////////////////////////////////////////
 
+/// <reference src="./orzojs.d.ts" />
+
 (function () {
     'use strict';
 

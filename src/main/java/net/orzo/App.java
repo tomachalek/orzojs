@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public final class App {
-	
+
 	protected final Properties props;
-	
+
 	private final Options cliOptions;
 
 	private final static String USERENV_PATH = "net/orzo/userenv.js";
@@ -48,15 +48,15 @@ public final class App {
 	private final static String DATALIB_SCRIPT = "net/orzo/datalib.js";
 
 	private final static String DEMO_SCRIPT = "net/orzo/demo1.js";
-	
+
 	private final static String CALCULATION_SCRIPT = "net/orzo/calculation.js";
 
 	/**
 	 * 
 	 */
 	public App() {
-		this.props = new Properties();		
-		this.cliOptions = new Options();		
+		this.props = new Properties();
+		this.cliOptions = new Options();
 		this.cliOptions.addOption("v", false, "shows version information");
 		this.cliOptions.addOption("d", false, "runs a demo program");
 		this.cliOptions
@@ -74,26 +74,32 @@ public final class App {
 						true,
 						"additional module path (the directory where your script is located is always included)");
 		this.cliOptions
-				.addOption("t", false,
-						"writes a code template to a specified file or to the standard output");		
-	}
-	
-	/**
-	 * 
-	 */
-	private CommandLine init(String[] args) throws IOException, ParseException {
-		this.props.load(App.class.getClassLoader().getResourceAsStream("net/orzo/app.properties"));		
-		return (new GnuParser()).parse(this.cliOptions, args);		
+				.addOption(
+						"t",
+						true,
+						"writes a code template to a specified file plus creates orzojs.d.ts type definition file for OrzoJS libraries.");
+		this.cliOptions
+				.addOption("T", false,
+						"writes a code template to the standard output (without orzojs.d.ts)");
 	}
 
 	/**
 	 * 
 	 */
-	public static void main(final String[] args) {		
+	private CommandLine init(String[] args) throws IOException, ParseException {
+		this.props.load(App.class.getClassLoader().getResourceAsStream(
+				"net/orzo/app.properties"));
+		return (new GnuParser()).parse(this.cliOptions, args);
+	}
+
+	/**
+	 * 
+	 */
+	public static void main(final String[] args) {
 		final App app = new App();
 		Logger log = null;
-		CommandLine cmd;		
-		
+		CommandLine cmd;
+
 		try {
 			cmd = app.init(args);
 
@@ -104,23 +110,40 @@ public final class App {
 								"orzo [options] user_script [user_arg1 [user_arg2 [...]]]\n(to generate a template: orzo -t [file path])",
 								app.cliOptions);
 				System.exit(0);
-				
-			} else if (cmd.hasOption("v")) {
-				System.out.printf("Orzo.js version %s\n", app.props.get("orzo.version"));
+
+			}
+
+			if (cmd.hasOption("v")) {
+				System.out.printf("Orzo.js version %s\n",
+						app.props.get("orzo.version"));
 				System.exit(0);
 
-			} else if (cmd.hasOption("t")) {
+			}
+
+			if (cmd.hasOption("t")) {
 				String templateSrc = new ResourceLoader()
 						.getResourceAsString("net/orzo/template1.js");
 
-				if (cmd.getArgs().length > 0) {
-					FileWriter fr = new FileWriter(cmd.getArgs()[0]);
-					fr.write(templateSrc);
-					fr.close();
+				File tplFile = new File(cmd.getOptionValue("t"));
+				FileWriter tplWriter = new FileWriter(tplFile);
+				tplWriter.write(templateSrc);
+				tplWriter.close();
 
-				} else {
-					System.out.println(templateSrc);
-				}
+				File dtsFile = new File(String.format("%s/orzojs.d.ts",
+						new File(tplFile.getAbsolutePath()).getParent()));
+				FileWriter dtsWriter = new FileWriter(dtsFile);
+				String dtsSrc = new ResourceLoader()
+						.getResourceAsString("net/orzo/orzojs.d.ts");
+				dtsWriter.write(dtsSrc);
+				dtsWriter.close();
+
+				System.exit(0);
+			}
+
+			if (cmd.hasOption("T")) {
+				String templateSrc = new ResourceLoader()
+						.getResourceAsString("net/orzo/template1.js");
+				System.out.println(templateSrc);
 				System.exit(0);
 			}
 
@@ -135,12 +158,15 @@ public final class App {
 			log = LoggerFactory.getLogger(App.class);
 
 			CalculationParams params = new CalculationParams();
-			if (System.getProperty("orzodir") != null) { // defined by exe4j executable				
+			if (System.getProperty("orzodir") != null) { // defined by exe4j
+															// executable
 				params.orzoModulesPath = new File(String.format("%s%slib",
-						System.getProperty("orzodir"), File.separator)).getAbsolutePath();
+						System.getProperty("orzodir"), File.separator))
+						.getAbsolutePath();
 			}
 			params.userenvScript = SourceCode.fromResource(USERENV_PATH);
-			params.calculationScript = SourceCode.fromResource(CALCULATION_SCRIPT);
+			params.calculationScript = SourceCode
+					.fromResource(CALCULATION_SCRIPT);
 
 			// datalib file
 			if (cmd.hasOption("s")) {
@@ -168,18 +194,19 @@ public final class App {
 								DEMO_SCRIPT);
 				params.userScript = SourceCode.fromResource(DEMO_SCRIPT);
 				params.workingDirModulesPath = ".";
-				
+
 			} else {
-				System.err.println("Invalid parameters. Try -h for more information.");
+				System.err
+						.println("Invalid parameters. Try -h for more information.");
 				System.exit(1);
 			}
-			
+
 			if (cmd.getArgs().length > 0) {
 				params.inputValues = Arrays.copyOfRange(cmd.getArgs(), 1,
 						cmd.getArgs().length);
 			} else {
 				params.inputValues = new String[0];
-			}			
+			}
 
 			Runtime.getRuntime().addShutdownHook(new ShutdownHook(app));
 			Calculation proc = new Calculation(params);
@@ -198,5 +225,4 @@ public final class App {
 
 		}
 	}
-
 }
