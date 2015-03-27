@@ -51,6 +51,7 @@
 										<include>datalib.js</include>
 										<include>template1.js</include>
 										<include>calculation.js</include>
+										<include>orzojs.d.ts</include>
 									</includes>
 								</resource>
 								<resource>
