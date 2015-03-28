@@ -28,11 +28,12 @@ import jdk.nashorn.internal.runtime.ScriptFunction;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  *
  */
+@SuppressWarnings("restriction")
 public class FinalResults {
-	
+
 	/**
-	 * To make Nashorn expose FinalResults' 'sorted' property
-	 * (which is an anonymous class) a public interface must be defined.
+	 * To make Nashorn expose FinalResults' 'sorted' property (which is an
+	 * anonymous class) a public interface must be defined.
 	 */
 	public interface SortedResults {
 		void each(ScriptFunction fn);
@@ -42,17 +43,16 @@ public class FinalResults {
 	 * 
 	 */
 	private final IntermediateResults results;
-	
+
 	/**
-	 * This object makes JavaScript API nicer (but maybe less concise). 
-	 * It allows using sorted results by calling
-	 * result.sorted.each(fn) instead of result(true, fn) from
-	 * older Orzo.js versions.
+	 * This object makes JavaScript API nicer (but maybe less concise). It
+	 * allows using sorted results by calling result.sorted.each(fn) instead of
+	 * result(true, fn) from older Orzo.js versions.
 	 */
 	public SortedResults sorted = new SortedResults() {
 		public void each(ScriptFunction fn) {
 			FinalResults.this.each(fn, true);
-		}		
+		}
 	};
 
 	/**
@@ -79,22 +79,24 @@ public class FinalResults {
 	 */
 	private void each(ScriptFunction fn, boolean sortKeys) {
 		MethodHandle mh;
-		
-		try {		
+
+		try {
 			if (sortKeys) {
 				for (Object key : sortedKeys()) {
 					mh = fn.getBoundInvokeHandle(null); // TODO scope???
-					mh.invoke(key, this.results.getData().get(key)); // TODO wrapping???
+					mh.invoke(key, this.results.getData().get(key)); // TODO
+																		// wrapping???
 				}
-	
+
 			} else {
 				for (Object key : this.results.getData().keySet()) {
 					mh = fn.getBoundInvokeHandle(null); // TODO scope???
-					mh.invoke(key, this.results.getData().get(key)); // TODO wrapping???
+					mh.invoke(key, this.results.getData().get(key)); // TODO
+																		// wrapping???
 				}
-	
+
 			}
-			
+
 		} catch (Throwable ex) {
 			throw new RuntimeException(ex); // TODO more specific exception???
 		}

@@ -231,7 +231,7 @@
      */
     scope.orzo.sprintf = function (s) {
         var args = Array.prototype.slice.call(arguments, 1);
-        return String(scope._lib.strings.sprintf(s, args));
+        return scope._lib.strings.sprintf(s, args);
     };
 
     /**

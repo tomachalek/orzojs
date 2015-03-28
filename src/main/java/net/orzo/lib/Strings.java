@@ -15,7 +15,6 @@
  */
 package net.orzo.lib;
 
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Strings {
-	
+
 	private static Logger LOG = LoggerFactory.getLogger(Strings.class);
 
 	/**
@@ -44,33 +43,38 @@ public class Strings {
 	 * @param s
 	 * @param args
 	 */
-	public void printf(String s, Object... args) {
+	public void printf(String s, Object[] args) {
 		System.out.print(sprintf(s, args));
 	}
 
 	/**
-	 * Works in a similar way to Java's String.format but with respect to JavaScript numeric type
-	 * (= you can pass a JS number to the %d flag).
+	 * Works in a similar way to Java's String.format but with respect to
+	 * JavaScript numeric type (= you can pass a JS number to the %d flag).
 	 * 
 	 * @param s
 	 * @param args
 	 * @return formatted string with flags replaced by passed values
 	 */
-	public Object sprintf(String s, Object... args) {
-		// we must deal here with the problem that in JavaScript there is only a single numeric type
-		// Number which is converted to Double. If a user wants to print integers, then %d flag does
+	public Object sprintf(String s, Object[] args) {
+		// we must deal here with the problem that in JavaScript there is only a
+		// single numeric type
+		// Number which is converted to Double. If a user wants to print
+		// integers, then %d flag does
 		// not work.
-		Pattern p = Pattern.compile("(?<!%)%(0[0-9]+|\\+|,|-|\\.\\d|\\d\\.\\d)?(s|d|f|n|tB|td|te|ty|tY|tl|tM|tp|tD)");		
+		Pattern p = Pattern
+				.compile("(?<!%)%(0[0-9]+|\\+|,|-|\\.\\d|\\d\\.\\d)?(s|d|f|n|tB|td|te|ty|tY|tl|tM|tp|tD)");
 		Matcher m = p.matcher(s);
 		Object[] modArgs = new Object[args.length];
 		int i = 0;
 		while (m.find()) {
-			if (m.group().endsWith("d") && args[i] instanceof Double) {				
-				modArgs[i] = (int)Math.round((double)args[i]);
-				if ((int)modArgs[i] != (double)args[i]) {
-					LOG.warn(String.format("Lost precision in sprintf (%s rounded to %d)", (double)args[i], modArgs[i]));
+			if (m.group().endsWith("d") && args[i] instanceof Double) {
+				modArgs[i] = (int) Math.round((double) args[i]);
+				if ((int) modArgs[i] != (double) args[i]) {
+					LOG.warn(String.format(
+							"Lost precision in sprintf (%s rounded to %d)",
+							(double) args[i], modArgs[i]));
 				}
-				
+
 			} else {
 				modArgs[i] = args[i];
 			}
@@ -84,7 +88,8 @@ public class Strings {
 	 */
 	public Object hash(String value, String algorithm) {
 		if (value == null) {
-			throw new RuntimeException("null value not accepted in hash() function");
+			throw new RuntimeException(
+					"null value not accepted in hash() function");
 		}
 		switch (algorithm.toLowerCase()) {
 		case "md5":
@@ -96,9 +101,10 @@ public class Strings {
 		case "sha384":
 			return DigestUtils.sha384Hex(value);
 		case "sha512":
-			return DigestUtils.sha512Hex(value);			
+			return DigestUtils.sha512Hex(value);
 		default:
-			throw new RuntimeException(String.format("Unknown hash function '%s'", algorithm));
+			throw new RuntimeException(String.format(
+					"Unknown hash function '%s'", algorithm));
 		}
 	}
 
