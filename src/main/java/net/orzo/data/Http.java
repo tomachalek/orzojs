@@ -37,15 +37,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Http {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(Http.class);
-	
+
 	private final CloseableHttpClient httpClient;
 
 	public Http() {
 		this.httpClient = HttpClients.createDefault();
 	}
-	
+
 	/**
 	 * 
 	 * @param URL
@@ -56,7 +56,7 @@ public class Http {
 		CloseableHttpResponse response = null;
 		HttpEntity httpEntity;
 		String result = null;
-		
+
 		try {
 			response = this.httpClient.execute(httpget);
 			httpEntity = response.getEntity();
@@ -64,22 +64,23 @@ public class Http {
 				httpEntity = new BufferedHttpEntity(httpEntity);
 				result = EntityUtils.toString(httpEntity);
 			}
-			
+
 		} catch (IOException e) {
 			throw new RuntimeException(e);
-		
+
 		} finally {
 			if (response != null) {
 				try {
 					response.close();
 				} catch (IOException e) {
-					LOG.warn(String.format("Failed to close response object: %s", e));
+					LOG.warn(String.format(
+							"Failed to close response object: %s", e));
 				}
 			}
 		}
 		return result;
 	}
-	
+
 	/**
 	 * 
 	 * @param URL
@@ -87,16 +88,17 @@ public class Http {
 	 * @return
 	 * @throws IOException
 	 */
-	private List<Elements> fetchElementsFromPage(String URL, String...selects) throws IOException {
+	private List<Elements> fetchElementsFromPage(String URL, String[] selects)
+			throws IOException {
 		final List<Elements> ans = new ArrayList<Elements>();
 		final Document doc = Jsoup.connect(URL).get();
-		
+
 		for (String select : selects) {
 			ans.add(doc.select(select));
 		}
 		return ans;
 	}
-	
+
 	/**
 	 * 
 	 * @param URL
@@ -104,7 +106,8 @@ public class Http {
 	 * @return
 	 * @throws IOException
 	 */
-	public List<List<String>> fetchFromPage(String URL, String...selects) throws IOException {
+	public List<List<String>> fetchFromPage(String URL, String[] selects)
+			throws IOException {
 		final List<List<String>> ans = new ArrayList<List<String>>();
 		List<String> selectAns;
 		List<Elements> elmsGroups = fetchElementsFromPage(URL, selects);
@@ -117,7 +120,7 @@ public class Http {
 		}
 		return ans;
 	}
-	
+
 	/**
 	 * 
 	 * @param URL
@@ -125,7 +128,8 @@ public class Http {
 	 * @return
 	 * @throws IOException
 	 */
-	public List<List<String>> fetchLinksFromPage(String URL, String...selects) throws IOException {
+	public List<List<String>> fetchLinksFromPage(String URL, String[] selects)
+			throws IOException {
 		List<Elements> elmGroups = fetchElementsFromPage(URL, selects);
 		final List<List<String>> ans = new ArrayList<List<String>>();
 		Set<String> selectAns;
@@ -137,7 +141,7 @@ public class Http {
 			}
 			selectAnsList = new ArrayList<String>();
 			selectAnsList.addAll(selectAns);
-			ans.add(selectAnsList); 
+			ans.add(selectAnsList);
 		}
 		return ans;
 	}
