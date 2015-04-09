@@ -38,7 +38,6 @@ import org.testng.annotations.Test;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  *
  */
-@SuppressWarnings("restriction")
 public class WebTest {
 
 	private JsEngineAdapter engine;

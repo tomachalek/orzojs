@@ -18,7 +18,9 @@ package net.orzo.data;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import jdk.nashorn.internal.runtime.ScriptFunction;
 
@@ -32,9 +34,10 @@ import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Iterators;
 
 @SuppressWarnings("restriction")
 public class Web {
@@ -108,10 +111,11 @@ public class Web {
 	/**
 	 * 
 	 */
-	public Elements queryPage(Element root, String select, ScriptFunction fn) {
+	public List<Element> queryPage(Element root, String select,
+			ScriptFunction fn) {
 		MethodHandle mh;
 		Element curr;
-		Elements ans = null; // returns null in case fn is null
+		List<Element> ans = null; // returns null in case fn is null
 
 		try {
 			if (fn != null) {
@@ -123,7 +127,8 @@ public class Web {
 				}
 
 			} else {
-				ans = root.select(select);
+				ans = new ArrayList<Element>();
+				Iterators.addAll(ans, root.select(select).iterator());
 			}
 			return ans;
 
@@ -132,7 +137,7 @@ public class Web {
 		}
 	}
 
-	public Elements queryPage(Document document, String select,
+	public List<Element> queryPage(Document document, String select,
 			ScriptFunction fn) {
 		return queryPage(document.body(), select, fn);
 	}
