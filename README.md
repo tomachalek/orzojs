@@ -129,5 +129,5 @@ finish(function (results) {
 Further documentation
 ---------------------
 
-Please refer to the [API documentation](API.md)
+Please refer to the [API page](http://www.orzojs.org/API.md) on Orzo's website.
 

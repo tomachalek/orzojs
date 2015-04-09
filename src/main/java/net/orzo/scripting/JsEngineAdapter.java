@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -84,7 +83,7 @@ public class JsEngineAdapter {
 	 * 
 	 */
 	private final Map<String, Object> modules;
-	
+
 	private static final String MODULE_SEPARATOR = "/";
 
 	/**
@@ -122,7 +121,7 @@ public class JsEngineAdapter {
 	 *             if you try to load non-sandboxed module
 	 */
 	public static File findModule(List<String> modulePaths, String moduleId) {
-		if (moduleId.startsWith(String.format(".%s", File.separator)) 
+		if (moduleId.startsWith(String.format(".%s", File.separator))
 				|| moduleId.startsWith(String.format("..%s", File.separator))
 				|| moduleId.startsWith(File.separator)
 				|| moduleId.startsWith(String.format(".%s", MODULE_SEPARATOR))
@@ -136,8 +135,8 @@ public class JsEngineAdapter {
 
 		for (String mp : modulePaths) {
 			String sysDepPath = mp.replaceAll("/", File.separator);
-			File f = new File(String.format("%s%s%s.js", sysDepPath, File.separator,
-					fsCompatibleId));
+			File f = new File(String.format("%s%s%s.js", sysDepPath,
+					File.separator, fsCompatibleId));
 			if (f.isFile()) {
 				return f;
 			}
@@ -217,7 +216,7 @@ public class JsEngineAdapter {
 			Bindings engineScope = context
 					.getBindings(ScriptContext.ENGINE_SCOPE);
 			SourceCode modEnv = SourceCode.fromResource("net/orzo/modenv.js");
-			engineScope.put("require", this.require);		
+			engineScope.put("require", this.require);
 			engineScope.put("doWith", this.scope.get("doWith"));
 			engineScope.put("orzo", this.scope.get("orzo"));
 			this.engine.eval(modEnv.getContents(), context);

@@ -23,12 +23,12 @@ import java.util.Set;
 
 import jdk.nashorn.internal.runtime.ScriptFunction;
 
-
 /**
  * 
  * @author Tomas Machalek<tomas.machalek@gmail.com>
  * 
  */
+@SuppressWarnings("restriction")
 public class DataStructures {
 
 	/**
@@ -107,7 +107,7 @@ public class DataStructures {
 		try {
 			if (key == null) {
 				set.addAll(origData);
-	
+
 			} else {
 				for (Object item : origData) {
 					MethodHandle mh = key.getBoundInvokeHandle(item);
@@ -115,7 +115,7 @@ public class DataStructures {
 				}
 			}
 			return set; // TODO wrapping???
-			
+
 		} catch (Throwable ex) {
 			throw new LibException(ex);
 		}
