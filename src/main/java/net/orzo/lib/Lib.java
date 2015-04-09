@@ -22,8 +22,8 @@ import java.util.List;
 
 import jdk.nashorn.internal.runtime.Context;
 import jdk.nashorn.internal.runtime.ScriptFunction;
-import net.orzo.data.Http;
 import net.orzo.data.Templating;
+import net.orzo.data.Web;
 import net.orzo.data.graphics.GreyscalePicture;
 
 import org.slf4j.Logger;
@@ -32,18 +32,19 @@ import org.slf4j.LoggerFactory;
 /**
  * Miscellaneous utilities and backend-related functionality for the JavaScript
  * environment. Please note that this object is not state-less. Some operations
- * create persistent objects which are reused. This diminishes need for
- * global objects within user scripts (e.g. you can create the same chunked file
- * reader multiple times in your dataChunks() function and it is still the
- * same object).
+ * create persistent objects which are reused. This diminishes need for global
+ * objects within user scripts (e.g. you can create the same chunked file reader
+ * multiple times in your dataChunks() function and it is still the same
+ * object).
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
+@SuppressWarnings("restriction")
 public class Lib {
 
 	public final Files files;
-	
-	public final Http http;
+
+	public final Web web;
 
 	public final Strings strings;
 
@@ -59,15 +60,16 @@ public class Lib {
 	 */
 	public Lib() {
 		this.files = new Files();
-		this.http = new Http();
+		this.web = new Web();
 		this.strings = new Strings();
 		this.dataStructures = new DataStructures();
 		this.templating = new Templating();
 	}
-	
+
 	/**
 	 * 
-	 * @param t time in seconds (fractions are available, e.g. sleep(3.7))
+	 * @param t
+	 *            time in seconds (fractions are available, e.g. sleep(3.7))
 	 * @throws InterruptedException
 	 */
 	public void sleep(double t) throws InterruptedException {
@@ -103,21 +105,22 @@ public class Lib {
 		}
 		return System.currentTimeMillis() - startTime;
 	}
-	
-    /**
-     * 
-     * @param coll
-     * @param cmp
-     * @throws Throwable
-     */
-    public void sortList(List<Object> coll, ScriptFunction cmp) {                       
-        ErrorHandlingComparator javaCmp = new ErrorHandlingComparator(cmp);         
-        Collections.sort(coll, javaCmp);
-        if (javaCmp.lastError() != null) {
-            throw new RuntimeException(String.format("Failed to sort the list: %s", javaCmp.lastError().getMessage()),
-                    javaCmp.lastError());
-        }
-    }
+
+	/**
+	 * 
+	 * @param coll
+	 * @param cmp
+	 * @throws Throwable
+	 */
+	public void sortList(List<Object> coll, ScriptFunction cmp) {
+		ErrorHandlingComparator javaCmp = new ErrorHandlingComparator(cmp);
+		Collections.sort(coll, javaCmp);
+		if (javaCmp.lastError() != null) {
+			throw new RuntimeException(String.format(
+					"Failed to sort the list: %s", javaCmp.lastError()
+							.getMessage()), javaCmp.lastError());
+		}
+	}
 
 	/**
 	 * 

@@ -235,6 +235,77 @@ interface Image {
     areaHistogram(x:number, y:number, width:number, height:number):Array<number>;
 }
 
+
+/**
+ * This interface represents an HTML document.
+ * It is just a subset of JSoup's Document interface.
+ */
+interface Document {
+    html():string;
+    body():Element;
+    head():Element;
+}
+
+
+/**
+ * This interface represents a list of Element instances.
+ * It is just a subset of JSoup's Elements interface.
+ */
+interface Elements {
+    select(query:string):Elements;
+}
+
+/**
+ * This interface represents an element in an HTML document.
+ * It is just a subset of JSoup's Element interface.
+ */
+interface Element {
+
+    nodeName():string;
+
+    tagName():string;
+
+    /**
+     * Sets a new name for the tag
+     *
+     * @param name
+     */
+    tagName(name:string):Element;
+
+    parent():Element;
+
+    /**
+     * All the ancestors up to the root
+     */
+    parents():Elements;
+
+    previousElementSibling():Element;
+
+    nextElementSibling():Element;
+
+    siblingElements():Elements;
+
+    attr(name:string):string;
+
+    children():Elements;
+
+    /**
+     * Returns whole subtree starting from this element (and including this element)
+     */
+    getAllElements():Elements;
+
+    id():string;
+
+    nodeName():string;
+
+    text():string;
+
+    /**
+     * data- attributes
+     */
+    dataset():{[key:string]:string};
+}
+
 /**
  *
  */
@@ -401,23 +472,6 @@ declare module orzo {
     function httpGet(url:string):string;
 
     /**
-     * Fetches texts from specified elements of a page.
-     *
-     * @param url A URL of the page we want to read from
-     * @param queries jQuery-like selects
-     */
-    function fetchFromPage(url:string, ...queries:Array<string>):DOMQueryResults;
-
-    /**
-     * Fetches links from a web page.
-     *
-     * @param url
-     * @param queries jQuery-like selects
-     * @param url
-     */
-    function fetchLinksFromPage(url:string, ...queries:Array<string>):DOMQueryResults; // TODO return type?
-
-    /**
      * Calculates a hash value of an object based on passed algorithm name
      *
      * @param s A string to be hashed (or any object with reasonable toString() conversion)
@@ -552,6 +606,43 @@ declare module orzo {
      * @param err A function to be called in case of an exception
      */
     function doWith(obj:Closeable, fn:(v:Closeable)=>void, err:(e:Error)=>void):void;
+
+}
+
+/**
+ * Functions related to processing of HTML pages.
+ */
+declare module orzo.html {
+    /**
+     * Parses an HTML source code
+     *
+     * @param html
+     */
+    function parseHTML(html:string):Document;
+
+    /**
+     * Loads a web page from a specified URL. Page is loaded using GET method.
+     *
+     * @param url
+     */
+    function loadWebsite(url:string):Document;
+
+    /**
+     * Finds all the elements matching CSS select query starting from rootElement and
+     * applies a callback to each element.
+     *
+     * @param rootElement
+     * @param query
+     * @param fn
+     */
+    function query(rootElement:Element, query:string, fn:(item:Element)=>void):void;
+
+    /**
+     * Similar to query() but returns all the matching elements instead.
+     * @param rootElement
+     * @param query
+     */
+    function find(rootElement:Element, query:string):Array<Element>;
 }
 
 /**

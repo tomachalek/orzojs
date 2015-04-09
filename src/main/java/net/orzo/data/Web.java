@@ -17,10 +17,10 @@
 package net.orzo.data;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.lang.invoke.MethodHandle;
+import java.util.Iterator;
+
+import jdk.nashorn.internal.runtime.ScriptFunction;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -36,13 +36,14 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Http {
+@SuppressWarnings("restriction")
+public class Web {
 
-	private final static Logger LOG = LoggerFactory.getLogger(Http.class);
+	private final static Logger LOG = LoggerFactory.getLogger(Web.class);
 
 	private final CloseableHttpClient httpClient;
 
-	public Http() {
+	public Web() {
 		this.httpClient = HttpClients.createDefault();
 	}
 
@@ -84,66 +85,55 @@ public class Http {
 	/**
 	 * 
 	 * @param URL
-	 * @param selects
 	 * @return
-	 * @throws IOException
 	 */
-	private List<Elements> fetchElementsFromPage(String URL, String[] selects)
-			throws IOException {
-		final List<Elements> ans = new ArrayList<Elements>();
-		final Document doc = Jsoup.connect(URL).get();
+	public Document loadWebsite(String URL) {
+		try {
+			return Jsoup.connect(URL).get();
 
-		for (String select : selects) {
-			ans.add(doc.select(select));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-		return ans;
 	}
 
 	/**
 	 * 
-	 * @param URL
-	 * @param selects
+	 * @param html
 	 * @return
-	 * @throws IOException
 	 */
-	public List<List<String>> fetchFromPage(String URL, String[] selects)
-			throws IOException {
-		final List<List<String>> ans = new ArrayList<List<String>>();
-		List<String> selectAns;
-		List<Elements> elmsGroups = fetchElementsFromPage(URL, selects);
-		for (Elements elements : elmsGroups) {
-			selectAns = new ArrayList<>();
-			for (Element elm : elements) {
-				selectAns.add(elm.text());
-			}
-			ans.add(selectAns);
-		}
-		return ans;
+	public Document parseHTML(String html) {
+		return Jsoup.parse(html);
 	}
 
 	/**
 	 * 
-	 * @param URL
-	 * @param selects
-	 * @return
-	 * @throws IOException
 	 */
-	public List<List<String>> fetchLinksFromPage(String URL, String[] selects)
-			throws IOException {
-		List<Elements> elmGroups = fetchElementsFromPage(URL, selects);
-		final List<List<String>> ans = new ArrayList<List<String>>();
-		Set<String> selectAns;
-		List<String> selectAnsList;
-		for (Elements elements : elmGroups) {
-			selectAns = new HashSet<>();
-			for (Element elm : elements) {
-				selectAns.add(elm.attr("href"));
+	public Elements queryPage(Element root, String select, ScriptFunction fn) {
+		MethodHandle mh;
+		Element curr;
+		Elements ans = null; // returns null in case fn is null
+
+		try {
+			if (fn != null) {
+				for (Iterator<Element> iter = root.select(select).iterator(); iter
+						.hasNext();) {
+					curr = iter.next();
+					mh = fn.getBoundInvokeHandle(curr);
+					mh.invoke(curr);
+				}
+
+			} else {
+				ans = root.select(select);
 			}
-			selectAnsList = new ArrayList<String>();
-			selectAnsList.addAll(selectAns);
-			ans.add(selectAnsList);
+			return ans;
+
+		} catch (Throwable ex) {
+			throw new RuntimeException(ex);
 		}
-		return ans;
 	}
 
+	public Elements queryPage(Document document, String select,
+			ScriptFunction fn) {
+		return queryPage(document.body(), select, fn);
+	}
 }

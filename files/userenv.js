@@ -585,34 +585,44 @@
         return ans;
     }
 
-    /**
-     * Fetches texts from specified elements of a page.
-     *
-     * @param {string} url
-     * @param {...string} selects jQuery-like selects
-     */
-    scope.orzo.fetchFromPage = function (url) {
-        var selects = Array.prototype.slice.call(arguments, 1);
 
-        return fetchObjectsFromPage(url, selects,
-            function (url, selects) { return scope._lib.http.fetchFromPage(url, selects); });
-    };
-
+    scope.orzo.html = {};
 
     /**
-     * Fetches links from a web page.
      *
-     * @param {string} url
-     * @param {...string} selects jQuery-like selects
+     * @param html
      */
-    scope.orzo.fetchLinksFromPage = function (url) {
-        var selects = Array.prototype.slice.call(arguments, 1);
-
-        return fetchObjectsFromPage(url, selects,
-            function (url, selects) {return scope._lib.http.fetchLinksFromPage(url, selects); });
+    scope.orzo.html.parseHTML = function (html) {
+        return scope._lib.web.parseHTML(html);
     };
 
+    /**
+     *
+     * @param url
+     */
+    scope.orzo.html.loadWebsite = function (url) {
+        return scope._lib.web.loadWebsite(url);
+    };
 
+    /**
+     *
+     * @param rootElement
+     * @param query
+     * @param fn
+     */
+    scope.orzo.html.query = function (rootElement, query, fn) {
+        scope._lib.web.queryPage(rootElement, query, fn);
+    };
+
+    /**
+     *
+     * @param rootElement
+     * @param query
+     * @returns {*}
+     */
+    scope.orzo.html.find = function (rootElement, query) {
+        return scope._lib.web.queryPage(rootElement, query, null);
+    };
 
     /**
      * Calculates a hash value of an object based on passed algorithm name
