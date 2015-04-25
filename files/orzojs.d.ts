@@ -373,11 +373,7 @@ declare module orzo {
      * @param chunkId
      * @param filter An optional regular expression specifying names to be accepted
      */
-    // TODO union types (TS 1.4 supports them)
-    function directoryReader(pathInfo:string, chunkId:number, filter?:RegExp):Iterator;
-    function directoryReader(pathInfo:string, chunkId:number, filter?:string):Iterator;
-    function directoryReader(pathInfo:Array<string>, chunkId:number, filter?:RegExp):Iterator;
-    function directoryReader(pathInfo:Array<string>, chunkId:number, filter?:string):Iterator;
+    function directoryReader(pathInfo:string|Array<string>, chunkId:number, filter?:RegExp|string):Iterator;
 
     /**
      *
@@ -389,29 +385,18 @@ declare module orzo {
      * @param chunkId
      * @param filter
      */
-    // TODO union types (TS 1.4 supports them)
-    function filePairGenerator(pathInfo:string, chunkId:number, filter?:RegExp):Iterator;
-    function filePairGenerator(pathInfo:string, chunkId:number, filter?:string):Iterator;
-    function filePairGenerator(pathInfo:Array<string>, chunkId:number, filter?:RegExp):Iterator;
-    function filePairGenerator(pathInfo:Array<string>, chunkId:number, filter?:string):Iterator;
+    function filePairGenerator(pathInfo:string|Array<string>, chunkId:number, filter?:RegExp|string):Iterator;
 
     /**
      * Generates a Cartesian product of two groups of files.
      *
-     * @param pathInfo1
-     * @param pathInfo2
-     * @param chunkId
-     * @param filter
+     * @param pathInfo1 A path or paths defining the first group
+     * @param pathInfo2 A path or paths defining the second group
+     * @param chunkId For what chunk the we are producing the subset of the whole set AxB
+     * @param filter If non-empty then only files matching the provided value will be included
      */
-    // TODO union types (TS 1.4 supports them)
-    function twoGroupFilePairGenerator(pathInfo1:string, pathInfo2:string, chunkId:number, filter?:RegExp):Iterator;
-    function twoGroupFilePairGenerator(pathInfo1:string, pathInfo2:string, chunkId:number, filter?:string):Iterator;
-    function twoGroupFilePairGenerator(pathInfo1:Array<string>, pathInfo2:string, chunkId:number, filter?:RegExp):Iterator;
-    function twoGroupFilePairGenerator(pathInfo1:Array<string>, pathInfo2:string, chunkId:number, filter?:string):Iterator;
-    function twoGroupFilePairGenerator(pathInfo1:string, pathInfo2:Array<string>, chunkId:number, filter?:RegExp):Iterator;
-    function twoGroupFilePairGenerator(pathInfo1:string, pathInfo2:Array<string>, chunkId:number, filter?:string):Iterator;
-    function twoGroupFilePairGenerator(pathInfo1:Array<string>, pathInfo2:Array<string>, chunkId:number, filter?:RegExp):Iterator;
-    function twoGroupFilePairGenerator(pathInfo1:Array<string>, pathInfo2:Array<string>, chunkId:number, filter?:string):Iterator;
+    function twoGroupFilePairGenerator(pathInfo1:string|Array<string>, pathInfo2:string|Array<string>,
+                                       chunkId:number, filter?:RegExp|string):Iterator;
 
     /**
      * Creates an iterator which reads provided file (specified by path) line by
