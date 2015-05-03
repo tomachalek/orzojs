@@ -129,7 +129,7 @@ declare module datalib {
          *
          * @param other
          */
-        correl(other:Data):number;
+        correl<T>(other:Data<T>):number;
     }
 
 
@@ -263,8 +263,6 @@ interface Element {
 
     nodeName():string;
 
-    tagName():string;
-
     /**
      * Sets a new name for the tag
      *
@@ -309,7 +307,7 @@ interface Element {
 /**
  *
  */
-interface env {
+interface Env {
 
     /**
      * Contains command line parameters of user's scripts. Orzojs' own
@@ -321,8 +319,13 @@ interface env {
      * produces following inputArgs:
      *   ['/my/data/dir', '/my/output/dir']
      */
-    inputArgs:Array<any>;
+    inputArgs:Array<string>;
 }
+
+/**
+ * This is actual "singleton" instance of Env provided by Orzo.js
+ */
+declare var env:Env;
 
 
 /**
@@ -373,7 +376,8 @@ declare module orzo {
      * @param chunkId
      * @param filter An optional regular expression specifying names to be accepted
      */
-    function directoryReader(pathInfo:string|Array<string>, chunkId:number, filter?:RegExp|string):Iterator;
+    function directoryReader<T>(pathInfo:string|Array<string>, chunkId:number, 
+          filter?:RegExp|string):Iterator<T>;
 
     /**
      *
@@ -385,7 +389,8 @@ declare module orzo {
      * @param chunkId
      * @param filter
      */
-    function filePairGenerator(pathInfo:string|Array<string>, chunkId:number, filter?:RegExp|string):Iterator;
+    function filePairGenerator<T>(pathInfo:string|Array<string>, chunkId:number, 
+          filter?:RegExp|string):Iterator<T>;
 
     /**
      * Generates a Cartesian product of two groups of files.
@@ -395,8 +400,8 @@ declare module orzo {
      * @param chunkId For what chunk the we are producing the subset of the whole set AxB
      * @param filter If non-empty then only files matching the provided value will be included
      */
-    function twoGroupFilePairGenerator(pathInfo1:string|Array<string>, pathInfo2:string|Array<string>,
-                                       chunkId:number, filter?:RegExp|string):Iterator;
+    function twoGroupFilePairGenerator<T>(pathInfo1:string|Array<string>, pathInfo2:string|Array<string>,
+                                       chunkId:number, filter?:RegExp|string):Iterator<T>;
 
     /**
      * Creates an iterator which reads provided file (specified by path) line by
@@ -404,7 +409,7 @@ declare module orzo {
      *
      * @param path A path to a file
      */
-    function fileReader(path:string):Iterator;
+    function fileReader<T>(path:string):Iterator<T>;
 
     /**
      * Creates a new or returns an existing file chunk reader
@@ -413,9 +418,10 @@ declare module orzo {
      * @param path A path to a file we want to read
      * @param chunkId An index of the required chunk (starts from zero)
      * @param chunkSize A chunk size in lines; if omitted then automatic estimation is performed
-     * @param startLine The first line to read (0 by default)
+     * @param startLine The first line to read (should be 0 by default)
      */
-    function fileChunkReader(path:string, chunkId:number, chunkSize:number=null, startLine:number=0):Iterator;
+    function fileChunkReader<T>(path:string, chunkId:number, chunkSize?:number, 
+          startLine?:number):Iterator<T>;
 
     /**
      * Saves a string to a file in a synchronous way
@@ -631,6 +637,13 @@ declare module orzo.html {
 }
 
 /**
+ * 
+ */
+interface MapFunction<T> {
+    (callback:(v:T)=>void):void;
+}
+
+/**
  * Registers a MAP operation
  *
  * @param callback A function serving as a MAP
@@ -641,7 +654,7 @@ declare function map<T>(callback:(v:T)=>void):void;
  *
  * @param callback
  */
-declare function applyItems(callback:(dataChunk:any, map:MapFunction)=>void):void; // TODO T?
+declare function applyItems<T>(callback:(dataChunk:any, map:MapFunction<T>)=>void):void;
 
 /**
  * Registers a function specifying how data chunks (= files, parts of a single file etc.)
@@ -689,6 +702,4 @@ declare function D<T>(d:Array<T>, getItem?:(v:T)=>number):datalib.Data<T>;
  * @param next
  * @param hasNext
  */
-declare function iterator<T>(data:Array<any>, next:(item:any)=>T, hasNext:(item:any)=>boolean):Iterator;
-
-export = orzo;
+declare function iterator<T>(data:Array<any>, next:(item:any)=>T, hasNext:(item:any)=>boolean):Iterator<T>;
