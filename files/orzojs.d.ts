@@ -469,7 +469,7 @@ declare module orzo {
      * @param algorithm One of {md5, sha1, sha256, sha384, sha512} (values can be also in upper-case)
      * @return hash of provided object (toString() is used to convert it)
      */
-    function hash(s:any, algorithm:string):string;
+    function hash(s:{}|string, algorithm:string):string;
 
     /**
      * Pauses current worker for t seconds. Fractions of second
@@ -586,18 +586,6 @@ declare module orzo {
      * @param path
      */
     function loadImage(path:string):Image;
-
-    /**
-     * Provides Python-like 'with' guarded block which allows running
-     * a code with a closeable resource. The resource is closed in the
-     * end even if there is an error during the call.
-     *
-     * @param obj An object we want to work on
-     * @param fn A function wrapping the actions we want to perform on the object
-     * @param err A function to be called in case of an exception
-     */
-    function doWith(obj:Closeable, fn:(v:Closeable)=>void, err:(e:Error)=>void):void;
-
 }
 
 /**
@@ -703,3 +691,14 @@ declare function D<T>(d:Array<T>, getItem?:(v:T)=>number):datalib.Data<T>;
  * @param hasNext
  */
 declare function iterator<T>(data:Array<any>, next:(item:any)=>T, hasNext:(item:any)=>boolean):Iterator<T>;
+
+/**
+* Provides Python-like 'with' guarded block which allows running
+* a code with a closeable resource. The resource is closed in the
+* end even if there is an error during the call.
+*
+* @param obj An object we want to work on
+* @param fn A function wrapping the actions we want to perform on the object
+* @param err A function to be called in case of an exception
+*/
+declare function doWith(obj:Closeable, fn:(v:Closeable)=>void, err:(e:Error)=>void):void;
