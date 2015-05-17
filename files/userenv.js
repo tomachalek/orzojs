@@ -307,7 +307,7 @@
             }
         }
 
-        if (typeof pathInfo === 'object') {
+        if (pathInfo.hasOwnProperty('a') && pathInfo.hasOwnProperty('b')) {
             pathList = normalizePathInfo(pathInfo.a);
             pathList2 = normalizePathInfo(pathInfo.b);
 
