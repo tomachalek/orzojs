@@ -54,6 +54,13 @@ interface Iterator<T> {
 }
 
 /**
+ * Iterates over a file line by line.
+ */
+interface FileIterator extends Iterator<string> {
+    path:string;
+}
+
+/**
  * A library containing function to work with array-like
  * data with heterogeneous items.
  */
@@ -409,7 +416,7 @@ declare module orzo {
      *
      * @param path A path to a file
      */
-    function fileReader<T>(path:string):Iterator<T>;
+    function fileReader(path:string):FileIterator;
 
     /**
      * Creates a new or returns an existing file chunk reader

@@ -426,7 +426,7 @@
      * and next().
      *
      * @param  {string} path path to a file
-     * @return {BaseIterator}
+     * @return a file iterator
      */
     scope.orzo.fileReader = function (path) {
         var reader = {};
@@ -440,6 +440,8 @@
         reader.next = function () {
             return String(reader._javaReader.next());
         };
+
+        reader.path = path;
 
         return reader;
     };
