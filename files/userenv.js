@@ -314,8 +314,7 @@
         } else {
             pathList = normalizePathInfo(pathInfo);
         }
-        orzo.print('pathList 1 = ' + pathList);
-        orzo.print('pathList 2 = ' + pathList2);
+
         if ({}.toString.call(filter) === '[object RegExp]') {
             filter = filter.toString();
 
