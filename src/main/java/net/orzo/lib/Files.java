@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.Iterator;
 
 import net.orzo.data.DirectoryReader;
 import net.orzo.data.FilePairGenerator;
@@ -50,10 +49,10 @@ public class Files {
 	 * line. Iterator can be accessed by a classic method pair <i>hasNext()</li>
 	 * and <i>next()</i>.
 	 */
-	public Iterator<Object> fileReader(String path) throws IOException {
+	public FileIterator<Object> fileReader(final String path) throws IOException {
 		final LineIterator itr = FileUtils
 				.lineIterator(new File(path), "UTF-8");
-		return new Iterator<Object>() {
+		return new FileIterator<Object>() {
 
 			@Override
 			public boolean hasNext() {
@@ -70,10 +69,17 @@ public class Files {
 				itr.remove();
 			}
 
-			// used in JavaScript environment
-			@SuppressWarnings("unused")
 			public void close() {
 				itr.close();
+			}
+		
+			public String getPath() {
+				if (File.separator == "/") {
+					return path;
+
+				} else {
+					return path.replace(File.separator, "/");
+				}
 			}
 		};
 	}

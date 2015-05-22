@@ -93,6 +93,15 @@ public class DirectoryReader {
 		Collections.sort(fileList);
 		return fileList;
 	}
+	
+	private static String normalizePath(String path) {
+		if (File.separator == "/") {
+			return path;
+			
+		} else {
+			return path.replace(File.separator, "/");
+		}
+	}
 
 	/**
 	 * Recursive method which searches for files/directories on a specified path
@@ -115,7 +124,7 @@ public class DirectoryReader {
 				} else if (f.isFile()) {
 					matcher = filter.matcher(f.getName());
 					if (matcher.find()) {
-						foundFiles.add(f.getAbsolutePath());
+						foundFiles.add(normalizePath(f.getAbsolutePath()));
 					}
 				}
 			}

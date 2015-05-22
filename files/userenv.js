@@ -439,8 +439,8 @@
         reader.next = function () {
             return String(reader._javaReader.next());
         };
-
-        reader.path = path;
+        reader._javaReader.close();
+        reader.path = reader._javaReader.getPath();
 
         return reader;
     };
