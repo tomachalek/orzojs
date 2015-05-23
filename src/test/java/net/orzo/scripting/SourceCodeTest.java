@@ -15,12 +15,13 @@
  */
 package net.orzo.scripting;
 
+import static org.testng.Assert.assertEquals;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.testng.annotations.Test;
-import static org.testng.Assert.*;
 
 /**
  * 
@@ -59,8 +60,17 @@ public class SourceCodeTest {
 	public void testInitByFile() throws IOException {
 		SourceCode src = SourceCode.fromFile(new File("test-data/script.js"));
 		assertEquals(src.getContents(),
-				"function add(x, y) { return x + y; }\n");
+ "function add(x, y) { return x + y; }");
 		assertEquals(src.getName(), "script.js");
+	}
+
+	@Test
+	public void testInitByBOMFile() throws IOException {
+		SourceCode src = SourceCode
+				.fromFile(new File("test-data/script-bom.js"));
+		assertEquals(src.getContents(),
+ "function add(x, y) { return x + y; }");
+		assertEquals(src.getName(), "script-bom.js");
 	}
 
 	/**
