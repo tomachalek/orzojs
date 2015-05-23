@@ -16,9 +16,8 @@
 
 package net.orzo.scripting;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import javax.script.Compilable;
@@ -26,6 +25,11 @@ import javax.script.CompiledScript;
 import javax.script.ScriptException;
 
 import net.orzo.tools.ResourceLoader;
+
+import org.apache.commons.io.input.BOMInputStream;
+
+import com.google.common.io.ByteStreams;
+
 
 /**
  * Represents general source code with some identifier/name and contents. The
@@ -109,22 +113,17 @@ public class SourceCode {
 	}
 
 	/**
-	 * Creates source code object using contents of provided file.
+	 * Creates a source code object using contents of provided file. UTF-8 BOM
+	 * (if present) is automatically removed.
 	 * 
 	 * @param f
 	 *            text file containing source code
 	 * @return source code containing contents of file f
 	 */
 	public static SourceCode fromFile(File f) throws IOException {
-		try (BufferedReader bReader = new BufferedReader(new FileReader(f))) {
-			StringBuffer buffer = new StringBuffer();
-			String line;
-			while ((line = bReader.readLine()) != null) {
-				buffer.append(line).append("\n");
-			}
-			bReader.close();
-			return new SourceCode(f.getAbsolutePath(), f.getName(),
-					buffer.toString());
+		try (BOMInputStream bis = new BOMInputStream(new FileInputStream(f))) {
+			return new SourceCode(f.getAbsolutePath(), f.getName(), new String(
+					ByteStreams.toByteArray(bis)));
 		}
 	}
 
