@@ -4,7 +4,7 @@
 // in env.inputArgs array.
 // /////////////////////////////////////////////////
 
-/// <reference src="./orzojs.d.ts" />
+/// <reference path="./orzojs.d.ts" />
 
 (function () {
     'use strict';
