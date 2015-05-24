@@ -56,7 +56,7 @@ interface Iterator<T> {
 /**
  * Iterates over a file line by line.
  */
-interface FileIterator extends Iterator<string> {
+interface FileIterator extends Iterator<string>, Closeable {
     path:string;
 }
 

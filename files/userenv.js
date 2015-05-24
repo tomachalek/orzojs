@@ -439,7 +439,11 @@
         reader.next = function () {
             return String(reader._javaReader.next());
         };
-        reader._javaReader.close();
+
+        reader.close = function () {
+            reader._javaReader.close();
+        }
+
         reader.path = reader._javaReader.getPath();
 
         return reader;
