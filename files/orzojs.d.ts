@@ -632,10 +632,10 @@ declare module orzo.html {
 }
 
 /**
- * 
+ * Performs a MAP operation
  */
 interface MapFunction<T> {
-    (callback:(v:T)=>void):void;
+    (v:T):void;
 }
 
 /**
