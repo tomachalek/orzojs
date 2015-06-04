@@ -100,10 +100,82 @@
         };
 
         scope.doWith(obj, function () {
-            this.value = 1;
+            equal(this, scope);
+        });
+    });
+
+    test("doWith() with multiple objects", function () {
+        var res1, res2, res3;
+
+        function Resource(id) {
+            this.id = id;
+            this.touched = false;
+            this.closed = false;
+            this.close = function () {
+                this.closed = true;
+            }
+        }
+
+        res1 = new Resource(1);
+        res2 = new Resource(2);
+        res3 = new Resource(3);
+
+        doWith([res1, res2, res3], function (r1, r2, r3) {
+            r1.touched = true;
+            r2.touched = true;
+            r3.touched = true;
         });
 
-        equal(obj.value, 1);
+        equal(res1.touched, true);
+        equal(res2.touched, true);
+        equal(res3.touched, true);
+
+        equal(res1.closed, true);
+        equal(res2.closed, true);
+        equal(res3.closed, true);
+    });
+
+
+    test("doWith() with multiple objects - assure closing order", function () {
+        var res1, res2, res3, marks = [];
+
+        function Resource(id) {
+            this.id = id;
+            this.close = function () {
+                marks.push(this.id);
+            }
+        }
+
+        res1 = new Resource(1);
+        res2 = new Resource(2);
+        res3 = new Resource(3);
+
+        doWith([res1, res2, res3], function (r1, r2, r3) {
+        });
+
+        deepEqual(marks, [3, 2, 1]);
+    });
+
+
+    test("doWith() with multiple objects - assure closing order on error", function () {
+        var res1, res2, res3, marks = [];
+
+        function Resource(id) {
+            this.id = id;
+            this.close = function () {
+                marks.push(this.id);
+            }
+        }
+
+        res1 = new Resource(1);
+        res2 = new Resource(2);
+        res3 = new Resource(3);
+
+        doWith([res1, res2, res3], function () {
+            throw new Error('failed');
+        });
+
+        deepEqual(marks, [3, 2, 1]);
     });
 
 }(this));

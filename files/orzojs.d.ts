@@ -29,7 +29,8 @@ interface Results {
 }
 
 /**
- *
+ * Any object with 'close' method. This is typically used
+ * along with "doWith" and file or Web access handlers.
  */
 interface Closeable {
     close():void;
@@ -168,7 +169,7 @@ interface DOMQueryResults {
  * stored. You can use doWith() function which handles this
  * automatically.
  */
-interface FileWriter {
+interface FileWriter extends Closeable {
 
     /**
      * Path of the file writer writes to.
@@ -369,7 +370,7 @@ declare module orzo {
     function sprintf(v:string, ...values:Array<any>):string;
 
     /**
-     * Prints internals of passed object. This is intended for debugging purposes.
+     * Prints internals of a passed object. This is intended for debugging purposes.
      *
      * @param obj
      */
@@ -700,12 +701,15 @@ declare function D<T>(d:Array<T>, getItem?:(v:T)=>number):datalib.Data<T>;
 declare function iterator<T>(data:Array<any>, next:(item:any)=>T, hasNext:(item:any)=>boolean):Iterator<T>;
 
 /**
-* Provides Python-like 'with' guarded block which allows running
-* a code with a closeable resource. The resource is closed in the
-* end even if there is an error during the call.
+* Provides a convenient way how to work with closeable resource(s). These
+* are always guaranteed to be closed even if the passed function throws an
+* error. The error can be still processed via an optional callback.
+* In case more than one resource is passed objects are closed in reversed
+* order (e.g. doWith([r1, r2], function () {}) closes r2 first then r1).
 *
-* @param obj An object we want to work on
+*
+* @param obj An object(s) we want to work on
 * @param fn A function wrapping the actions we want to perform on the object
 * @param err A function to be called in case of an exception
 */
-declare function doWith(obj:Closeable, fn:(v:Closeable)=>void, err:(e:Error)=>void):void;
+declare function doWith(obj:Closeable|Array<Closeable>, fn:(v:Closeable)=>void, err?:(e:Error)=>void):void;
