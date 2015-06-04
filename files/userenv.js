@@ -859,6 +859,35 @@
         return null;
     };
 
+
+    function doWith(objList, fn, err, i) {
+        try {
+            if (i < objList.length - 1) {
+                doWith(objList, fn, err, i + 1);
+
+            } else {
+                fn.apply(scope, objList);
+            }
+
+        } catch (e) {
+            if (typeof err === 'function') {
+                err(e);
+            }
+
+        } finally {
+            if (objList[i].hasOwnProperty('close') && typeof objList[i].close === 'function') {
+                try {
+                    objList[i].close();
+
+                } catch (e) {
+                    // cannot do much here
+                    // TODO log the error
+                }
+            }
+        }
+    }
+
+
     /**
      * Provides python-like 'with' guarded block
      *
@@ -867,20 +896,16 @@
      * @param {function} [err]
      */
     scope.doWith = function (obj, fn, err) {
-        try {
-            fn.call(obj, obj);
+        var objList;
 
-        } catch (e) {
-            if (typeof err === 'function') {
-                err(e);
-            }
+        if (Object.prototype.toString.call(obj) !== '[object Array]') {
+            objList = [obj];
 
-        } finally {
-            if (obj.hasOwnProperty('close') && typeof obj.close === 'function') {
-                obj.close();
-            }
+        } else {
+            objList = obj;
         }
-    };
+        doWith(objList, fn, err, 0);
+    }
 
 
 }(this));
