@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.orzo</groupId>
 	<artifactId>orzo</artifactId>
-	<version>0.5-SNAPSHOT</version>
+	<version>0.5.1</version>
 	<build>
 		<plugins>
 			<plugin>
