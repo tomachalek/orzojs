@@ -15,8 +15,8 @@
  */
 package net.orzo;
 
-import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -45,17 +45,6 @@ public class FinalResults {
 	private final IntermediateResults results;
 
 	/**
-	 * This object makes JavaScript API nicer (but maybe less concise). It
-	 * allows using sorted results by calling result.sorted.each(fn) instead of
-	 * result(true, fn) from older Orzo.js versions.
-	 */
-	public SortedResults sorted = new SortedResults() {
-		public void each(ScriptFunction fn) {
-			FinalResults.this.each(fn, true);
-		}
-	};
-
-	/**
 	 * 
 	 * @param context
 	 * @param scope
@@ -64,43 +53,6 @@ public class FinalResults {
 		this.results = results;
 	}
 
-	/**
-	 * 
-	 * @param fn
-	 */
-	public void each(ScriptFunction fn) {
-		each(fn, false);
-	}
-
-	/**
-	 * A simple utility allowing iterating over all the results. Passed
-	 * <i>fn</i> argument is expected to be a JavaScript callback with signature
-	 * function(key, values)
-	 */
-	private void each(ScriptFunction fn, boolean sortKeys) {
-		MethodHandle mh;
-
-		try {
-			if (sortKeys) {
-				for (Object key : sortedKeys()) {
-					mh = fn.getBoundInvokeHandle(null); // TODO scope???
-					mh.invoke(key, this.results.getData().get(key)); // TODO
-																		// wrapping???
-				}
-
-			} else {
-				for (Object key : this.results.getData().keySet()) {
-					mh = fn.getBoundInvokeHandle(null); // TODO scope???
-					mh.invoke(key, this.results.getData().get(key)); // TODO
-																		// wrapping???
-				}
-
-			}
-
-		} catch (Throwable ex) {
-			throw new RuntimeException(ex); // TODO more specific exception???
-		}
-	}
 
 	/**
 	 * Returns a result list identified by a key
@@ -108,15 +60,29 @@ public class FinalResults {
 	 * @param key
 	 *            a result entry key
 	 */
-	public Object get(String key) {
-		return this.results.getData().get(key); // TODO wrapping???
+	public Collection<Object> get(String key) {
+		return this.results.getData().get(key);
 	}
 
 	/**
 	 * 
 	 */
-	public Object contains(String key) {
-		return this.results.getData().containsKey(key); // TODO wrapping???
+	public boolean contains(String key) {
+		return this.results.getData().containsKey(key);
+	}
+
+	/**
+	 * 
+	 * @param sorted
+	 * @return
+	 */
+	public List<Object> keys(boolean sorted) {
+		if (sorted) {
+			return sortedKeys();
+
+		} else {
+			return new ArrayList<Object>(this.results.keys());
+		}
 	}
 
 	/**
@@ -134,12 +100,5 @@ public class FinalResults {
 		};
 		Collections.sort(keys, cmp);
 		return keys;
-	}
-
-	/**
-	 * Returns a list of alphabetically sorted reduce-emitted keys.
-	 */
-	public Object keys() {
-		return sortedKeys().toArray(); // TODO wrapping???
 	}
 }
