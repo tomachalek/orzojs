@@ -138,20 +138,25 @@
     };
 
     /**
-     * Registers the "reduce" function
+     * Registers a "reduce" function
      *
-     * @param {function(string, array)} a function to be used to process all the data (parameters
-     * represent single "key => [value1, value2,...]" as merged after all the map() functions are
-     * executed)
+     * @param arg0 number of workers or a function to be run as 'reduce'
+     * @param arg1 if arg0 is a number then this is expected to be a reduce function
      */
     scope.reduce = function (arg0, arg1) {
         var ans;
 
+        function resultProcWrapper(actualProc) {
+            return function (key, values) {
+                return actualProc.call(scope, key, Java.from(values));
+            };
+        }
+
         if (typeof arg0 === 'function' && arg1 === undefined) {
-            ans = scope._mr.reduce(0, arg0); // 0 forces orzo to use 'numChunks'
+            ans = scope._mr.reduce(0, resultProcWrapper(arg0)); // 0 forces orzo to use 'numChunks'
 
         } else if (typeof arg0 === 'number' && typeof arg1 === 'function') {
-            ans = scope._mr.reduce(arg0, arg1);
+            ans = scope._mr.reduce(arg0, resultProcWrapper(arg1));
         }
         return ans;
     };

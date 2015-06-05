@@ -225,6 +225,59 @@
     };
 
     /**
+     *
+     * @param javaResults
+     * @constructor
+     */
+    function FinalResults(javaResults) {
+        var self = this;
+
+        this._javaResults = javaResults;
+        this.sorted = {
+            each : function (fn) {
+                self._each(fn, true);
+            },
+            get : function (key) {
+                return self.et(key);
+            },
+            contains : function (key) {
+                return self.contains(key);
+            },
+            keys : function () {
+                return Java.from(self._javaResults.keys(true));
+            }
+        };
+    }
+
+    FinalResults.prototype._each = function (fn, sorted) {
+        var keys = this._javaResults.keys(sorted),
+            i;
+
+        for (i = 0; i < keys.length; i += 1) {
+            fn.call(this, keys[i], Java.from(this._javaResults.get(keys[i])));
+        }
+    };
+
+    /**
+     * @param fn
+     */
+    FinalResults.prototype.each = function (fn) {
+        return this._each(fn, false);
+    };
+
+    FinalResults.prototype.get = function (key) {
+        return Java.from(this._javaResults.get(key));
+    };
+
+    FinalResults.prototype.contains = function (key) {
+        return this._javaResults.contains(key);
+    };
+
+    FinalResults.prototype.keys = function () {
+        return Java.from(this._javaResults.keys(false));
+    };
+
+    /**
      * Initializes JS environment for the 'finish' phase
      */
     scope.initFinish = function () {
@@ -237,7 +290,7 @@
      * @param info
      */
     scope.runFinish = function (results, info) {
-        scope._mr.finishFn(results, info);
+        scope._mr.finishFn(new FinalResults(results), info);
     }
 
 }(this));
