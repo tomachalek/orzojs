@@ -21,11 +21,62 @@ interface MapFunction<T> {
     (callback:(v:T)=>void):void
 }
 
+
+interface IResults {
+
+    /**
+     * Iterates over emitted keys (without defined order)
+     * and calls the passed function with key and
+     * its respective values as arguments.
+     *
+     * @param fn
+     */
+    each(fn:(key:string, values:Array<any>)=>void):void;
+
+    /**
+     * Returns all the values emitted with the passed key.
+     *
+     * @param key
+     */
+    get(key:string):Array<any>;
+
+    /**
+     * Tests whether the passed key has been emitted.
+     *
+     * @param key
+     */
+    contains(key:string):boolean;
+
+    /**
+     * Returns a list (without defined order) of emitted keys
+     */
+    keys():Array<string>;
+}
+
+
+interface SortedResults extends IResults {
+
+    /**
+     * Iterates over alphabetically sorted emitted keys
+     * and calls the passed function with key and
+     * its respective values as arguments.
+     *
+     * @param fn
+     */
+    each(fn:(key:string, values:Array<any>)=>void):void;
+
+    /**
+     * Returns an alphabetically sorted list of emitted keys
+     */
+    keys():Array<string>;
+}
+
+
 /**
  *
  */
-interface Results {
-    each(fn:(key:string, values:Array<any>)=>void):void;
+interface Results extends IResults {
+    sorted:SortedResults;
 }
 
 /**
@@ -358,7 +409,7 @@ declare module orzo {
      * @param s A string to be printed
      * @param values Values to replace formatting placeholders in the string
      */
-    function printf(s:string, ...values:Array<any>);
+    function printf(s:string, ...values:any[]);
 
     /**
      * Formats a string by placing provided values into respective reference
@@ -367,7 +418,7 @@ declare module orzo {
      * @param s A string to be printed
      * @param values Values to replace formatting placeholders in the string
      */
-    function sprintf(v:string, ...values:Array<any>):string;
+    function sprintf(v:string, ...values:any[]):string;
 
     /**
      * Prints internals of a passed object. This is intended for debugging purposes.
@@ -712,4 +763,4 @@ declare function iterator<T>(data:Array<any>, next:(item:any)=>T, hasNext:(item:
 * @param fn A function wrapping the actions we want to perform on the object
 * @param err A function to be called in case of an exception
 */
-declare function doWith(obj:Closeable|Array<Closeable>, fn:(v:Closeable)=>void, err?:(e:Error)=>void):void;
+declare function doWith<T extends Closeable>(obj:T|Array<T>, fn:(v:T)=>void, err?:(e:Error)=>void):void;
