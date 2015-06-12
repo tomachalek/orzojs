@@ -87,7 +87,7 @@ In our case the *reduce* function will just calculate a sum of all emitted *1*s 
 Let's say 2 threads are enought here:
 
 ```js
-reduce(3, function (key, values) {
+reduce(2, function (key, values) {
     emit(D(values).sum());
 });
 ```
