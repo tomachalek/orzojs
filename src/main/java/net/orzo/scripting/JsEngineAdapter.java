@@ -46,6 +46,7 @@ import com.google.common.base.Joiner;
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
+@SuppressWarnings("restriction")
 public class JsEngineAdapter {
 
 	/**
@@ -97,7 +98,7 @@ public class JsEngineAdapter {
 				File module = findModule(
 						JsEngineAdapter.this.envParams.modulesPaths, moduleId);
 				if (module != null) {
-					return loadModule(SourceCode.fromFile(module));
+					return loadModule(moduleId, SourceCode.fromFile(module));
 
 				} else {
 					throw new ModuleException(String.format(
@@ -202,11 +203,9 @@ public class JsEngineAdapter {
 	}
 
 	/**
-	 * @throws ScriptException
-	 * @throws IOException
-	 * 
 	 */
-	public Object loadModule(SourceCode code) throws ScriptException,
+	public Object loadModule(String moduleId, SourceCode code)
+			throws ScriptException,
 			IOException {
 		if (!this.modules.containsKey(code.getFullyQualifiedName())) {
 			ScriptContext context = new SimpleScriptContext();
@@ -215,12 +214,22 @@ public class JsEngineAdapter {
 
 			Bindings engineScope = context
 					.getBindings(ScriptContext.ENGINE_SCOPE);
-			SourceCode modEnv = SourceCode.fromResource("net/orzo/modenv.js");
 			engineScope.put("require", this.require);
 			engineScope.put("doWith", this.scope.get("doWith"));
 			engineScope.put("orzo", this.scope.get("orzo"));
-			this.engine.eval(modEnv.getContents(), context);
-			this.engine.eval(code.getContents(), context);
+			engineScope.put("_moduleId", moduleId);
+
+			SourceCode modEnv = SourceCode.fromResource("net/orzo/modenv.js");
+			CompiledScript moduleScript;
+
+			// empty module
+			moduleScript = modEnv.compile((Compilable) this.engine);
+			moduleScript.eval(context);
+
+			// actual module
+			moduleScript = code.compile((Compilable) this.engine);
+			this.engine.put(ScriptEngine.FILENAME, code.getName());
+			moduleScript.eval(context);
 
 			ScriptObjectMirror moduleObj = (ScriptObjectMirror) engineScope
 					.get("module");
