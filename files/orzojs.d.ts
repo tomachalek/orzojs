@@ -773,4 +773,4 @@ declare function doWith<T extends Closeable>(obj:T|Array<T>, fn:(v:T)=>void, err
  *
  * @param moduleId
  */
-declare function require(moduleId:string);
+declare function require<T>(moduleId:string):T;
