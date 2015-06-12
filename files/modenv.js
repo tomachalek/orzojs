@@ -1,10 +1,11 @@
 (function (scope) {
     'use strict';
 
+    scope.exports = {};
+    
     scope.module = {
-            id : null,
-            exports :  {}
+            id : scope._moduleId,
+            exports : scope.exports
     };
 
-    scope.exports = scope.module.exports;
 }(this));
