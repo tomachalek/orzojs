@@ -764,3 +764,13 @@ declare function iterator<T>(data:Array<any>, next:(item:any)=>T, hasNext:(item:
 * @param err A function to be called in case of an exception
 */
 declare function doWith<T extends Closeable>(obj:T|Array<T>, fn:(v:T)=>void, err?:(e:Error)=>void):void;
+
+/**
+ * Loads a module. Orzo.js supports only sandboxed module loading.
+ * Searched paths are:
+ *   1) main script working directory
+ *   2) a directory specified by -m parameter
+ *
+ * @param moduleId
+ */
+declare function require(moduleId:string);
