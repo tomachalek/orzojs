@@ -1,129 +1,120 @@
 Orzo.js
 =======
 
-Orzo.js is a simple multi-threaded Map-Reduce implementation written in Java and
-programmable in JavaScript.
+Orzo.js is a simple **multi-threaded, in-memory Map-Reduce** implementation written in Java and **programmable in JavaScript**. It can be used as an <acronym title="Extract, Transform, Load">ETL</acronym> tool, educational software, "smaller than big data" processing/analyzing tool, prototyping tool etc.
 
-Introduction
+*Orzo.js* is designed to run on a single multi-core/multi-CPU machine. If you know how [Map-Reduce](https://en.wikipedia.org/wiki/MapReduce) works, the only additional think to do is to decide how your data can be split into chunks. Orzo.js does not create a thread for each *map* operation as it would cause a big overhead. It instead processes multiple chunks of data in parallel.
+
+Orzo.js comes with a bunch of predefined functions you can use to perform your tasks and [analyze your data](http://www.orzojs.org/API.md#api_datalib_Data). You can also create your own or use 3rd party CommonJS modules. 
+
+To get more information plese visit [www.orzojs.org](http://www.orzojs.org/).
+
+
+How to start
 ------------
 
-*Orzo.js* is designed to run on a single (yet multi-core/multi-CPU) machine which is the reason why
-it does not create a thread for each input data item you want to apply a *map* function to. Instead, *chunks of data items are processed in parallel*. Such approach requires you to tell the *Orzo.js* how to split the data into these chunks or how the data is already split. Sometimes it can be easy - for example a list of log files where each file represents a single chunk and each line represents a data item. Some cases are more complicated - e.g. if you have one big text file you want to be processed in parallel. Fortunatelly, *Orzo.js* provides some useful functions to help you in such situations.
+When writing a script you don't have to even start from scratch:
 
-When your script's execution starts, *Orzo.js* attaches each data chunk to its own worker thread and starts the calculation by applying *map* function to each data item within these chunks. Once all the particular results are available, new worker threads are created to perform the *reduce* operation. After that, the *finish* operation is executed to allow custom finalization (e.g. presentation of the result, data export, clean-up etc.).
-
-Orzo.js comes with some predefined functions you can use to perform your calculations. You can also define your own modules or use 3rd party ones because Orzo.js supports CommonJS compliant module importing.
-
-Available versions
-------------------
-
-Original development begun using **Mozilla Rhino** JavaScript engine. Latest version based on Rhino is 0.3. Even though the engine performs well, it started to appear that its development was slowing down and at the same time a new engine **Nashorn** appeared. Because it is now the default JavaScript engine in Java 8, the decision has been made to rewrite related parts of Orzo.js to be compatible with Nashorn. Currently, there is no official release yet but current development version of Orzo.js is almost ready to replace version 0.3. 
-
-How to build the application from source
-----------------------------------------
-
-To build *Orzo.js* from sources, you need the JDK 8+ (JDK 6+ for version 0.3), a working Maven installation and an Internet connection to be able to download required dependencies (Maven does it automatically). In the directory where *Orzo.js* sources are located (*pom.xml* file should be there) type:
-
-```bash
-mvn clean dependency:copy-dependencies package
+```
+orzojs -t myscript.js
 ```
 
-How to write a script
----------------------
+This command will create a template of your script along with TypeScript *d.ts.* file for comfortable editing in JavaScript IDE (Webstorm, Visual Studio Code, ...).
 
-Orzo.js' map-reduce scripts are written in JavaScript. You do not have to worry about the whole 
-calculation workflow - it is taken care of by the application. All you have to do is to register several obligatory functions with predefined signature:
 
-* dataChunks,
-* applyItems,
-* map,
-* reduce,
-* finish. 
+How to process data
+-------------------
 
-During each calculation phase, Orzo.js calls your function and applies it on 
-currently processed data.
+You do not have to worry about the whole calculation workflow - it is taken care of by the application. All you have to do is to **register several obligatory functions**:
 
-### Example problem
+* [dataChunks](http://www.orzojs.org/API.md#api_dataChunks),
+* [applyItems](http://www.orzojs.org/API.md#api_applyItems),
+* [map](http://www.orzojs.org/API.md#api_map),
+* [reduce](http://www.orzojs.org/API.md#api_reduce),
+* [finish](http://www.orzojs.org/API.md#api_finish). 
 
-Let's say we have 10 files where each line represents a valid JSON-encoded data. First of 
-all, we define a simple helper function to read the content of the files:
+During each calculation phase, Orzo.js calls your function passing it the appropriate data.
 
-```js
-function loadLogFile(path) {
-    var f = orzo.fileReader(path),
-    ans = [];
+Example
+-------
 
-    while (f.hasNext()) {
-        ans.push(JSON.parse(f.next()));
-    }
-    return ans;
-}
-```
+Let's say we have 10 log files (*server.0.log*, *server.1.log*, ..., *server.9.log*). Each line of the log file  represents a valid JSON-encoded data. 
 
-Then we register the function *dataChunks*. It tells the Orzo.js how our data is split (or how
-we want to split them) and how many such 'chunks' are there. Orzo.js creates a worker thread
-for each of the chunks. The following example shows we have 10 chunks (here a chunk == a file)
-and how to read them (here by reading files *server.0.log*, *server.1.log*,..., *server.9.log*).
+### Chunking the data
 
+We have to decide how we define a chunk. In our case it may be a single file or a list of files. We could define this manually but orzo offers a convenient function for this: [orzo.directoryReader](http://www.orzojs.org/API.md#api_orzo_directoryReader). This function will automatically walk through provided directory (or directories), apply optional filter and create a predefined number of path groups.
+
+  
 ```js
 dataChunks(10, function (idx) {
-    return loadLogFile('server.' + idx + '.log');
+    return orzo.directoryReader('./data, idx);
 });
 ```
 
-The second registered function, *applyItems* is also Orzo.js-specific and it defines a relationship
-between a *data chunk* and *data item* where *data item* will be actually the value passed to
-the *map* function. The relationship can be 1:1 - which would mean each worker would process just
-one *map* function and one file in this example. But with limited computer multi-threading and IO capacity, a relationship 1:N would be more likely. In such case each *data chunk* will produce *N* 
-*data items* and hence *N* *map* function calls.
+With this code we have told Orzo.js that:
+
+  1. there will be 10 chunks (=> 10 threads)
+  2. once it requires a chunk with ID = [idx], then it should use a directory reader which is expected to return its [idx]-th file group.
+
+Now we have to specify how the *map* function will be applied on a chunk. Our *directoryReader* returns an *Iterator* which we will use in the following code. To be able to process a concrete file, we have to read it somehow. Orzo.js offers a simple line-by-line reader [orzo.fileReader](http://www.orzojs.org/API.md#api_orzo_fileReader):
+
 
 ```js
-applyItems(function (dataChunk, map) { 
-    while (dataChunk.hasNext()) {
-        map(dataChunk.next());
-    } 
+applyItems(function (fileList, map) {
+    var fr; 
+    while (fileList.hasNext()) {
+        fr = orzo.fileReader(fileList.next()); // next file path in a group
+        while (fr.hasNext()) {   
+            map(fr.next()); // next line in a file
+        }
+    }
 });
 ```
 
-Now we can define the two essential functions - *map* and *reduce*. Let's say our log lines
-contain the *errorType* attribute (with possible values *WARNING*, *RECOVERABLE*, *FATAL*) 
-and we want to calculate their total occurrences:
+### Map-Reduce
+
+Now we can define *map* and *reduce* functions. Let's say our JSON log lines contain the *errorType* attribute (with possible values *WARNING*, *RECOVERABLE*, *FATAL*) and we want to calculate their total occurrences. We know what our *map* will obtain from Orzo.js from the previous code block:
 
 ```js
-map(function (dataItem) {
-    emit(dataItem.errorType, 1); // for each type we emit 1
+map(function (logLine) {
+    var parsed = JSON.parse(logLine);
+    emit(parsed.errorType, 1); // for each type we emit 1
 });
 ```
 
-The reduce function will just calculate the sum of all emitted 1s for all the keys. 
-Orzo.js' reduce function has actually two signatures - there is an optional first (numeric) 
-parameter which can specify how many worker threads should Orzo.js create. If omitted then 
-the same number as in case of *dataChunks* is used. 
+In our case the *reduce* function will just calculate a sum of all emitted *1*s for all the different keys (*WARNING*, *RECOVERABLE*, *FATAL*). Orzo.js reduce function has actually two signatures - there is an optional first (numeric) parameter which can specify how many worker threads should Orzo.js create. If omitted then the same number as in case of *dataChunks* is used.  
 
-Generally, the question how many worker threads to specify depends on the data and the problem 
-solved. If you emit the same key for all the data then multi-threading brings no advantage in case of Orzo.js. 
-
-Applied to our example, we know we have actually three error types we want to count
-so we can make Orzo.js to sum each type independently:
+Let's say 2 threads are enought here:
 
 ```js
 reduce(3, function (key, values) {
     emit(D(values).sum());
 });
 ```
-(Here we used a special function [datalib.D](API.md#api_datalib_D) which wraps your data and offers some basic statistical functions)
+(Here we have used a special factory function [datalib.D](http://www.orzojs.org/API.md#api_datalib_D) which wraps our data can apply some basic statistical functions on it).
 
-Finally, we want to see the result which is exactly why there is a *finish* function:
+Finally, we want to print the result:
 
 ```js
 finish(function (results) {
-    results.each(function (key, values) {
+    results.sorted.each(function (key, values) {
         // our reduce emits just a single value but Orzo.js always
         // creates an array which means we have to handle 'values'
         // as an array
         orzo.printf('%s -> %d occurrences\n', key, values[0]);
     });    
 });
+```
+
+Download
+--------
+
+Please visit Orzo.js [download page](http://www.orzojs.org/downloads.md).
+
+You can also build *Orzo.js* from sources. If you have JDK 8+ and a working Maven installation just type the following commands in Orzo.js root directory:
+
+```bash
+mvn clean dependency:copy-dependencies package
 ```
 
 Further documentation
