@@ -15,10 +15,17 @@
  */
 package net.orzo.lib;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,5 +114,46 @@ public class Strings {
 					"Unknown hash function '%s'", algorithm));
 		}
 	}
+	
+
+	public StringDistances stringDistance = new StringDistances() {
+		
+		public Integer levenshtein(String s1, String s2) {
+			return StringUtils.getLevenshteinDistance(s1, s2);
+		}
+		
+		public Integer fuzzy(String s1, String s2, String locale) {
+			return StringUtils.getFuzzyDistance(s1, s2, new Locale(locale));
+		}
+		
+		public Double jaroWinkler(String s1, String s2) {
+			return StringUtils.getJaroWinklerDistance(s1,  s2);
+		}		
+
+		private double lengthCompressed(String s) throws IOException {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			GZIPOutputStream gos = new GZIPOutputStream(baos);
+			gos.write(s.getBytes());
+			IOUtils.closeQuietly(gos);
+			System.out.println("STR: " + s);
+			System.out.println("XXX: " + Arrays.toString(baos.toByteArray()));
+			return (double) baos.toByteArray().length;
+		}
+
+		public Double normalizedCompression(String s1, String s2) {
+			try {
+				double l1 = lengthCompressed(s1);
+				double l2 = lengthCompressed(s2);
+
+				return (lengthCompressed(s1 + s2) - Math.min(l1, l2))
+						/ Math.max(l1, l2);
+
+			} catch (IOException e) {
+				return Double.NaN;
+			}
+
+		}
+
+	};
 
 }

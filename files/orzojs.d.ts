@@ -113,6 +113,60 @@ interface FileIterator extends Iterator<string>, Closeable {
 }
 
 /**
+ *
+ */
+interface StringDistances {
+
+    /**
+     * Find the Levenshtein distance between two Strings.
+     * This is the number of changes needed to change one String into another,
+     * where each change is a single character modification (deletion, insertion
+     * or substitution).
+     *
+     * Uses org.apache.commons.lang3.StringUtils.getLevenshteinDistance
+     *
+     * @param s1
+     * @param s2
+     */
+    levenshtein(s1:string, s2:string):number;
+
+    /**
+     * Find the Fuzzy Distance which indicates the similarity score between two Strings.
+     * One point is given for every matched character. Subsequent matches yield two bonus points.
+     * A higher score indicates a higher similarity.
+     *
+     * Uses org.apache.commons.lang3.StringUtils.getFuzzyDistance
+     *
+     * @param s1
+     * @param s2
+     * @param locale
+     */
+    fuzzy(s1:string, s2:string, locale:string):number;
+
+    /**
+     * Find the Jaro Winkler Distance which indicates the similarity score between two Strings.
+     * The Jaro measure is the weighted sum of percentage of matched characters from each file
+     * and transposed characters. Winkler increased this measure for matching initial characters.
+     *
+     * Uses org.apache.commons.lang3.StringUtils.getJaroWinklerDistance
+     *
+     * @param s1
+     * @param s2
+     */
+    jaroWinkler(s1:string, s2:string):number;
+
+    /**
+     * Normalized compression distance using GZIP algorithm.
+     *
+     * Based on: https://en.wikipedia.org/wiki/Normalized_compression_distance#Normalized_compression_distance
+     *
+     * @param s1
+     * @param s2
+     */
+    normalizedCompression(s1:string, s2:string):number;
+}
+
+/**
  * A library containing function to work with array-like
  * data with heterogeneous items.
  */
@@ -645,6 +699,11 @@ declare module orzo {
      * @param path
      */
     function loadImage(path:string):Image;
+
+    /**
+     *
+     */
+    declare var stringDistance:StringDistances;
 }
 
 /**
