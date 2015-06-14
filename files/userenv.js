@@ -646,6 +646,25 @@
     };
 
     /**
+     * Miscellaneous string similarity algorithms.
+     *
+     */
+    scope.orzo.stringDistance = {
+        levenshtein : function (s1, s2) {
+            return scope._lib.strings.stringDistance.levenshtein(s1, s2);
+        },
+        fuzzy : function (s1, s2, locale) {
+            return scope._lib.strings.stringDistance.fuzzy(s1, s2, locale);
+        },
+        jaroWinkler : function (s1, s2) {
+            return scope._lib.strings.stringDistance.jaroWinkler(s1, s2);
+        },
+        normalizedCompression : function (s1, s2) {
+            return scope._lib.strings.stringDistance.normalizedCompression(s1, s2);
+        }
+    };
+
+    /**
      * Pauses current worker for t seconds. Fractions of second
      * are permitted (e.g. sleep(3.7)).
      *
