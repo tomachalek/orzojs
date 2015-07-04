@@ -31,6 +31,16 @@ public class EnvParams {
 	public int workerId;
 
 	/**
+	 *  
+	 */
+	public String scriptName;
+
+	/**
+	 * 
+	 */
+	public String workingDir;
+
+	/**
 	 * Contains parameters user provided via command line
 	 */
 	public String[] inputArgs;

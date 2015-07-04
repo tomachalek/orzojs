@@ -15,6 +15,8 @@
  */
 package net.orzo.data;
 
+import static net.orzo.Util.normalizePath;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,14 +96,6 @@ public class DirectoryReader {
 		return fileList;
 	}
 	
-	private static String normalizePath(String path) {
-		if (File.separator == "/") {
-			return path;
-			
-		} else {
-			return path.replace(File.separator, "/");
-		}
-	}
 
 	/**
 	 * Recursive method which searches for files/directories on a specified path

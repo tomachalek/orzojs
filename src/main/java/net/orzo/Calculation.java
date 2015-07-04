@@ -15,6 +15,8 @@
  */
 package net.orzo;
 
+import static net.orzo.Util.normalizePath;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  * 
  */
+@SuppressWarnings("restriction")
 public class Calculation {
 
 	/**
@@ -49,7 +52,7 @@ public class Calculation {
 	 */
 	private static final Logger LOG = LoggerFactory
 			.getLogger(Calculation.class);
-	
+
 	private final CalculationParams params;
 
 	/**
@@ -75,7 +78,7 @@ public class Calculation {
 		this.modulesPaths.add(params.workingDirModulesPath);
 		if (params.orzoModulesPath != null) {
 			this.modulesPaths.add(params.orzoModulesPath);
-		}		
+		}
 		if (params.optionalModulesPath != null) {
 			this.modulesPaths.add(params.optionalModulesPath);
 		}
@@ -93,38 +96,38 @@ public class Calculation {
 		long startTime = System.currentTimeMillis();
 		CalculationInfo calcInfo = new CalculationInfo();
 		calcInfo.put("datetime", getCurrentDate());
-		
+
 		try {
 			ScriptObjectMirror prepareData = runPrepare();
-			numReduceWorkers = (int)prepareData.get("numReduceWorkers");
-			numChunks = (int)prepareData.get("numChunks");
-			
+			numReduceWorkers = (int) prepareData.get("numReduceWorkers");
+			numChunks = (int) prepareData.get("numChunks");
+
 			mapResults = runMap(numChunks);
-	
+
 			if (!mapResults.hasErrors()) {
 				reduceResults = runReduce(numReduceWorkers, mapResults);
 			}
 			calcInfo.put("duration",
 					(System.currentTimeMillis() - startTime) / 1000.0);
 			System.err.printf("\n\nFinished in %01.3f seconds.\n",
-					calcInfo.get("duration"));		
-	
+					calcInfo.get("duration"));
+
 			if (reduceResults != null && !reduceResults.hasErrors()) {
 				runFinish(reduceResults, calcInfo);
-	
+
 			} else {
 				System.err.println("Failed to execute the script.");
-	
+
 				if (mapResults.hasErrors()) {
 					System.err.println("Map errors:\n");
 					for (Exception e : mapResults.getErrors()) {
 						System.err.println(e);
 					}
 				}
-	
+
 				if (reduceResults == null) {
 					System.err.println("Reduce phase not run.");
-	
+
 				} else if (reduceResults.hasErrors()) {
 					System.err.print("Reduce errors:\n");
 					for (Exception e : reduceResults.getErrors()) {
@@ -132,34 +135,38 @@ public class Calculation {
 					}
 				}
 			}
-			
+
 		} catch (ScriptException | NoSuchMethodException e) {
-			throw new CalculationException("Calculation failed: " + e.getMessage(), e);
+			throw new CalculationException("Calculation failed: "
+					+ e.getMessage(), e);
 		}
 	}
-	
+
 	private EnvParams createEnvParams() {
 		EnvParams envParams = new EnvParams();
+		envParams.workingDir = normalizePath(System.getProperty("user.dir"));
+		envParams.scriptName = normalizePath(this.params.userScript
+				.getFullyQualifiedName());
 		envParams.inputArgs = this.inputValues;
 		envParams.modulesPaths = this.modulesPaths;
 		return envParams;
 	}
-	
+
 	/**
-	 * Runs preparation phase when user script is loaded (= all the respective functions are 
-	 * registered but no real processing is done yet).
+	 * Runs preparation phase when user script is loaded (= all the respective
+	 * functions are registered but no real processing is done yet).
 	 * 
 	 * @return
 	 */
-	private ScriptObjectMirror runPrepare() throws ScriptException, NoSuchMethodException {
+	private ScriptObjectMirror runPrepare() throws ScriptException,
+			NoSuchMethodException {
 		JsEngineAdapter jsEngine = new JsEngineAdapter(createEnvParams());
 		jsEngine.beginWork();
 		jsEngine.runCode(this.params.calculationScript,
-				this.params.userenvScript,
-				this.params.datalibScript);
+				this.params.userenvScript, this.params.datalibScript);
 		jsEngine.runFunction("prepare");
 		jsEngine.runCode(this.params.userScript);
-		return (ScriptObjectMirror)jsEngine.runFunction("getParams");				
+		return (ScriptObjectMirror) jsEngine.runFunction("getParams");
 	}
 
 	/**
@@ -169,7 +176,7 @@ public class Calculation {
 	 * 
 	 * @return key => [value1, value2,..., valueN] for all emitted keys and
 	 *         values
-	 * @throws ScriptException 
+	 * @throws ScriptException
 	 */
 	private IntermediateResults runMap(int numWorkers) throws ScriptException {
 		ExecutorService executor;
@@ -182,10 +189,8 @@ public class Calculation {
 		for (int i = 0; i < numWorkers; i++) {
 			workerEnvParams = createEnvParams();
 			workerEnvParams.workerId = i;
-			worker = new MapWorker(workerEnvParams,
-					this.params.userScript,
-					this.params.calculationScript,
-					this.params.userenvScript,
+			worker = new MapWorker(workerEnvParams, this.params.userScript,
+					this.params.calculationScript, this.params.userenvScript,
 					this.params.datalibScript);
 			Future<IntermediateResults> submit = executor.submit(worker);
 			threadList.add(submit);
@@ -213,7 +218,8 @@ public class Calculation {
 	 * 
 	 * @return key => "object" for all emitted keys and values
 	 */
-	private IntermediateResults runReduce(int numWorkers, IntermediateResults mapResults) {
+	private IntermediateResults runReduce(int numWorkers,
+			IntermediateResults mapResults) {
 		ExecutorService executor;
 		List<Future<IntermediateResults>> threadList = new ArrayList<Future<IntermediateResults>>();
 		IntermediateResults reduceResults = new IntermediateResults();
@@ -228,9 +234,10 @@ public class Calculation {
 			EnvParams workerEnvParams = createEnvParams();
 			workerEnvParams.workerId = i;
 
-			ReduceWorker reduceWorker = new ReduceWorker(workerEnvParams, mapResultPortions[i],
-					this.params.userScript, this.params.calculationScript, 
-					this.params.userenvScript, this.params.datalibScript);
+			ReduceWorker reduceWorker = new ReduceWorker(workerEnvParams,
+					mapResultPortions[i], this.params.userScript,
+					this.params.calculationScript, this.params.userenvScript,
+					this.params.datalibScript);
 			Future<IntermediateResults> submit = executor.submit(reduceWorker);
 			threadList.add(submit);
 		}
@@ -252,17 +259,17 @@ public class Calculation {
 		executor.shutdown();
 		return reduceResults;
 	}
-	
-	private void runFinish(IntermediateResults reduceResults, CalculationInfo calcInfo) throws ScriptException, NoSuchMethodException {
-		EnvParams envParams = createEnvParams();	
 
-		JsEngineAdapter jse = new JsEngineAdapter(envParams);			
+	private void runFinish(IntermediateResults reduceResults,
+			CalculationInfo calcInfo) throws ScriptException,
+			NoSuchMethodException {
+		EnvParams envParams = createEnvParams();
+
+		JsEngineAdapter jse = new JsEngineAdapter(envParams);
 		FinalResults fr = new FinalResults(reduceResults);
-		
+
 		jse.beginWork();
-		jse.runCode(
-				this.params.calculationScript,
-				this.params.userenvScript,
+		jse.runCode(this.params.calculationScript, this.params.userenvScript,
 				this.params.datalibScript);
 		jse.runFunction("initFinish");
 		jse.runCode(this.params.userScript);
