@@ -1,6 +1,9 @@
 .idea
 .settings
+.classpath
+.project
 exe/
 log/
 target/
 test-output/
+files/*.tmp
