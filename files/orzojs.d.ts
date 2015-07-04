@@ -433,6 +433,23 @@ interface Env {
      *   ['/my/data/dir', '/my/output/dir']
      */
     inputArgs:Array<string>;
+
+    /**
+     * A unique number between 0...[num_workers - 1] specifying ID
+     * of a current worker. The assignment is done automatically.
+     */
+    workerId:number;
+
+    /**
+     * A filesystem or a Java resource path of user's script.
+     */
+    scriptName:string;
+
+    /**
+     * A current working directory (the one Orzo.js has been started from).
+     */
+    cwd:string;
+
 }
 
 /**

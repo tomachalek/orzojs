@@ -39,6 +39,8 @@
 
     // initialization of env values
     scope.env.workerId = scope._env.workerId;
+    scope.env.scriptName = scope._env.scriptName;
+    scope.env.cwd = scope._env.workingDir;
     scope.env.inputArgs = []; // arguments passed via command-line
 
     (function () {
