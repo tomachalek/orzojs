@@ -62,11 +62,6 @@ public final class App {
 		this.cliOptions
 				.addOption("g", true,
 						"custom path to a Logback configuration XML file (default is ./logback.xml)");
-		this.cliOptions
-				.addOption(
-						"l",
-						true,
-						"custom datalib file (advanced feature - modules should cover most of the cases)");
 		this.cliOptions.addOption("h", false, "print help");
 		this.cliOptions
 				.addOption(
@@ -169,13 +164,7 @@ public final class App {
 					.fromResource(CALCULATION_SCRIPT);
 
 			// datalib file
-			if (cmd.hasOption("s")) {
-				params.datalibScript = SourceCode.fromFile(new File(cmd
-						.getOptionValue("s")));
-
-			} else {
-				params.datalibScript = SourceCode.fromResource(DATALIB_SCRIPT);
-			}
+			params.datalibScript = SourceCode.fromResource(DATALIB_SCRIPT);
 
 			// custom CommonJS modules path
 			if (cmd.hasOption("m")) {
