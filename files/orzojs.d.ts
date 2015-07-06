@@ -593,15 +593,6 @@ declare module orzo {
     function httpGet(url:string):string;
 
     /**
-     * Calculates a hash value of an object based on passed algorithm name
-     *
-     * @param s A string to be hashed (or any object with reasonable toString() conversion)
-     * @param algorithm One of {md5, sha1, sha256, sha384, sha512} (values can be also in upper-case)
-     * @return hash of provided object (toString() is used to convert it)
-     */
-    function hash(s:{}|string, algorithm:string):string;
-
-    /**
      * Pauses current worker for t seconds. Fractions of second
      * are permitted (e.g. orzo.sleep(3.7)).
      *
@@ -721,6 +712,22 @@ declare module orzo {
      *
      */
     declare var stringDistance:StringDistances;
+}
+
+/**
+ * Provides a set of common hash functions.
+ */
+declare module orzo.hash {
+
+    function md5(s:{}|string):string;
+
+    function sha1(s:{}|string):string;
+
+    function sha256(s:{}|string):string;
+
+    function sha384(s:{}|string):string;
+
+    function sha512(s:{}|string):string;
 }
 
 /**
