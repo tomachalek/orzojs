@@ -572,6 +572,14 @@
     };
 
     /**
+     * 
+     * @param path
+     */
+    scope.orzo.cleanDirectory = function (path) {
+        scope._lib.files.cleanDirectory(path);
+    };
+
+    /**
      * Fetches a content (as a string) from an HTTP server using GET method.
      *
      * @param url

@@ -203,4 +203,13 @@ public class Files {
 		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
 				path), "UTF-8"));
 	}
+
+	/**
+	 * 
+	 * @param path
+	 * @throws IOException
+	 */
+	public void cleanDirectory(String path) throws IOException {
+		FileUtils.cleanDirectory(new File(path));
+	}
 }
