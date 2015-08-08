@@ -584,6 +584,14 @@ declare module orzo {
      * @param path
      */
     function fileWriter(path:string):FileWriter;
+    
+    /**
+     * Recursively deletes all the entries from the directory.
+     * The directory itself is preserved.
+     * 
+     * @param path A path to a directory
+     */
+    function cleanDirectory(path):void;
 
     /**
      * Fetches a content (as a string) via HTTP using GET method.
