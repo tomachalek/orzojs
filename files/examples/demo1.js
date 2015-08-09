@@ -31,7 +31,7 @@ dataChunks(6, function (idx) {
         i,
         s;
     for (i  = 0; i < 10000; i += 1) {
-        s = orzo.md5(String(Math.random()));
+        s = orzo.hash.md5(String(Math.random()));
         ans.push(s);
     }
     // we return an iterator so we do not need
