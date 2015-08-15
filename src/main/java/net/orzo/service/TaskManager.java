@@ -18,9 +18,14 @@ package net.orzo.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import net.orzo.CalculationParams;
 import net.orzo.Config;
@@ -28,6 +33,8 @@ import net.orzo.ScriptConfig;
 import net.orzo.scripting.SourceCode;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -51,6 +58,13 @@ public class TaskManager {
 
 	private final Config conf;
 
+	private final ScheduledExecutorService scheduler;
+
+	private final Map<Task, ScheduledFuture<?>> schedules;
+	
+	private static final Logger LOG = LoggerFactory
+			.getLogger(TaskManager.class);
+
 	/**
 	 * 
 	 * @param conf
@@ -59,6 +73,8 @@ public class TaskManager {
 	public TaskManager(Config conf) {
 		this.conf = conf;
 		this.tasks = new HashMap<String, Task>();
+		this.scheduler = Executors.newScheduledThreadPool(1); // TODO size
+		this.schedules = new HashMap<Task, ScheduledFuture<?>>();
 	}
 
 	/**
@@ -102,8 +118,17 @@ public class TaskManager {
 		return this.tasks.containsKey(taskId);
 	}
 
+	/**
+	 * 
+	 * @param taskId
+	 * @throws ResourceNotFound
+	 */
 	public void deleteTask(String taskId) throws ResourceNotFound {
 		if (this.tasks.containsKey(taskId)) {
+			if (this.schedules.containsKey(this.tasks.get(taskId))) {
+				this.schedules.get(taskId).cancel(false); // TODO may interrupt
+															// ?
+			}
 			this.tasks.remove(taskId);
 
 		} else {
@@ -159,12 +184,57 @@ public class TaskManager {
 	 */
 	public void startTask(String taskId) throws TaskException, ResourceNotFound {
 		if (this.tasks.containsKey(taskId)) {
-			this.tasks.get(taskId).run();
+			new Thread() {
+				@Override
+				public void run() {
+					TaskManager.this.tasks.get(taskId).run();
+				}
+			}.run();
 
 		} else {
 			throw new ResourceNotFound(String.format("task %s not found",
 					taskId));
 		}
 	}
+
+	private long calculateInitialDelay(int hours, int minutes) {
+		Calendar startDate = Calendar.getInstance();
+		Calendar currDate = Calendar.getInstance();
+		if (3600 * hours + 60 * minutes <= 3600
+				* startDate.get(Calendar.HOUR_OF_DAY) + 60
+				* startDate.get(Calendar.MINUTE)) {
+			startDate.add(Calendar.DAY_OF_MONTH, 1);
+		}
+		startDate.set(Calendar.HOUR_OF_DAY, hours);
+		startDate.set(Calendar.MINUTE, minutes);
+		startDate.set(Calendar.SECOND, 0);
+		return startDate.getTimeInMillis() - currDate.getTimeInMillis();
+	}
+
+	/**
+	 * 
+	 * @param taskId
+	 * @param startHour
+	 * @param startMinute
+	 * @param interval
+	 */
+	public void scheduleTask(String taskId, int startHour, int startMinute,
+			int interval) {
+		final Runnable runner = new Runnable() {
+
+			public void run() {
+				LOG.info("Running scheduled task "
+						+ TaskManager.this.tasks.get(taskId).getName());
+				TaskManager.this.tasks.get(taskId).run();
+			} 			
+		};
+		
+		ScheduledFuture<?> future = this.scheduler.scheduleAtFixedRate(runner,
+				calculateInitialDelay(startHour, startMinute),
+				interval * 1000, TimeUnit.MILLISECONDS);
+		this.schedules.put(this.tasks.get(taskId), future);
+	}
+
+
 
 }

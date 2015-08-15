@@ -47,6 +47,10 @@ public class Task {
 		return result;
 	}
 
+	public String getName() {
+		return this.params.userenvScript.getName();
+	}
+
 	public TaskStatus getStatus() {
 		return this.status;
 	}
@@ -55,21 +59,18 @@ public class Task {
 		return this.error;
 	}
 
-	protected void run() throws TaskException {
+	protected void run() {
 		this.status = TaskStatus.RUNNING;
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					Calculation proc = new Calculation(params,
-							(ts) -> Task.this.status = ts);
-					Task.this.result = proc.run();
-				} catch (CalculationException ex) {
-					Task.this.status = TaskStatus.ERROR;
-					Task.this.error = new TaskException(ex.getMessage(), ex);
-				}
-			}
-		}.start();
+		try {
+			Calculation proc = new Calculation(params,
+					(ts) -> Task.this.status = ts);
+			Task.this.result = proc.run();
+
+		} catch (CalculationException ex) {
+			Task.this.status = TaskStatus.ERROR;
+			Task.this.error = new TaskException(ex.getMessage(), ex);
+		}
+
 	}
 
 }
