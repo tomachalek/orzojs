@@ -31,14 +31,18 @@ public class InternalScriptConfig implements ScriptConfig {
 
 	private final String libraryPath;
 
+	private final String workingDirPath;
+
 	/**
 	 * 
 	 * @param script
 	 * @param libraryPath
 	 */
-	public InternalScriptConfig(SourceCode script, String libraryPath) {
+	public InternalScriptConfig(SourceCode script, String libraryPath,
+			String workingDirPath) {
 		this.script = script;
 		this.libraryPath = libraryPath;
+		this.workingDirPath = workingDirPath;
 	}
 
 	/**
@@ -57,6 +61,11 @@ public class InternalScriptConfig implements ScriptConfig {
 	@Override
 	public String getLibraryPath() {
 		return this.libraryPath;
+	}
+
+	@Override
+	public String getWorkingDirPath() {
+		return this.workingDirPath;
 	}
 
 }

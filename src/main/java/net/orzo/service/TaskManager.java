@@ -48,8 +48,6 @@ public class TaskManager {
 
 	private final static String DATALIB_SCRIPT = "net/orzo/datalib.js";
 
-	private final static String DEMO_SCRIPT = "net/orzo/demo1.js";
-
 	private final static String CALCULATION_SCRIPT = "net/orzo/calculation.js";
 
 	private final Map<String, Task> tasks;
@@ -124,17 +122,6 @@ public class TaskManager {
 														// ?
 		}
 		this.tasks.remove(taskId);
-	}
-
-	/**
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	public static CalculationParams createDemoParams() throws IOException {
-		CalculationParams params = createDefaultCalculationParams();
-		params.userScript = SourceCode.fromResource(DEMO_SCRIPT);
-		return params;
 	}
 	
 	public String registerTask(String scriptId, String[] args)

@@ -33,4 +33,6 @@ public interface ScriptConfig {
 
 	public String getLibraryPath();
 
+	public String getWorkingDirPath();
+
 }

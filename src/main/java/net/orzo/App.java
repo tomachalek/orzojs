@@ -27,8 +27,8 @@ import java.util.Properties;
 import net.orzo.injection.CoreModule;
 import net.orzo.injection.RestServletModule;
 import net.orzo.scripting.SourceCode;
-import net.orzo.service.Config;
 import net.orzo.service.HttpServer;
+import net.orzo.service.RestServiceConfig;
 import net.orzo.service.TaskManager;
 import net.orzo.tools.ResourceLoader;
 
@@ -56,6 +56,8 @@ public final class App {
 	private final Options cliOptions;
 
 	private final List<Service> services;
+
+	private final static String DEMO_SCRIPT = "net/orzo/demo1.js";
 
 	/**
 	 * 
@@ -171,12 +173,10 @@ public final class App {
 				}
 				log = LoggerFactory.getLogger(App.class);
 
-				CalculationParams params;
-
-				if (cmd.hasOption("s")) {
-					Config conf = new Gson().fromJson(
+				if (cmd.hasOption("s")) { // Orzo.js as a REST service
+					RestServiceConfig conf = new Gson().fromJson(
 							new FileReader(cmd.getOptionValue("s")),
-							Config.class);
+							RestServiceConfig.class);
 					Injector injector = Guice.createInjector(new CoreModule(
 							conf), new RestServletModule());
 					HttpServer httpServer = new HttpServer(conf,
@@ -185,49 +185,43 @@ public final class App {
 					Runtime.getRuntime().addShutdownHook(new ShutdownHook(app));
 					app.startServices();
 
-				} else if (cmd.hasOption("d")) {
+				} else if (cmd.hasOption("d")) { // Demo mode
 					final String scriptId = "demo";
-					params = TaskManager.createDemoParams();
-					params.workingDirModulesPath = "."; // TODO do we need this?
+					final SourceCode demoScript = SourceCode
+							.fromResource(DEMO_SCRIPT);
 					System.err.printf("Running demo script %s.",
-							params.userenvScript.getName());
-					CmdConfig conf = new CmdConfig(scriptId, params.userScript,
-							params.workingDirModulesPath);
+							demoScript.getName());
+					CmdConfig conf = new CmdConfig(scriptId, demoScript, null,
+							".");
 					TaskManager tm = new TaskManager(conf);
 					tm.startTaskSync(tm.registerTask(scriptId, new String[0]));
 				
-				} else if (cmd.getArgs().length > 0) {
+				} else if (cmd.getArgs().length > 0) { // Command line mode
 					File userScriptFile = new File(cmd.getArgs()[0]);
-					params = TaskManager.createDefaultCalculationParams();
-					System.out.println(params);
+					String optionalModulesPath = null;
+					String[] inputValues;
+					SourceCode userScript;
+					String workingDir;
 
-					if (System.getProperty("orzodir") != null) { // defined by
-																	// exe4j
-						// executable
-						params.orzoModulesPath = new File(String.format(
-								"%s%slib", System.getProperty("orzodir"),
-								File.separator)).getAbsolutePath();
-					}
 					// custom CommonJS modules path
 					if (cmd.hasOption("m")) {
-						params.optionalModulesPath = cmd.getOptionValue("m");
+						optionalModulesPath = cmd.getOptionValue("m");
 					}
 
 					if (cmd.getArgs().length > 0) {
-						params.inputValues = Arrays.copyOfRange(cmd.getArgs(),
-								1, cmd.getArgs().length);
+						inputValues = Arrays.copyOfRange(cmd.getArgs(), 1,
+								cmd.getArgs().length);
 					} else {
-						params.inputValues = new String[0];
+						inputValues = new String[0];
 					}
 
-					params.userScript = SourceCode.fromFile(userScriptFile);
-					params.workingDirModulesPath = userScriptFile.getParent();
-					CmdConfig conf = new CmdConfig(
-							params.userenvScript.getName(), params.userScript,
-							params.workingDirModulesPath);
+					userScript = SourceCode.fromFile(userScriptFile);
+					workingDir = userScriptFile.getParent();
+					CmdConfig conf = new CmdConfig(userScript.getName(),
+							userScript, optionalModulesPath, workingDir);
 					TaskManager tm = new TaskManager(conf);
-					tm.startTaskSync(tm.registerTask(
-							params.userenvScript.getName(), params.inputValues));
+					tm.startTaskSync(tm.registerTask(userScript.getName(),
+							inputValues));
 
 				} else {
 					System.err

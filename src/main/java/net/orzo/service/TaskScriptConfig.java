@@ -31,10 +31,14 @@ public class TaskScriptConfig implements ScriptConfig {
 
 	private final String libraryPath;
 
-	public TaskScriptConfig(String scriptPath, String libraryPath) {
+	private final String workingDirPath;
+
+	public TaskScriptConfig(String scriptPath, String libraryPath,
+			String workingDirPath) {
 		super();
 		this.scriptPath = scriptPath;
 		this.libraryPath = libraryPath;
+		this.workingDirPath = workingDirPath;
 	}
 
 	@Override
@@ -50,6 +54,11 @@ public class TaskScriptConfig implements ScriptConfig {
 	@Override
 	public String getLibraryPath() {
 		return this.libraryPath;
+	}
+
+	@Override
+	public String getWorkingDirPath() {
+		return this.workingDirPath;
 	}
 
 	@Override

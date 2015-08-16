@@ -27,7 +27,7 @@ import com.google.inject.Singleton;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 @Singleton
-public class Config implements ServiceConfig {
+public class RestServiceConfig implements ServiceConfig {
 	
 	private String httpHost;
 

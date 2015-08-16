@@ -32,9 +32,11 @@ public class CmdConfig implements ServiceConfig {
 
 	private final InternalScriptConfig scriptConfig;
 
-	public CmdConfig(String scriptId, SourceCode userScript, String libPath) {
+	public CmdConfig(String scriptId, SourceCode userScript, String libPath,
+			String workingDirPath) {
 		this.scriptId = scriptId;
-		this.scriptConfig = new InternalScriptConfig(userScript, libPath);
+		this.scriptConfig = new InternalScriptConfig(userScript, libPath,
+				workingDirPath);
 	}
 
 	@Override
