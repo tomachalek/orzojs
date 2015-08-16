@@ -16,12 +16,20 @@
 package net.orzo;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
+import net.orzo.injection.CoreModule;
+import net.orzo.injection.RestServletModule;
 import net.orzo.scripting.SourceCode;
+import net.orzo.service.HttpServer;
+import net.orzo.service.RestServiceConfig;
+import net.orzo.service.TaskManager;
 import net.orzo.tools.ResourceLoader;
 
 import org.apache.commons.cli.CommandLine;
@@ -31,6 +39,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 /**
  * Entry class. Handles command line parameters and runs the calculation.
@@ -43,18 +55,15 @@ public final class App {
 
 	private final Options cliOptions;
 
-	private final static String USERENV_PATH = "net/orzo/userenv.js";
-
-	private final static String DATALIB_SCRIPT = "net/orzo/datalib.js";
+	private final List<Service> services;
 
 	private final static String DEMO_SCRIPT = "net/orzo/demo1.js";
-
-	private final static String CALCULATION_SCRIPT = "net/orzo/calculation.js";
 
 	/**
 	 * 
 	 */
 	public App() {
+		this.services = new ArrayList<Service>();
 		this.props = new Properties();
 		this.cliOptions = new Options();
 		this.cliOptions.addOption("v", false, "shows version information");
@@ -76,6 +85,27 @@ public final class App {
 		this.cliOptions
 				.addOption("T", false,
 						"writes a code template to the standard output (without orzojs.d.ts)");
+
+		this.cliOptions.addOption("s", true,
+				"run in a server mode using provided config");
+	}
+
+	/**
+	 * 
+	 */
+	private void startServices() throws Exception {
+		for (Service service : this.services) {
+			service.start();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void stopServices() {
+		for (Service service : this.services) {
+			service.stop();
+		}
 	}
 
 	/**
@@ -104,18 +134,12 @@ public final class App {
 						.printHelp(
 								"orzo [options] user_script [user_arg1 [user_arg2 [...]]]\n(to generate a template: orzo -t [file path])",
 								app.cliOptions);
-				System.exit(0);
-
-			}
-
-			if (cmd.hasOption("v")) {
+				
+			} else if (cmd.hasOption("v")) {
 				System.out.printf("Orzo.js version %s\n",
 						app.props.get("orzo.version"));
-				System.exit(0);
 
-			}
-
-			if (cmd.hasOption("t")) {
+			} else if (cmd.hasOption("t")) {
 				String templateSrc = new ResourceLoader()
 						.getResourceAsString("net/orzo/template1.js");
 
@@ -132,74 +156,79 @@ public final class App {
 				dtsWriter.write(dtsSrc);
 				dtsWriter.close();
 
-				System.exit(0);
-			}
-
-			if (cmd.hasOption("T")) {
+			} else if (cmd.hasOption("T")) {
 				String templateSrc = new ResourceLoader()
 						.getResourceAsString("net/orzo/template1.js");
 				System.out.println(templateSrc);
-				System.exit(0);
-			}
-
-			// Logger initialization
-			if (cmd.hasOption("g")) {
-				System.setProperty("logback.configurationFile",
-						cmd.getOptionValue("g"));
-
+				
 			} else {
-				System.setProperty("logback.configurationFile", "./logback.xml");
+
+				// Logger initialization
+				if (cmd.hasOption("g")) {
+					System.setProperty("logback.configurationFile",
+							cmd.getOptionValue("g"));
+	
+				} else {
+					System.setProperty("logback.configurationFile", "./logback.xml");
+				}
+				log = LoggerFactory.getLogger(App.class);
+
+				if (cmd.hasOption("s")) { // Orzo.js as a REST service
+					RestServiceConfig conf = new Gson().fromJson(
+							new FileReader(cmd.getOptionValue("s")),
+							RestServiceConfig.class);
+					Injector injector = Guice.createInjector(new CoreModule(
+							conf), new RestServletModule());
+					HttpServer httpServer = new HttpServer(conf,
+							new JerseyGuiceServletConfig(injector));
+					app.services.add(httpServer);
+					Runtime.getRuntime().addShutdownHook(new ShutdownHook(app));
+					app.startServices();
+
+				} else if (cmd.hasOption("d")) { // Demo mode
+					final String scriptId = "demo";
+					final SourceCode demoScript = SourceCode
+							.fromResource(DEMO_SCRIPT);
+					System.err.printf("Running demo script %s.",
+							demoScript.getName());
+					CmdConfig conf = new CmdConfig(scriptId, demoScript, null,
+							".");
+					TaskManager tm = new TaskManager(conf);
+					tm.startTaskSync(tm.registerTask(scriptId, new String[0]));
+				
+				} else if (cmd.getArgs().length > 0) { // Command line mode
+					File userScriptFile = new File(cmd.getArgs()[0]);
+					String optionalModulesPath = null;
+					String[] inputValues;
+					SourceCode userScript;
+					String workingDir;
+
+					// custom CommonJS modules path
+					if (cmd.hasOption("m")) {
+						optionalModulesPath = cmd.getOptionValue("m");
+					}
+
+					if (cmd.getArgs().length > 0) {
+						inputValues = Arrays.copyOfRange(cmd.getArgs(), 1,
+								cmd.getArgs().length);
+					} else {
+						inputValues = new String[0];
+					}
+
+					userScript = SourceCode.fromFile(userScriptFile);
+					workingDir = userScriptFile.getParent();
+					CmdConfig conf = new CmdConfig(userScript.getName(),
+							userScript, optionalModulesPath, workingDir);
+					TaskManager tm = new TaskManager(conf);
+					tm.startTaskSync(tm.registerTask(userScript.getName(),
+							inputValues));
+
+				} else {
+					System.err
+							.println("Invalid parameters. Try -h for more information.");
+					System.exit(1);
+				}
 			}
-			log = LoggerFactory.getLogger(App.class);
-
-			CalculationParams params = new CalculationParams();
-			if (System.getProperty("orzodir") != null) { // defined by exe4j
-															// executable
-				params.orzoModulesPath = new File(String.format("%s%slib",
-						System.getProperty("orzodir"), File.separator))
-						.getAbsolutePath();
-			}
-			params.userenvScript = SourceCode.fromResource(USERENV_PATH);
-			params.calculationScript = SourceCode
-					.fromResource(CALCULATION_SCRIPT);
-
-			// datalib file
-			params.datalibScript = SourceCode.fromResource(DATALIB_SCRIPT);
-
-			// custom CommonJS modules path
-			if (cmd.hasOption("m")) {
-				params.optionalModulesPath = cmd.getOptionValue("m");
-			}
-
-			// user script and derived CommonJS modules path
-			if (cmd.getArgs().length > 0) {
-				File userScriptFile = new File(cmd.getArgs()[0]);
-				params.userScript = SourceCode.fromFile(userScriptFile);
-				params.workingDirModulesPath = userScriptFile.getParent();
-
-			} else if (cmd.hasOption("d")) {
-				System.err
-						.printf("Running demo script %s.\nUse the -h parameter for more information.\n",
-								DEMO_SCRIPT);
-				params.userScript = SourceCode.fromResource(DEMO_SCRIPT);
-				params.workingDirModulesPath = ".";
-
-			} else {
-				System.err
-						.println("Invalid parameters. Try -h for more information.");
-				System.exit(1);
-			}
-
-			if (cmd.getArgs().length > 0) {
-				params.inputValues = Arrays.copyOfRange(cmd.getArgs(), 1,
-						cmd.getArgs().length);
-			} else {
-				params.inputValues = new String[0];
-			}
-
-			Runtime.getRuntime().addShutdownHook(new ShutdownHook(app));
-			Calculation proc = new Calculation(params);
-			proc.run();
 
 		} catch (Exception ex) {
 			System.err.println(ex);

@@ -290,7 +290,7 @@
      * @param info
      */
     scope.runFinish = function (results, info) {
-        scope._mr.finishFn(new FinalResults(results), info);
+        return JSON.stringify(scope._mr.finishFn(new FinalResults(results), info));
     }
 
 }(this));
