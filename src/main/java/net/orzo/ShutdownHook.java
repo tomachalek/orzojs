@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Tomas Machalek
+ * Copyright (c) 2015 Tomas Machalek
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,5 +38,6 @@ public class ShutdownHook extends Thread {
 	 */
 	@Override
 	public void run() {
+		this.app.stopServices();
 	}
 }

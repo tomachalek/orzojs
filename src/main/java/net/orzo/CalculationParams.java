@@ -31,12 +31,6 @@ public class CalculationParams {
 	public SourceCode userScript;
 	
 	public SourceCode calculationScript;
-	
-	/**
-	 * Orzo's extended library path (i.e. libraries except
-	 * the core ones(= orzo, data)
-	 */
-	public String orzoModulesPath;
 
 	/**
 	 * A directory where user script is located.

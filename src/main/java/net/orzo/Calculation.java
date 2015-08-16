@@ -28,12 +28,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 import javax.script.ScriptException;
 
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.orzo.scripting.EnvParams;
 import net.orzo.scripting.JsEngineAdapter;
+import net.orzo.service.TaskStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,20 +67,22 @@ public class Calculation {
 	 */
 	private final String[] inputValues;
 
+
+	private final Consumer<TaskStatus> statusListener;
+
 	/**
 	 * 
 	 * @param mainThreadOps
 	 * @param userenvScript
 	 * @param userScript
 	 */
-	public Calculation(CalculationParams params) {
+	public Calculation(CalculationParams params,
+			Consumer<TaskStatus> statusListener) {
 		this.params = params;
+		this.statusListener = statusListener;
 		this.inputValues = params.inputValues;
 		this.modulesPaths = new ArrayList<String>();
 		this.modulesPaths.add(params.workingDirModulesPath);
-		if (params.orzoModulesPath != null) {
-			this.modulesPaths.add(params.orzoModulesPath);
-		}
 		if (params.optionalModulesPath != null) {
 			this.modulesPaths.add(params.optionalModulesPath);
 		}
@@ -88,7 +92,8 @@ public class Calculation {
 	 * Starts and controls the calculation.
 	 * 
 	 */
-	public void run() throws CalculationException {
+	public String run() throws CalculationException {
+		String ans = null;
 		IntermediateResults mapResults;
 		IntermediateResults reduceResults = null;
 		int numChunks;
@@ -113,7 +118,8 @@ public class Calculation {
 					calcInfo.get("duration"));
 
 			if (reduceResults != null && !reduceResults.hasErrors()) {
-				runFinish(reduceResults, calcInfo);
+				ans = runFinish(reduceResults, calcInfo);
+				this.statusListener.accept(TaskStatus.FINISHED);
 
 			} else {
 				System.err.println("Failed to execute the script.");
@@ -134,7 +140,9 @@ public class Calculation {
 						System.err.println(e);
 					}
 				}
+				this.statusListener.accept(TaskStatus.ERROR);
 			}
+			return ans;
 
 		} catch (ScriptException | NoSuchMethodException e) {
 			throw new CalculationException("Calculation failed: "
@@ -260,11 +268,11 @@ public class Calculation {
 		return reduceResults;
 	}
 
-	private void runFinish(IntermediateResults reduceResults,
+	private String runFinish(IntermediateResults reduceResults,
 			CalculationInfo calcInfo) throws ScriptException,
 			NoSuchMethodException {
+		String ans;
 		EnvParams envParams = createEnvParams();
-
 		JsEngineAdapter jse = new JsEngineAdapter(envParams);
 		FinalResults fr = new FinalResults(reduceResults);
 
@@ -273,8 +281,9 @@ public class Calculation {
 				this.params.datalibScript);
 		jse.runFunction("initFinish");
 		jse.runCode(this.params.userScript);
-		jse.runFunction("runFinish", fr, calcInfo);
+		ans = (String) jse.runFunction("runFinish", fr, calcInfo);
 		jse.endWork();
+		return ans;
 	}
 
 	/**
