@@ -21,7 +21,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import net.orzo.service.ResourceNotAvailable;
-import net.orzo.service.ResourceNotFound;
 import net.orzo.service.StatusResponse;
 import net.orzo.service.TaskException;
 import net.orzo.service.TaskManager;
@@ -69,7 +68,7 @@ public class ResultHandler {
 				return task.getResult();
 			}
 
-		} catch (ResourceNotAvailable | ResourceNotFound | TaskException e) {
+		} catch (ResourceNotAvailable | TaskException e) {
 			return new Gson().toJson(new StatusResponse(
 					StatusResponse.Status.ERROR, e.getMessage()));
 		}

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.orzo;
+package net.orzo.service;
 
 import java.util.Map;
 
@@ -27,19 +27,21 @@ import com.google.inject.Singleton;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 @Singleton
-public class Config {
+public class Config implements ServiceConfig {
 	
 	private String httpHost;
 
 	private short httpPort;
 
-	private Map<String, ScriptConfig> allowedScripts;
+	private Map<String, TaskScriptConfig> allowedScripts;
 	
+	@Override
 	public boolean isAllowedScript(String id) {
 		return this.allowedScripts.containsKey(id);
 	}
 	
-	public ScriptConfig getScriptPath(String id) {
+	@Override
+	public TaskScriptConfig getScriptPath(String id) {
 		return this.allowedScripts.get(id);
 	}
 
@@ -51,6 +53,7 @@ public class Config {
 		return httpPort;
 	}
 	
+	@Override
 	public String toString() {
 		return String.format("Config {httpHost: %s, httpPort: %s, %s}",
 				this.httpHost, this.httpPort,

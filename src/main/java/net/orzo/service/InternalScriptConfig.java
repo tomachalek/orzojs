@@ -13,45 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.orzo.injection;
 
-import net.orzo.service.Config;
+package net.orzo.service;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import java.io.IOException;
+
+import net.orzo.scripting.SourceCode;
 
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  *
  */
-public class CoreModule extends AbstractModule {
+public class InternalScriptConfig implements ScriptConfig {
 
-	private final Config conf;
-	
+	private final SourceCode script;
+
+	private final String libraryPath;
+
 	/**
 	 * 
+	 * @param script
+	 * @param libraryPath
 	 */
-	public CoreModule(Config conf) {
-		this.conf = conf;
+	public InternalScriptConfig(SourceCode script, String libraryPath) {
+		this.script = script;
+		this.libraryPath = libraryPath;
 	}
 
 	/**
 	 * 
 	 */
 	@Override
-	protected void configure() {
+	public SourceCode getScript() throws IOException {
+		return this.script;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	@Provides
-	@Singleton
-	public Config getConfig() {
-		return this.conf;
+	@Override
+	public String getScriptPath() {
+		return this.script.getFullyQualifiedName();
+	}
+
+	@Override
+	public String getLibraryPath() {
+		return this.libraryPath;
 	}
 
 }

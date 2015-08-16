@@ -13,31 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.orzo;
+
+package net.orzo.service;
+
+import java.io.IOException;
+
+import net.orzo.scripting.SourceCode;
 
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  *
  */
-public class ScriptConfig {
+public interface ScriptConfig {
 
-	private String scriptPath;
+	public SourceCode getScript() throws IOException;
 
-	private String libraryPath;
+	public String getScriptPath();
 
-	public String getScriptPath() {
-		return scriptPath;
-	}
-
-	public String getLibraryPath() {
-		return libraryPath;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("ScriptConfig {scriptPath: %s, libraryPath: %s}",
-				this.scriptPath, this.libraryPath);
-	}
+	public String getLibraryPath();
 
 }

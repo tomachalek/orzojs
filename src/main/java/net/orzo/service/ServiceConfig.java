@@ -13,45 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.orzo.injection;
 
-import net.orzo.service.Config;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+package net.orzo.service;
 
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  *
  */
-public class CoreModule extends AbstractModule {
+public interface ServiceConfig {
 
-	private final Config conf;
-	
-	/**
-	 * 
-	 */
-	public CoreModule(Config conf) {
-		this.conf = conf;
-	}
+	public boolean isAllowedScript(String id);
 
-	/**
-	 * 
-	 */
-	@Override
-	protected void configure() {
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	@Provides
-	@Singleton
-	public Config getConfig() {
-		return this.conf;
-	}
+	public ScriptConfig getScriptPath(String id);
 
 }

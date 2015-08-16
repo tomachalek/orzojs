@@ -13,45 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.orzo.injection;
 
-import net.orzo.service.Config;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+package net.orzo.service;
 
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  *
  */
-public class CoreModule extends AbstractModule {
+public class TaskNotFound extends RuntimeException {
 
-	private final Config conf;
-	
 	/**
 	 * 
 	 */
-	public CoreModule(Config conf) {
-		this.conf = conf;
+	private static final long serialVersionUID = 5109433240049842787L;
+
+	public TaskNotFound(String message) {
+		super(message);
 	}
 
-	/**
-	 * 
-	 */
-	@Override
-	protected void configure() {
+	public TaskNotFound(Throwable cause) {
+		super(cause);
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	@Provides
-	@Singleton
-	public Config getConfig() {
-		return this.conf;
+	public TaskNotFound(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 }

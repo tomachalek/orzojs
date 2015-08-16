@@ -28,8 +28,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import net.orzo.CalculationParams;
-import net.orzo.Config;
-import net.orzo.ScriptConfig;
 import net.orzo.scripting.SourceCode;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -56,7 +54,7 @@ public class TaskManager {
 
 	private final Map<String, Task> tasks;
 
-	private final Config conf;
+	private final ServiceConfig conf;
 
 	private final ScheduledExecutorService scheduler;
 
@@ -70,7 +68,7 @@ public class TaskManager {
 	 * @param conf
 	 */
 	@Inject
-	public TaskManager(Config conf) {
+	public TaskManager(ServiceConfig conf) {
 		this.conf = conf;
 		this.tasks = new HashMap<String, Task>();
 		this.scheduler = Executors.newScheduledThreadPool(1); // TODO size
@@ -81,17 +79,13 @@ public class TaskManager {
 	 * 
 	 * @param taskId
 	 * @return
-	 * @throws ResourceNotAvailable
-	 * @throws ResourceNotFound
 	 */
-	public Task getTask(String taskId) throws ResourceNotAvailable,
-			ResourceNotFound {
+	public Task getTask(String taskId) {
 		if (this.tasks.containsKey(taskId)) {
 			return this.tasks.get(taskId);
 
 		} else {
-			throw new ResourceNotFound(String.format("Task %s not found",
-					taskId));
+			throw new TaskNotFound(String.format("Task %s not found", taskId));
 		}
 	}
 
@@ -121,20 +115,15 @@ public class TaskManager {
 	/**
 	 * 
 	 * @param taskId
-	 * @throws ResourceNotFound
+	 * @throws TaskNotFound
 	 */
 	public void deleteTask(String taskId) throws ResourceNotFound {
-		if (this.tasks.containsKey(taskId)) {
-			if (this.schedules.containsKey(this.tasks.get(taskId))) {
-				this.schedules.get(taskId).cancel(false); // TODO may interrupt
-															// ?
-			}
-			this.tasks.remove(taskId);
-
-		} else {
-			throw new ResourceNotFound(String.format("Task %s not found",
-					taskId));
+		Task t = getTask(taskId);
+		if (this.schedules.containsKey(t)) {
+			this.schedules.get(taskId).cancel(false); // TODO may interrupt
+														// ?
 		}
+		this.tasks.remove(taskId);
 	}
 
 	/**
@@ -163,7 +152,7 @@ public class TaskManager {
 			if (scriptConf.getLibraryPath() != null) {
 				params.optionalModulesPath = scriptConf.getLibraryPath();
 			}
-			params.userScript = SourceCode.fromFile(userScriptFile);
+			params.userScript = scriptConf.getScript();
 			params.workingDirModulesPath = userScriptFile.getParent();
 			params.inputValues = args;
 			this.tasks.put(taskId, new Task(params));
@@ -197,6 +186,20 @@ public class TaskManager {
 		}
 	}
 
+	/**
+	 * 
+	 * @param taskId
+	 */
+	public void startTaskSync(String taskId) {
+		getTask(taskId).run();
+	}
+
+	/**
+	 * 
+	 * @param hours
+	 * @param minutes
+	 * @return
+	 */
 	private long calculateInitialDelay(int hours, int minutes) {
 		Calendar startDate = Calendar.getInstance();
 		Calendar currDate = Calendar.getInstance();

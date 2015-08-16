@@ -27,6 +27,7 @@ import java.util.Properties;
 import net.orzo.injection.CoreModule;
 import net.orzo.injection.RestServletModule;
 import net.orzo.scripting.SourceCode;
+import net.orzo.service.Config;
 import net.orzo.service.HttpServer;
 import net.orzo.service.TaskManager;
 import net.orzo.tools.ResourceLoader;
@@ -185,15 +186,20 @@ public final class App {
 					app.startServices();
 
 				} else if (cmd.hasOption("d")) {
+					final String scriptId = "demo";
 					params = TaskManager.createDemoParams();
 					params.workingDirModulesPath = "."; // TODO do we need this?
-					System.err
-							.printf("Running demo script %s.\nUse the -h parameter for more information.\n",
-									params.userenvScript.getName());
+					System.err.printf("Running demo script %s.",
+							params.userenvScript.getName());
+					CmdConfig conf = new CmdConfig(scriptId, params.userScript,
+							params.workingDirModulesPath);
+					TaskManager tm = new TaskManager(conf);
+					tm.startTaskSync(tm.registerTask(scriptId, new String[0]));
 				
 				} else if (cmd.getArgs().length > 0) {
 					File userScriptFile = new File(cmd.getArgs()[0]);
 					params = TaskManager.createDefaultCalculationParams();
+					System.out.println(params);
 
 					if (System.getProperty("orzodir") != null) { // defined by
 																	// exe4j
@@ -216,9 +222,12 @@ public final class App {
 
 					params.userScript = SourceCode.fromFile(userScriptFile);
 					params.workingDirModulesPath = userScriptFile.getParent();
-					Calculation proc = new Calculation(params, (ts) -> {
-					});
-					proc.run();
+					CmdConfig conf = new CmdConfig(
+							params.userenvScript.getName(), params.userScript,
+							params.workingDirModulesPath);
+					TaskManager tm = new TaskManager(conf);
+					tm.startTaskSync(tm.registerTask(
+							params.userenvScript.getName(), params.inputValues));
 
 				} else {
 					System.err

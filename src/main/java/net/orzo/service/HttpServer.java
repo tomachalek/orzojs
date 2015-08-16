@@ -18,7 +18,6 @@ package net.orzo.service;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import net.orzo.Config;
 import net.orzo.JerseyGuiceServletConfig;
 import net.orzo.Service;
 
