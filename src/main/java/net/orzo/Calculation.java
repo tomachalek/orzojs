@@ -17,10 +17,7 @@ package net.orzo;
 
 import static net.orzo.Util.normalizePath;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -35,6 +32,7 @@ import javax.script.ScriptException;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.orzo.scripting.EnvParams;
 import net.orzo.scripting.JsEngineAdapter;
+import net.orzo.service.TaskEvent;
 import net.orzo.service.TaskStatus;
 
 import org.slf4j.Logger;
@@ -68,7 +66,7 @@ public class Calculation {
 	private final String[] inputValues;
 
 
-	private final Consumer<TaskStatus> statusListener;
+	private final Consumer<TaskEvent> statusListener;
 
 	/**
 	 * 
@@ -77,7 +75,7 @@ public class Calculation {
 	 * @param userScript
 	 */
 	public Calculation(CalculationParams params,
-			Consumer<TaskStatus> statusListener) {
+			Consumer<TaskEvent> statusListener) {
 		this.params = params;
 		this.statusListener = statusListener;
 		this.inputValues = params.inputValues;
@@ -92,62 +90,23 @@ public class Calculation {
 	 * Starts and controls the calculation.
 	 * 
 	 */
-	public String run() throws CalculationException {
+	public String run() {
 		String ans = null;
 		IntermediateResults mapResults;
 		IntermediateResults reduceResults = null;
-		int numChunks;
-		int numReduceWorkers;
-		long startTime = System.currentTimeMillis();
-		CalculationInfo calcInfo = new CalculationInfo();
-		calcInfo.put("datetime", getCurrentDate());
 
 		try {
 			ScriptObjectMirror prepareData = runPrepare();
-			numReduceWorkers = (int) prepareData.get("numReduceWorkers");
-			numChunks = (int) prepareData.get("numChunks");
+			mapResults = runMap(prepareData);
+			reduceResults = runReduce(prepareData, mapResults);
+			ans = runFinish(reduceResults);
+			this.statusListener.accept(new TaskEvent(TaskStatus.FINISHED));
 
-			mapResults = runMap(numChunks);
-
-			if (!mapResults.hasErrors()) {
-				reduceResults = runReduce(numReduceWorkers, mapResults);
-			}
-			calcInfo.put("duration",
-					(System.currentTimeMillis() - startTime) / 1000.0);
-			System.err.printf("\n\nFinished in %01.3f seconds.\n",
-					calcInfo.get("duration"));
-
-			if (reduceResults != null && !reduceResults.hasErrors()) {
-				ans = runFinish(reduceResults, calcInfo);
-				this.statusListener.accept(TaskStatus.FINISHED);
-
-			} else {
-				System.err.println("Failed to execute the script.");
-
-				if (mapResults.hasErrors()) {
-					System.err.println("Map errors:\n");
-					for (Exception e : mapResults.getErrors()) {
-						System.err.println(e);
-					}
-				}
-
-				if (reduceResults == null) {
-					System.err.println("Reduce phase not run.");
-
-				} else if (reduceResults.hasErrors()) {
-					System.err.print("Reduce errors:\n");
-					for (Exception e : reduceResults.getErrors()) {
-						System.err.println(e);
-					}
-				}
-				this.statusListener.accept(TaskStatus.ERROR);
-			}
-			return ans;
-
-		} catch (ScriptException | NoSuchMethodException e) {
-			throw new CalculationException("Calculation failed: "
-					+ e.getMessage(), e);
+		} catch (CalculationException e) {
+			this.statusListener.accept(new TaskEvent(TaskStatus.ERROR, e));
 		}
+
+		return ans;
 	}
 
 	private EnvParams createEnvParams() {
@@ -166,15 +125,21 @@ public class Calculation {
 	 * 
 	 * @return
 	 */
-	private ScriptObjectMirror runPrepare() throws ScriptException,
-			NoSuchMethodException {
+	private ScriptObjectMirror runPrepare() throws CalculationException {
+		LOG.info("Running PREPARE phase.");
 		JsEngineAdapter jsEngine = new JsEngineAdapter(createEnvParams());
 		jsEngine.beginWork();
-		jsEngine.runCode(this.params.calculationScript,
-				this.params.userenvScript, this.params.datalibScript);
-		jsEngine.runFunction("prepare");
-		jsEngine.runCode(this.params.userScript);
-		return (ScriptObjectMirror) jsEngine.runFunction("getParams");
+		try {
+			jsEngine.runCode(this.params.calculationScript,
+					this.params.userenvScript, this.params.datalibScript);
+			jsEngine.runFunction("prepare");
+			jsEngine.runCode(this.params.userScript);
+			return (ScriptObjectMirror) jsEngine.runFunction("getParams");
+
+		} catch (NoSuchMethodException | ScriptException ex) {
+			throw new CalculationException("Failed to perform PREPARE: "
+					+ ex.getMessage(), ex);
+		}
 	}
 
 	/**
@@ -186,11 +151,15 @@ public class Calculation {
 	 *         values
 	 * @throws ScriptException
 	 */
-	private IntermediateResults runMap(int numWorkers) throws ScriptException {
+	private IntermediateResults runMap(ScriptObjectMirror conf)
+			throws CalculationException {
 		ExecutorService executor;
 		List<Future<IntermediateResults>> threadList = new ArrayList<Future<IntermediateResults>>();
 		Callable<IntermediateResults> worker;
 		IntermediateResults mapResults = new IntermediateResults();
+		int numWorkers = (int) conf.get("numChunks");
+
+		LOG.info(String.format("Starting %d MAP workers.", numWorkers));
 
 		executor = Executors.newFixedThreadPool(numWorkers);
 		EnvParams workerEnvParams;
@@ -204,20 +173,24 @@ public class Calculation {
 			threadList.add(submit);
 		}
 
+		List<Exception> errors = new ArrayList<Exception>();
 		for (int i = 0; i < threadList.size(); i++) {
 			try {
 				mapResults.addAll(threadList.get(i).get());
 
 			} catch (InterruptedException e) {
-				mapResults.addError(e);
+				errors.add(e);
 				LOG.error(String.format("Worker[%d]: %s", i, e.getMessage()), e);
 
 			} catch (ExecutionException e) {
-				mapResults.addError(e);
+				errors.add(e);
 				LOG.error(String.format("Worker[%d]: %s", i, e.getMessage()), e);
 			}
 		}
 		executor.shutdown();
+		if (errors.size() > 0) {
+			throw new ParallelException("Failed to perform MAP", errors);
+		}
 		return mapResults;
 	}
 
@@ -226,16 +199,17 @@ public class Calculation {
 	 * 
 	 * @return key => "object" for all emitted keys and values
 	 */
-	private IntermediateResults runReduce(int numWorkers,
-			IntermediateResults mapResults) {
+	private IntermediateResults runReduce(ScriptObjectMirror prepareData,
+			IntermediateResults mapResults) throws ParallelException {
 		ExecutorService executor;
 		List<Future<IntermediateResults>> threadList = new ArrayList<Future<IntermediateResults>>();
 		IntermediateResults reduceResults = new IntermediateResults();
+		int numWorkers = (int) prepareData.get("numReduceWorkers");
 
 		IntermediateResults[] mapResultPortions = groupResults(mapResults,
 				numWorkers);
 
-		System.err.printf("Starting %d reduce workers: ", numWorkers);
+		LOG.info(String.format("Starting %d REDUCE workers.", numWorkers));
 
 		executor = Executors.newFixedThreadPool(numWorkers);
 		for (int i = 0; i < numWorkers; i++) {
@@ -249,39 +223,49 @@ public class Calculation {
 			Future<IntermediateResults> submit = executor.submit(reduceWorker);
 			threadList.add(submit);
 		}
-		System.err.printf("DONE\n");
 
+		List<Exception> errors = new ArrayList<Exception>();
 		for (int i = 0; i < numWorkers; i++) {
 			try {
 				reduceResults.addAll(threadList.get(i).get());
 
 			} catch (InterruptedException e) {
-				reduceResults.addError(e);
+				errors.add(e);
 				LOG.error(String.format("Worker[%d]: %s", i, e.getMessage()), e);
 
 			} catch (ExecutionException e) {
-				reduceResults.addError(e);
+				errors.add(e);
 				LOG.error(String.format("Worker[%d]: %s", i, e.getMessage()), e);
 			}
 		}
 		executor.shutdown();
+		if (errors.size() > 0) {
+			throw new ParallelException("Failed to perform REDUCE.", errors);
+		}
 		return reduceResults;
 	}
 
-	private String runFinish(IntermediateResults reduceResults,
-			CalculationInfo calcInfo) throws ScriptException,
-			NoSuchMethodException {
-		String ans;
+	private String runFinish(IntermediateResults reduceResults)
+			throws CalculationException {
+		String ans = null;
 		EnvParams envParams = createEnvParams();
 		JsEngineAdapter jse = new JsEngineAdapter(envParams);
 		FinalResults fr = new FinalResults(reduceResults);
 
+		LOG.info("Running FINISH phase");
+
 		jse.beginWork();
-		jse.runCode(this.params.calculationScript, this.params.userenvScript,
-				this.params.datalibScript);
-		jse.runFunction("initFinish");
-		jse.runCode(this.params.userScript);
-		ans = (String) jse.runFunction("runFinish", fr, calcInfo);
+		try {
+			jse.runCode(this.params.calculationScript,
+					this.params.userenvScript, this.params.datalibScript);
+			jse.runFunction("initFinish");
+			jse.runCode(this.params.userScript);
+			ans = (String) jse.runFunction("runFinish", fr);
+
+		} catch (NoSuchMethodException | ScriptException ex) {
+			throw new CalculationException("Failed to perform FINISH: "
+					+ ex.getMessage(), ex);
+		}
 		jse.endWork();
 		return ans;
 	}
@@ -312,15 +296,6 @@ public class Calculation {
 			j++;
 		}
 		return groups;
-	}
-
-	/**
-	 * 
-	 */
-	private String getCurrentDate() {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date date = new Date();
-		return dateFormat.format(date);
 	}
 
 }

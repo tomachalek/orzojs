@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright (C) 2015 Tomas Machalek
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package net.orzo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
@@ -26,14 +29,22 @@ public class CalculationException extends Exception {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2709776634004687856L;
+	private static final long serialVersionUID = 1406932257925252314L;
+
+	public CalculationException(String message) {
+		super(message);
+	}
 
 	public CalculationException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public CalculationException(String message) {
-		super(message);
+	public List<Exception> getAllErrors() {
+		List<Exception> ans = new ArrayList<Exception>();
+		if (getCause() != null) {
+			ans.add((Exception) getCause());
+		}
+		return ans;
 	}
 
 }

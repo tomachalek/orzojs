@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Tomas Machalek
+ * Copyright (C) 2014 Tomas Machalek <tomas.machalek@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,40 @@
  * limitations under the License.
  */
 
-package net.orzo.service;
+package net.orzo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
+ *
  */
-public class ResourceNotAvailable extends TaskException {
+public class ParallelException extends CalculationException {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -4675839843436289683L;
+	private static final long serialVersionUID = -2709776634004687856L;
 
-	/**
-	 * 
-	 */
+	List<Exception> errors;
 
-	public ResourceNotAvailable(String message) {
+	public ParallelException(String message, List<Exception> errors) {
 		super(message);
+		this.errors = new ArrayList<Exception>();
+		this.errors.addAll(errors);
 	}
 
-	public ResourceNotAvailable(String message, Throwable cause) {
-		super(message, cause);
+	public ParallelException(String message, Exception error) {
+		super(message);
+		this.errors = new ArrayList<Exception>();
+		this.errors.add(error);
+	}
+
+	@Override
+	public List<Exception> getAllErrors() {
+		return this.errors;
 	}
 
 }

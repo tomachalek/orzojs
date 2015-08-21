@@ -16,6 +16,11 @@
 
 package net.orzo.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * A simple status wrapper used as a REST response in these cases: 1)
  * void-returning methods in both OK/ERROR situations 2) methods returning data
@@ -44,14 +49,32 @@ public class StatusResponse {
 
 	public final String message;
 
+	public final List<String> errors;
+
 	/**
 	 * 
 	 * @param status
 	 * @param message
 	 */
-	public StatusResponse(Status status, String message) {
+	public StatusResponse(Status status, String message,
+			List<? extends Throwable> errors) {
 		this.status = status;
 		this.message = message;
+		this.errors = errors.stream().map((e) -> e.getMessage())
+				.collect(Collectors.toList());
+	}
+	
+	public StatusResponse(Status status, String message, Throwable error) {
+		this.status = status;
+		this.message = message;
+		this.errors = new ArrayList<String>();
+		this.errors.add(error.getMessage());
+	}
+
+	public StatusResponse(Status status) {
+		this.status = status;
+		this.message = null;
+		this.errors = Collections.emptyList();
 	}
 
 }

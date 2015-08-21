@@ -34,7 +34,6 @@ import net.orzo.service.StatusResponse;
 import net.orzo.service.TaskException;
 import net.orzo.service.TaskManager;
 
-import com.google.gson.Gson;
 import com.google.inject.Inject;
 
 /**
@@ -42,7 +41,7 @@ import com.google.inject.Inject;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 @Path("task")
-public class TaskHandler
+public class TaskHandler extends JsonProvider
 {
 	
 	private final TaskManager taskManager;
@@ -70,8 +69,8 @@ public class TaskHandler
 			return this.taskManager.registerTask(scriptId,
 					args.toArray(new String[args.size()]));
 		} catch (TaskException e) {
-			return new Gson().toJson(new StatusResponse(
-					StatusResponse.Status.ERROR, e.getMessage()));
+			return toJson(new StatusResponse(
+					StatusResponse.Status.ERROR, e.getMessage(), e.getCause()));
 		}
 	}
 	
@@ -96,12 +95,12 @@ public class TaskHandler
 			} else {
 				this.taskManager.startTask(taskId);
 			}
-			return new Gson().toJson(new StatusResponse(
-					StatusResponse.Status.OK, null));
+			return toJson(new StatusResponse(
+					StatusResponse.Status.OK));
 
-		} catch (TaskException | ResourceNotFound | ArgumentException e) {
-			return new Gson().toJson(new StatusResponse(
-					StatusResponse.Status.ERROR, e.getMessage()));
+		} catch (ResourceNotFound | ArgumentException e) {
+			return toJson(new StatusResponse(
+					StatusResponse.Status.ERROR, e.getMessage(), e));
 		}
 	}
 
@@ -111,12 +110,12 @@ public class TaskHandler
 	public String deleteResult(@PathParam("task") String taskId) {
 		try {
 			this.taskManager.deleteTask(taskId);
-			return new Gson().toJson(new StatusResponse(
-					StatusResponse.Status.OK, null));
+			return toJson(new StatusResponse(
+					StatusResponse.Status.OK));
 
 		} catch (ResourceNotFound e) {
-			return new Gson().toJson(new StatusResponse(
-					StatusResponse.Status.ERROR, e.getMessage()));
+			return toJson(new StatusResponse(
+					StatusResponse.Status.ERROR, e.getMessage(), e));
 
 		}
 	}

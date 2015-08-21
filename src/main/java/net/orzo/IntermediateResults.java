@@ -41,11 +41,6 @@ public class IntermediateResults {
 	/**
 	 * 
 	 */
-	private final List<Exception> errors;
-
-	/**
-	 * 
-	 */
 	@Override
 	public String toString() {
 		return this.data.toString();
@@ -56,7 +51,6 @@ public class IntermediateResults {
 	 */
 	public IntermediateResults() {
 		this.data = ArrayListMultimap.create();
-		this.errors = new ArrayList<Exception>();
 	}
 
 	/**
@@ -136,24 +130,4 @@ public class IntermediateResults {
 		this.data.putAll(another.data);
 	}
 
-	/**
-	 * 
-	 */
-	public void addError(Exception ex) {
-		this.errors.add(ex);
-	}
-
-	/**
-	 * 
-	 */
-	public List<Exception> getErrors() {
-		return this.errors;
-	}
-
-	/**
-	 * 
-	 */
-	public boolean hasErrors() {
-		return this.errors.size() > 0;
-	}
 }
