@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package net.orzo.service;
+package net.orzo.rest;
+
+import com.google.gson.Gson;
 
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
+ *
  */
-public class ResourceNotAvailable extends TaskException {
+public class JsonProvider {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4675839843436289683L;
+	private final Gson gson;
 
-	/**
-	 * 
-	 */
-
-	public ResourceNotAvailable(String message) {
-		super(message);
+	public JsonProvider() {
+		this.gson = new Gson();
 	}
 
-	public ResourceNotAvailable(String message, Throwable cause) {
-		super(message, cause);
+	public String toJson(Object o) {
+		return this.gson.toJson(o);
 	}
 
 }

@@ -15,18 +15,20 @@
  */
 package net.orzo.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import net.orzo.service.ResourceNotAvailable;
+import net.orzo.CalculationException;
 import net.orzo.service.StatusResponse;
-import net.orzo.service.TaskException;
+import net.orzo.service.TaskEvent;
 import net.orzo.service.TaskManager;
 import net.orzo.service.TaskStatus;
 
-import com.google.gson.Gson;
 import com.google.inject.Inject;
 
 /**
@@ -35,7 +37,7 @@ import com.google.inject.Inject;
  *
  */
 @Path("result")
-public class ResultHandler {
+public class ResultHandler extends JsonProvider {
 
 	private final TaskManager taskManager;
 
@@ -49,6 +51,25 @@ public class ResultHandler {
 
 	/**
 	 * 
+	 * @param e
+	 * @return
+	 */
+	private List<Exception> getErrors(Exception e) {
+		List<Exception> info = new ArrayList<Exception>();
+		if (e instanceof CalculationException) {
+			CalculationException cex = (CalculationException) e;
+			for (Throwable e2 : cex.getAllErrors()) {
+				info.add((Exception) e2);
+			}
+
+		} else {
+			info.add((Exception) e.getCause());
+		}
+		return info;
+	}
+
+	/**
+	 * 
 	 */
 	@GET
 	@Path("{task}")
@@ -57,20 +78,19 @@ public class ResultHandler {
 		try {
 			net.orzo.service.Task task = this.taskManager.getTask(taskId);
 			if (task.getStatus() == TaskStatus.ERROR) {
-				if (task.getError() != null) {
-					throw task.getError();
-
-				} else {
-					throw new TaskException("Unknown task error");
-				}
+				TaskEvent errEvent = task.getFirstError();
+				System.out
+						.println("NUM ERRORS: " + errEvent.getErrors().size());
+				return toJson(new StatusResponse(StatusResponse.Status.ERROR,
+						"Action failed", errEvent.getErrors()));
 
 			} else {
 				return task.getResult();
 			}
 
-		} catch (ResourceNotAvailable | TaskException e) {
-			return new Gson().toJson(new StatusResponse(
-					StatusResponse.Status.ERROR, e.getMessage()));
+		} catch (Exception e) {
+			return toJson(new StatusResponse(
+					StatusResponse.Status.ERROR, e.getMessage(), getErrors(e)));
 		}
 	}
 

@@ -16,8 +16,10 @@
 
 package net.orzo.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.orzo.Calculation;
-import net.orzo.CalculationException;
 import net.orzo.CalculationParams;
 
 /**
@@ -29,19 +31,18 @@ public class Task {
 
 	private final CalculationParams params;
 
-	private TaskStatus status;
+	private final List<TaskEvent> events;
 
 	private String result;
 
-	private TaskException error;
-
 	public Task(CalculationParams params) {
 		this.params = params;
-		this.status = TaskStatus.PENDING;
+		this.events = new ArrayList<TaskEvent>();
+		this.events.add(new TaskEvent(TaskStatus.PENDING));
 	}
 
 	public String getResult() throws ResourceNotAvailable {
-		if (!this.status.hasEnded()) {
+		if (!getStatus().hasEnded()) {
 			throw new ResourceNotAvailable("Result is not yet available");
 		}
 		return result;
@@ -52,25 +53,20 @@ public class Task {
 	}
 
 	public TaskStatus getStatus() {
-		return this.status;
+		return this.events.get(this.events.size() - 1).getStatus();
 	}
 
-	public TaskException getError() {
-		return this.error;
+	public TaskEvent getFirstError() {
+		return this.events.stream()
+				.filter((e) -> e.getStatus() == TaskStatus.ERROR).findFirst()
+				.get();
 	}
 
 	protected void run() {
-		this.status = TaskStatus.RUNNING;
-		try {
-			Calculation proc = new Calculation(params,
-					(ts) -> Task.this.status = ts);
-			Task.this.result = proc.run();
-
-		} catch (CalculationException ex) {
-			Task.this.status = TaskStatus.ERROR;
-			Task.this.error = new TaskException(ex.getMessage(), ex);
-		}
-
+		this.events.add(new TaskEvent(TaskStatus.RUNNING));
+		Calculation proc = new Calculation(params,
+				(taskEvent) -> this.events.add(taskEvent));
+		this.result = proc.run();
 	}
 
 }

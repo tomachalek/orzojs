@@ -158,14 +158,14 @@ public class TaskManager {
 	 * @throws TaskException
 	 * @throws ResourceNotFound
 	 */
-	public void startTask(String taskId) throws TaskException, ResourceNotFound {
+	public void startTask(String taskId) throws ResourceNotFound {
 		if (this.tasks.containsKey(taskId)) {
 			new Thread() {
 				@Override
 				public void run() {
 					TaskManager.this.tasks.get(taskId).run();
 				}
-			}.run();
+			}.start();
 
 		} else {
 			throw new ResourceNotFound(String.format("task %s not found",
