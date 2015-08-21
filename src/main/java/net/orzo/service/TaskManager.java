@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -68,7 +69,7 @@ public class TaskManager {
 	@Inject
 	public TaskManager(ServiceConfig conf) {
 		this.conf = conf;
-		this.tasks = new HashMap<String, Task>();
+		this.tasks = new LinkedHashMap<String, Task>();
 		this.scheduler = Executors.newScheduledThreadPool(1); // TODO size
 		this.schedules = new HashMap<Task, ScheduledFuture<?>>();
 	}
@@ -142,7 +143,7 @@ public class TaskManager {
 			params.userScript = scriptConf.getScript();
 			params.workingDirModulesPath = userScriptFile.getParent();
 			params.inputValues = args;
-			this.tasks.put(taskId, new Task(params));
+			this.tasks.put(taskId, new Task(taskId, params));
 			return taskId;
 
 		} catch (IOException ex) {

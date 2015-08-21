@@ -29,13 +29,16 @@ import net.orzo.CalculationParams;
  */
 public class Task {
 
+	private final String id;
+
 	private final CalculationParams params;
 
 	private final List<TaskEvent> events;
 
 	private String result;
 
-	public Task(CalculationParams params) {
+	public Task(String id, CalculationParams params) {
+		this.id = id;
 		this.params = params;
 		this.events = new ArrayList<TaskEvent>();
 		this.events.add(new TaskEvent(TaskStatus.PENDING));
@@ -46,6 +49,10 @@ public class Task {
 			throw new ResourceNotAvailable("Result is not yet available");
 		}
 		return result;
+	}
+
+	public String getId() {
+		return this.id;
 	}
 
 	public String getName() {
