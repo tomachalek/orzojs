@@ -19,9 +19,11 @@ package net.orzo.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -43,7 +45,7 @@ import com.google.inject.Singleton;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 @Singleton
-public class TaskManager {
+public class TaskManager implements Observer {
 
 	private final static String USERENV_PATH = "net/orzo/userenv.js";
 
@@ -59,6 +61,8 @@ public class TaskManager {
 
 	private final Map<Task, ScheduledFuture<?>> schedules;
 	
+	private final TaskLog execLog;
+
 	private static final Logger LOG = LoggerFactory
 			.getLogger(TaskManager.class);
 
@@ -69,9 +73,10 @@ public class TaskManager {
 	@Inject
 	public TaskManager(ServiceConfig conf) {
 		this.conf = conf;
-		this.tasks = new LinkedHashMap<String, Task>();
+		this.tasks = new HashMap<String, Task>();
 		this.scheduler = Executors.newScheduledThreadPool(1); // TODO size
 		this.schedules = new HashMap<Task, ScheduledFuture<?>>();
+		this.execLog = new TaskLog();
 	}
 
 	/**
@@ -86,6 +91,10 @@ public class TaskManager {
 		} else {
 			throw new TaskNotFound(String.format("Task %s not found", taskId));
 		}
+	}
+
+	public Collection<Task> getTasks() {
+		return this.tasks.values();
 	}
 
 	/**
@@ -132,8 +141,9 @@ public class TaskManager {
 		}
 		String taskId = DigestUtils.sha1Hex(UUID.randomUUID().toString());
 		ScriptConfig scriptConf = this.conf.getScriptPath(scriptId);
-
 		File userScriptFile = new File(scriptConf.getScriptPath());
+		Task task;
+
 		try {
 			CalculationParams params = createDefaultCalculationParams();
 			params.userenvScript = SourceCode.fromResource(USERENV_PATH);
@@ -143,7 +153,9 @@ public class TaskManager {
 			params.userScript = scriptConf.getScript();
 			params.workingDirModulesPath = userScriptFile.getParent();
 			params.inputValues = args;
-			this.tasks.put(taskId, new Task(taskId, params));
+			task = new Task(taskId, params);
+			task.addObserver(this);
+			this.tasks.put(taskId, task);
 			return taskId;
 
 		} catch (IOException ex) {
@@ -226,6 +238,16 @@ public class TaskManager {
 		this.schedules.put(this.tasks.get(taskId), future);
 	}
 
+	@Override
+	public void update(Observable obj, Object arg1) {
+		if (obj instanceof Task) {
+			this.execLog.logTask((Task) obj);
+		}
+	}
+
+	public TaskLog getExecLog() {
+		return this.execLog;
+	}
 
 
 }
