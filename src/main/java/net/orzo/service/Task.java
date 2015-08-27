@@ -18,6 +18,7 @@ package net.orzo.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 import net.orzo.Calculation;
 import net.orzo.CalculationParams;
@@ -27,7 +28,7 @@ import net.orzo.CalculationParams;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  *
  */
-public class Task {
+public class Task extends Observable {
 
 	private final String id;
 
@@ -38,6 +39,7 @@ public class Task {
 	private String result;
 
 	public Task(String id, CalculationParams params) {
+		super();
 		this.id = id;
 		this.params = params;
 		this.events = new ArrayList<TaskEvent>();
@@ -56,7 +58,7 @@ public class Task {
 	}
 
 	public String getName() {
-		return this.params.userenvScript.getName();
+		return this.params.userScript.getName();
 	}
 
 	public TaskStatus getStatus() {
@@ -69,10 +71,27 @@ public class Task {
 				.get();
 	}
 
+	public List<TaskEvent> getEvents() {
+		return this.events;
+	}
+
+	public long getTimeCreated() {
+		if (this.events.size() > 0) {
+			return this.events.get(0).getCreated();
+		}
+		return -1;
+	}
+
+	public void addEvent(TaskEvent event) {
+		this.events.add(event);
+		setChanged();
+		notifyObservers();
+	}
+
 	protected void run() {
 		this.events.add(new TaskEvent(TaskStatus.RUNNING));
 		Calculation proc = new Calculation(params,
-				(taskEvent) -> this.events.add(taskEvent));
+				(taskEvent) -> addEvent(taskEvent));
 		this.result = proc.run();
 	}
 
