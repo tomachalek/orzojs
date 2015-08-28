@@ -1,0 +1,133 @@
+@color-subheading : #eeddcc;
+
+@color-heading: #d44c02;
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: sans-serif;
+    font-size: 13pt;
+    margin: 0;
+}
+
+header {
+    background-color: #a83c01;
+    color: #FEFEFE;
+    padding: 10pt 20pt;
+}
+
+section#menu {
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        color: #2f6096;
+        border-color: #2f6096;
+        border-style: solid;
+        border-width: 0 0 1pt 0;
+
+        li {
+            display: inline-block;
+            padding: 5pt 10pt;
+            
+            a {
+                cursor: pointer;
+            }
+        }
+        
+        li.active {
+            font-weight: bold;
+        }
+    }
+}
+
+#status-bar {
+    float: right;
+    padding: 2pt 10pt;
+    border-color: #cccccc;
+    color: #cccccc;
+    border-style: solid;
+    border-width: 0 0 1pt 0;
+    text-align: center;
+    font-size: 80%;
+}
+
+section#content {
+    div.tab-content {
+        padding: 15pt 20pt;
+    }
+}
+
+table {
+    border-collapse: collapse;
+    font-size: 11pt;
+
+    tr:nth-child(2n+1) {
+        background-color: #fff9ee;
+    }
+
+    th {
+        background-color: transparent;
+        color: @color-heading;
+        font-weight: normal;
+        border-style: solid;
+        border-width: 1px 0 1px 0;
+        border-color: @color-heading;
+    }
+
+    td, th {
+        padding: 3pt 5pt;
+    }
+
+    .action {
+        cursor: pointer;
+        font-weight: bold;
+        color: #4ca6d5;
+    }
+
+    .action:hover {
+        text-decoration: underline;
+    }
+}
+
+.msganim-enter {
+  opacity: 0.01;
+  transition: opacity .3s ease-in;
+}
+
+.msganim-enter.msganim-enter-active {
+  opacity: 1;
+}
+
+.msganim-leave {
+  opacity: 1;
+  transition: opacity .3s ease-in;
+}
+
+.msganim-leave.msganim-leave-active {
+  opacity: 0.01;
+}
+
+footer {
+    font-size: 11pt;
+    color: #777777;
+    background-color: #ededed;
+    padding: 7pt 20pt 7pt 20pt;
+}
+
+.popup {
+    position: absolute;
+    border: 1px solid #E4E4E4;
+    background-color: #FEFDFD;
+    border-radius: 3px;
+    box-shadow: 0 0 10pt #a5a5a5;
+    padding: 10pt;
+    
+    img.close {
+        float: right;
+        cursor: pointer;
+    }
+}

@@ -18,6 +18,7 @@ package net.orzo.service;
 import java.io.File;
 import java.io.IOException;
 
+import net.orzo.scripting.ScriptConfigurationException;
 import net.orzo.scripting.SourceCode;
 
 /**
@@ -31,19 +32,30 @@ public class TaskScriptConfig implements ScriptConfig {
 
 	private final String libraryPath;
 
-	private final String workingDirPath;
+	private final String description;
 
-	public TaskScriptConfig(String scriptPath, String libraryPath,
-			String workingDirPath) {
+	private final String[] defaultArgs;
+
+	public TaskScriptConfig(String scriptPath, String libraryPath, String description,
+			String[] defaultArgs) {
 		super();
 		this.scriptPath = scriptPath;
 		this.libraryPath = libraryPath;
-		this.workingDirPath = workingDirPath;
+		this.description = description;
+		this.defaultArgs = defaultArgs;
 	}
 
+	/**
+	 * @throws ScriptConfigurationException
+	 */
 	@Override
-	public SourceCode getScript() throws IOException {
-		return SourceCode.fromFile(new File(scriptPath));
+	public SourceCode getScript() {
+		try {
+			return SourceCode.fromFile(new File(scriptPath));
+		} catch (IOException e) {
+			throw new ScriptConfigurationException("Failed to load script "
+					+ scriptPath, e);
+		}
 	}
 
 	@Override
@@ -57,14 +69,19 @@ public class TaskScriptConfig implements ScriptConfig {
 	}
 
 	@Override
-	public String getWorkingDirPath() {
-		return this.workingDirPath;
+	public String getDescription() {
+		return this.description;
 	}
 
 	@Override
 	public String toString() {
 		return String.format("ScriptConfig {scriptPath: %s, libraryPath: %s}",
 				this.scriptPath, this.libraryPath);
+	}
+
+	@Override
+	public String[] getDefaultArgs() {
+		return this.defaultArgs != null ? this.defaultArgs : new String[0];
 	}
 
 }

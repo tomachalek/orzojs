@@ -18,27 +18,17 @@ package net.orzo.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import net.orzo.CalculationParams;
-import net.orzo.scripting.SourceCode;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import net.orzo.CalculationParams;
+import net.orzo.scripting.SourceCode;
 
 /**
  * 
@@ -59,12 +49,9 @@ public class TaskManager implements Observer {
 
 	private final ScheduledExecutorService scheduler;
 
-	private final Map<Task, ScheduledFuture<?>> schedules;
+	private final Map<Task, ScheduledTaskRunner> schedules;
 	
 	private final TaskLog execLog;
-
-	private static final Logger LOG = LoggerFactory
-			.getLogger(TaskManager.class);
 
 	/**
 	 * 
@@ -75,7 +62,7 @@ public class TaskManager implements Observer {
 		this.conf = conf;
 		this.tasks = new HashMap<String, Task>();
 		this.scheduler = Executors.newScheduledThreadPool(1); // TODO size
-		this.schedules = new HashMap<Task, ScheduledFuture<?>>();
+		this.schedules = new HashMap<Task, ScheduledTaskRunner>();
 		this.execLog = new TaskLog();
 	}
 
@@ -126,9 +113,9 @@ public class TaskManager implements Observer {
 	 * @throws TaskNotFound
 	 */
 	public void deleteTask(String taskId) throws ResourceNotFound {
-		Task t = getTask(taskId);
-		if (this.schedules.containsKey(t)) {
-			this.schedules.get(taskId).cancel(false); // TODO may interrupt
+		Task task = getTask(taskId);
+		if (this.schedules.containsKey(task)) {
+			this.schedules.get(task).cancel(); // TODO may interrupt
 														// ?
 		}
 		this.tasks.remove(taskId);
@@ -140,7 +127,7 @@ public class TaskManager implements Observer {
 			throw new RuntimeException("Script not allowed"); // TODO
 		}
 		String taskId = DigestUtils.sha1Hex(UUID.randomUUID().toString());
-		ScriptConfig scriptConf = this.conf.getScriptPath(scriptId);
+		ScriptConfig scriptConf = this.conf.getScriptConfig(scriptId);
 		File userScriptFile = new File(scriptConf.getScriptPath());
 		Task task;
 
@@ -152,7 +139,7 @@ public class TaskManager implements Observer {
 			}
 			params.userScript = scriptConf.getScript();
 			params.workingDirModulesPath = userScriptFile.getParent();
-			params.inputValues = args;
+			params.inputValues = args != null && args.length > 0 ? args : scriptConf.getDefaultArgs();
 			task = new Task(taskId, params);
 			task.addObserver(this);
 			this.tasks.put(taskId, task);
@@ -165,11 +152,7 @@ public class TaskManager implements Observer {
 	}
 
 	/**
-	 * 
-	 * @param scriptId
-	 * @return
-	 * @throws TaskException
-	 * @throws ResourceNotFound
+	 *
 	 */
 	public void startTask(String taskId) throws ResourceNotFound {
 		if (this.tasks.containsKey(taskId)) {
@@ -194,25 +177,6 @@ public class TaskManager implements Observer {
 		getTask(taskId).run();
 	}
 
-	/**
-	 * 
-	 * @param hours
-	 * @param minutes
-	 * @return
-	 */
-	private long calculateInitialDelay(int hours, int minutes) {
-		Calendar startDate = Calendar.getInstance();
-		Calendar currDate = Calendar.getInstance();
-		if (3600 * hours + 60 * minutes <= 3600
-				* startDate.get(Calendar.HOUR_OF_DAY) + 60
-				* startDate.get(Calendar.MINUTE)) {
-			startDate.add(Calendar.DAY_OF_MONTH, 1);
-		}
-		startDate.set(Calendar.HOUR_OF_DAY, hours);
-		startDate.set(Calendar.MINUTE, minutes);
-		startDate.set(Calendar.SECOND, 0);
-		return startDate.getTimeInMillis() - currDate.getTimeInMillis();
-	}
 
 	/**
 	 * 
@@ -223,19 +187,26 @@ public class TaskManager implements Observer {
 	 */
 	public void scheduleTask(String taskId, int startHour, int startMinute,
 			int interval) {
-		final Runnable runner = new Runnable() {
-
-			public void run() {
-				LOG.info("Running scheduled task "
-						+ TaskManager.this.tasks.get(taskId).getName());
-				TaskManager.this.tasks.get(taskId).run();
-			} 			
-		};
+		if (this.schedules.containsKey(taskId)) {
+			throw new TaskSchedulingException("Task already scheduled. Please use/create another task.");
+		}
 		
-		ScheduledFuture<?> future = this.scheduler.scheduleAtFixedRate(runner,
-				calculateInitialDelay(startHour, startMinute),
-				interval * 1000, TimeUnit.MILLISECONDS);
-		this.schedules.put(this.tasks.get(taskId), future);
+		ScheduledTaskRunner scheduledTask = new ScheduledTaskRunner(this.scheduler, startHour, startMinute, interval);
+		this.schedules.put(this.tasks.get(taskId), scheduledTask);
+		scheduledTask.start(this.tasks.get(taskId));
+	}
+
+	public boolean isScheduled(Task task) {
+		return this.schedules.containsKey(task);
+	}
+
+	public ScheduledTaskRunner getSchedulingInfo(Task task) {
+		if (isScheduled(task)) {
+			return this.schedules.get(task);
+
+		} else {
+			throw new TaskNotFound(String.format("Task %s is not scheduled.", task.getId()));
+		}
 	}
 
 	@Override
@@ -247,6 +218,14 @@ public class TaskManager implements Observer {
 
 	public TaskLog getExecLog() {
 		return this.execLog;
+	}
+
+	public List<String> getScriptsIds() {
+		return this.conf.getScriptsIds();
+	}
+
+	public ScriptConfig getScriptConfig(String id) {
+		return this.conf.getScriptConfig(id);
 	}
 
 

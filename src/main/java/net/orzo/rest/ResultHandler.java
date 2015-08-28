@@ -23,13 +23,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
+import com.google.inject.Inject;
+
 import net.orzo.CalculationException;
 import net.orzo.service.StatusResponse;
 import net.orzo.service.TaskEvent;
 import net.orzo.service.TaskManager;
 import net.orzo.service.TaskStatus;
-
-import com.google.inject.Inject;
 
 /**
  * 
@@ -79,8 +79,6 @@ public class ResultHandler extends JsonProvider {
 			net.orzo.service.Task task = this.taskManager.getTask(taskId);
 			if (task.getStatus() == TaskStatus.ERROR) {
 				TaskEvent errEvent = task.getFirstError();
-				System.out
-						.println("NUM ERRORS: " + errEvent.getErrors().size());
 				return toJson(new StatusResponse(StatusResponse.Status.ERROR,
 						"Action failed", errEvent.getErrors()));
 

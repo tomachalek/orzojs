@@ -37,18 +37,25 @@ public class TaskLog {
 	public void logTask(Task task) {
 		long started = -1;
 		long finished = -1;
+		String err = null;
 		
 		for (TaskEvent event : task.getEvents()) {
 			if (event.getStatus() == TaskStatus.RUNNING) {
 				started = event.getCreated();
 				
-			} else if (event.getStatus() == TaskStatus.FINISHED
-					|| event.getStatus() == TaskStatus.ERROR) {
+			} else if (event.getStatus() == TaskStatus.FINISHED) {
 				finished = event.getCreated();
+
+			} else if (event.getStatus() == TaskStatus.ERROR) {
+				finished = event.getCreated();
+				TaskEvent errEvent = task.getFirstError();
+				if (errEvent.getErrors().size() > 0) {
+					err = errEvent.getErrors().get(0).getMessage();
+				}
 			}
 		}
 		this.rows.add(new TaskExecInfo(task.getId(), task.getName(), started,
-				finished, task.getStatus()));
+ finished, task.getStatus(), err));
 	}
 
 	public List<TaskExecInfo> getData() {

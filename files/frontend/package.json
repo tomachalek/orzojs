@@ -1,0 +1,25 @@
+{
+  "name": "Orzo.js-frontend",
+  "description": "",
+  "license": "Apache-2.0",
+  "version": "0.7.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tomachalek/orzojs.git"
+  },
+  "bugs": "https://github.com/tomachalek/orzojs/issues",
+  "homepage": "https://github.com/tomachalek/orzojs",
+  "devDependencies": {
+    "react": "~0.13.3",
+    "jquery": "~2.1.4",
+    "grunt": "~0.4.5",
+    "grunt-cli": "~0.1.13",
+    "browserify": "~11.0.1",
+    "assemble-less": "~0.7.0",
+    "grunt-contrib-uglify": "~0.7.0",
+    "grunt-contrib-copy": "~0.7.0",
+    "grunt-contrib-clean": "~0.6.0",
+    "grunt-babel": "~5.0.1",
+    "grunt-browserify": "~4.0.0"
+  }
+}

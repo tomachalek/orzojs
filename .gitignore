@@ -7,3 +7,6 @@ log/
 target/
 test-output/
 files/*.tmp
+files/frontend/compiled
+files/frontend/node_modules
+files/frontend/dist

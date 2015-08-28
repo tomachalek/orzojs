@@ -23,6 +23,8 @@ import net.orzo.Service;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.slf4j.Logger;
@@ -80,7 +82,14 @@ public class HttpServer implements Service {
 		InetSocketAddress isa = new InetSocketAddress(addr,
 				this.config.getHttpPort());
 		this.httpServer = new Server(isa);
+
 		ContextHandlerCollection handlerCollection = new ContextHandlerCollection();
+
+		ResourceHandler staticHandler = new ResourceHandler();
+		staticHandler.setDirectoriesListed(false);
+		staticHandler.setWelcomeFiles(new String[] { "index.html" });
+		staticHandler.setResourceBase(getClass().getClassLoader()
+				.getResource("net/orzo/webui").toExternalForm());
 
 		ServletContextHandler restApiHandler = new ServletContextHandler(
 				handlerCollection, "/api", ServletContextHandler.NO_SESSIONS);
@@ -89,7 +98,11 @@ public class HttpServer implements Service {
 		restApiHandler.addFilter(GuiceFilter.class, "/*", null);
 		restApiHandler.addServlet(DefaultServlet.class, "/*");
 
-		this.httpServer.setHandler(handlerCollection);
+		HandlerList handlerList = new HandlerList();
+		handlerList.addHandler(restApiHandler);
+		handlerList.addHandler(staticHandler);
+
+		this.httpServer.setHandler(handlerList);
 		this.httpServer.start();
 	}
 

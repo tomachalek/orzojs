@@ -16,23 +16,25 @@
 
 package net.orzo.service;
 
-import net.orzo.scripting.SourceCode;
-
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  *
  */
-public interface ScriptConfig {
+public class TaskSchedulingException extends RuntimeException {
 
-	SourceCode getScript();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1334704795866956330L;
 
-	String getScriptPath();
+	public TaskSchedulingException(String message) {
+		super(message);
+	}
 
-	String getLibraryPath();
+	public TaskSchedulingException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-	String getDescription();
-
-	String[] getDefaultArgs();
 
 }

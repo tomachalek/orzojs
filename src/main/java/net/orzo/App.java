@@ -24,14 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import net.orzo.injection.CoreModule;
-import net.orzo.injection.RestServletModule;
-import net.orzo.scripting.SourceCode;
-import net.orzo.service.HttpServer;
-import net.orzo.service.RestServiceConfig;
-import net.orzo.service.TaskManager;
-import net.orzo.tools.ResourceLoader;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -43,6 +35,14 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import net.orzo.injection.CoreModule;
+import net.orzo.injection.RestServletModule;
+import net.orzo.scripting.SourceCode;
+import net.orzo.service.HttpServer;
+import net.orzo.service.RestServiceConfig;
+import net.orzo.service.TaskManager;
+import net.orzo.tools.ResourceLoader;
 
 /**
  * Entry class. Handles command line parameters and runs the calculation.
@@ -172,7 +172,6 @@ public final class App {
 					System.setProperty("logback.configurationFile", "./logback.xml");
 				}
 				log = LoggerFactory.getLogger(App.class);
-
 				if (cmd.hasOption("s")) { // Orzo.js as a REST service
 					RestServiceConfig conf = new Gson().fromJson(
 							new FileReader(cmd.getOptionValue("s")),
@@ -191,8 +190,7 @@ public final class App {
 							.fromResource(DEMO_SCRIPT);
 					System.err.printf("Running demo script %s.",
 							demoScript.getName());
-					CmdConfig conf = new CmdConfig(scriptId, demoScript, null,
-							".");
+					CmdConfig conf = new CmdConfig(scriptId, demoScript, null);
 					TaskManager tm = new TaskManager(conf);
 					tm.startTaskSync(tm.registerTask(scriptId, new String[0]));
 				
@@ -201,7 +199,6 @@ public final class App {
 					String optionalModulesPath = null;
 					String[] inputValues;
 					SourceCode userScript;
-					String workingDir;
 
 					// custom CommonJS modules path
 					if (cmd.hasOption("m")) {
@@ -216,9 +213,8 @@ public final class App {
 					}
 
 					userScript = SourceCode.fromFile(userScriptFile);
-					workingDir = userScriptFile.getParent();
 					CmdConfig conf = new CmdConfig(userScript.getName(),
-							userScript, optionalModulesPath, workingDir);
+							userScript, optionalModulesPath);
 					TaskManager tm = new TaskManager(conf);
 					tm.startTaskSync(tm.registerTask(userScript.getName(),
 							inputValues));

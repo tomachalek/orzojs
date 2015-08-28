@@ -16,6 +16,9 @@
 
 package net.orzo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.orzo.scripting.SourceCode;
 import net.orzo.service.InternalScriptConfig;
 import net.orzo.service.ScriptConfig;
@@ -32,11 +35,9 @@ public class CmdConfig implements ServiceConfig {
 
 	private final InternalScriptConfig scriptConfig;
 
-	public CmdConfig(String scriptId, SourceCode userScript, String libPath,
-			String workingDirPath) {
+	public CmdConfig(String scriptId, SourceCode userScript, String libPath) {
 		this.scriptId = scriptId;
-		this.scriptConfig = new InternalScriptConfig(userScript, libPath,
-				workingDirPath);
+		this.scriptConfig = new InternalScriptConfig(userScript, libPath);
 	}
 
 	@Override
@@ -45,11 +46,18 @@ public class CmdConfig implements ServiceConfig {
 	}
 
 	@Override
-	public ScriptConfig getScriptPath(String id) {
+	public ScriptConfig getScriptConfig(String id) {
 		if (isAllowedScript(id)) {
 			return this.scriptConfig;
 		}
 		return null;
+	}
+
+	@Override
+	public List<String> getScriptsIds() {
+		List<String> ans = new ArrayList<>();
+		ans.add(this.scriptId);
+		return ans;
 	}
 
 }

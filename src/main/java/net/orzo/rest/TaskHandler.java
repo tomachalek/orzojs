@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -28,13 +29,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import com.google.inject.Inject;
+
 import net.orzo.service.ArgumentException;
 import net.orzo.service.ResourceNotFound;
 import net.orzo.service.StatusResponse;
 import net.orzo.service.TaskException;
 import net.orzo.service.TaskManager;
-
-import com.google.inject.Inject;
 
 /**
  * 
@@ -62,9 +63,7 @@ public class TaskHandler extends JsonProvider
 	@PUT
 	@Path("{script}")
 	@Produces("text/plain; charset=UTF-8")
-	public String registerTask(@PathParam("script") String scriptId,
-			@QueryParam("arg") List<String> args) {
-
+	public String registerTask(@PathParam("script") String scriptId, @FormParam("arg[]") List<String> args) {
 		try {
 			return this.taskManager.registerTask(scriptId,
 					args.toArray(new String[args.size()]));
@@ -81,9 +80,8 @@ public class TaskHandler extends JsonProvider
 			@QueryParam("time") @DefaultValue("") String time,
 			@QueryParam("interval") @DefaultValue("0") int interval) {
 		try {
-			System.out.printf("time: %s, interval: %s\n", time, interval);
 			if (!time.equals("") && interval > 0) {
-				Pattern ptr = Pattern.compile("([0-2][0-9]):([0-5][0-9])");
+				Pattern ptr = Pattern.compile("([0-2]?[0-9]):([0-5][0-9])");
 				Matcher match = ptr.matcher(time);
 				if (!match.matches()) {
 					throw new ArgumentException("Invalid time format");
