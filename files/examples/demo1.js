@@ -60,7 +60,10 @@ reduce(6, function (key,  values) {
 
 
 finish(function (results) {
+    var ans = {};
     results.each(function (k, v) {
         orzo.printf('%s => %s\n', k, v[0]);
+        ans[k] = v[0];
     });
+    return {'ans': ans};
 });
