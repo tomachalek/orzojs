@@ -29,6 +29,7 @@ import jdk.nashorn.internal.runtime.ScriptFunction;
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
+@SuppressWarnings("restriction")
 public class ErrorHandlingComparator implements Comparator<Object> {
 
 	private Throwable err;
