@@ -77,8 +77,13 @@ public class DirectoryReader {
 		}
 		rightIdx = Math.min(this.filesPerChunk * (idx + 1),
 				this.fileList.size());
-		return this.fileList.subList(idx * this.filesPerChunk, rightIdx)
-				.iterator();
+
+		if (idx * this.filesPerChunk < rightIdx) {
+			return this.fileList.subList(idx * this.filesPerChunk, rightIdx).iterator();
+
+		} else {
+			return Collections.emptyIterator();
+		}
 	}
 
 	/**

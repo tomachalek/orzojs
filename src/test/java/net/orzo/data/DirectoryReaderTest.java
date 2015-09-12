@@ -71,12 +71,13 @@ public class DirectoryReaderTest {
 		assertEquals(i1.hasNext(), false);
 	}
 
-	@Test(expectedExceptions = { IllegalArgumentException.class })
+	@Test()
 	public void testNonExistingIteratorIdx() {
 		DirectoryReader d = new DirectoryReader(
 				new String[] { "./test-data/dir1" }, 2, null);
 
-		d.getIterator(100);
+		Iterator<?> itr = d.getIterator(100);
+		assertEquals(itr.hasNext(), false);
 	}
 
 	@Test
