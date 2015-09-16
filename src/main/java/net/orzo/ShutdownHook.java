@@ -15,6 +15,10 @@
  */
 package net.orzo;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.LoggerContext;
+
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
@@ -39,5 +43,7 @@ public class ShutdownHook extends Thread {
 	@Override
 	public void run() {
 		this.app.stopServices();
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		loggerContext.stop();
 	}
 }

@@ -114,10 +114,7 @@ public class JsEngineAdapter {
 	};
 
 	/**
-	 * 
-	 * @param modulePaths
-	 * @param moduleId
-	 * @return
+	 *
 	 * @throws ModuleException
 	 *             if you try to load non-sandboxed module
 	 */
@@ -146,9 +143,6 @@ public class JsEngineAdapter {
 	}
 
 	/**
-	 * @param envParams
-	 * @param funcHandler
-	 * @param intermediateResults
 	 */
 	public JsEngineAdapter(EnvParams envParams,
 			IntermediateResults intermediateResults) {
@@ -257,7 +251,7 @@ public class JsEngineAdapter {
 
 	/**
 	 * 
-	 * @param name
+	 * @param name function name
 	 * @param args
 	 *            arguments of the function
 	 * @return result of the called function

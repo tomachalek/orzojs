@@ -16,6 +16,8 @@
 
 package net.orzo.service;
 
+import java.util.List;
+
 /**
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
@@ -25,6 +27,8 @@ public interface ServiceConfig {
 
 	public boolean isAllowedScript(String id);
 
-	public ScriptConfig getScriptPath(String id);
+	public ScriptConfig getScriptConfig(String id);
+
+	public List<String> getScriptsIds();
 
 }

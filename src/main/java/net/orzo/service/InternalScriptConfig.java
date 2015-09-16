@@ -16,8 +16,6 @@
 
 package net.orzo.service;
 
-import java.io.IOException;
-
 import net.orzo.scripting.SourceCode;
 
 /**
@@ -31,25 +29,19 @@ public class InternalScriptConfig implements ScriptConfig {
 
 	private final String libraryPath;
 
-	private final String workingDirPath;
-
 	/**
-	 * 
-	 * @param script
-	 * @param libraryPath
+	 *
 	 */
-	public InternalScriptConfig(SourceCode script, String libraryPath,
-			String workingDirPath) {
+	public InternalScriptConfig(SourceCode script, String libraryPath) {
 		this.script = script;
 		this.libraryPath = libraryPath;
-		this.workingDirPath = workingDirPath;
 	}
 
 	/**
 	 * 
 	 */
 	@Override
-	public SourceCode getScript() throws IOException {
+	public SourceCode getScript() {
 		return this.script;
 	}
 
@@ -64,8 +56,13 @@ public class InternalScriptConfig implements ScriptConfig {
 	}
 
 	@Override
-	public String getWorkingDirPath() {
-		return this.workingDirPath;
+	public String getDescription() {
+		return "";
+	}
+
+	@Override
+	public String[] getDefaultArgs() {
+		return new String[0];
 	}
 
 }

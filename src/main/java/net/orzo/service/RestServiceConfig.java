@@ -15,6 +15,9 @@
  */
 package net.orzo.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.parboiled.common.StringUtils;
@@ -41,7 +44,7 @@ public class RestServiceConfig implements ServiceConfig {
 	}
 	
 	@Override
-	public TaskScriptConfig getScriptPath(String id) {
+	public TaskScriptConfig getScriptConfig(String id) {
 		return this.allowedScripts.get(id);
 	}
 
@@ -58,6 +61,13 @@ public class RestServiceConfig implements ServiceConfig {
 		return String.format("Config {httpHost: %s, httpPort: %s, %s}",
 				this.httpHost, this.httpPort,
 				StringUtils.join(this.allowedScripts.values(), ", "));
+	}
+
+	@Override
+	public List<String> getScriptsIds() {
+		List<String> ans = new ArrayList<>(this.allowedScripts.keySet());
+		Collections.sort(ans);
+		return ans;
 	}
 
 }

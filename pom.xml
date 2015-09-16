@@ -19,7 +19,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
+				<version>2.6</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -28,6 +28,9 @@
 							<mainClass>net.orzo.App</mainClass>
 						</manifest>
 					</archive>
+					<excludes>
+						<exclude>src/main/resources/net/orzo/webui/node_modules</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -66,8 +69,35 @@
 									<directory>files/examples</directory>
 									<include>demo1.js</include>
 								</resource>
+								<resource>
+									<targetPath>webui</targetPath>
+									<directory>files/frontend</directory>
+									<include>**/*</include>
+									<excludes>										
+										<exclude>node_modules/</exclude>
+										<exclude>Gruntfile.js</exclude>
+										<exclude>package.json</exclude>
+									</excludes>
+								</resource>								
 							</resources>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>0.0.23</version>
+				<configuration>
+					<workingDirectory>src/main/resources/webui</workingDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<id>grunt build</id>
+						<goals>
+							<goal>grunt</goal>
+						</goals>
+						<phase>${target.environment}</phase>
 					</execution>
 				</executions>
 			</plugin>
@@ -84,7 +114,7 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.3.1</version>
-		</dependency>	
+		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -180,7 +210,7 @@
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-servlet</artifactId>
 			<version>4.0</version>
-		</dependency>		
+		</dependency>
 	</dependencies>
 	<reporting>
 		<plugins>
@@ -194,4 +224,16 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	<profiles>
+		<profile>
+			<id>devel</id>
+			<properties>				
+			</properties>
+		</profile>
+		<profile>
+			<id>production</id>
+			<properties>
+			</properties>
+		</profile>
+	</profiles>
 </project>

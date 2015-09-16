@@ -69,17 +69,14 @@ public class Calculation {
 	private final Consumer<TaskEvent> statusListener;
 
 	/**
-	 * 
-	 * @param mainThreadOps
-	 * @param userenvScript
-	 * @param userScript
+	 *
 	 */
 	public Calculation(CalculationParams params,
 			Consumer<TaskEvent> statusListener) {
 		this.params = params;
 		this.statusListener = statusListener;
 		this.inputValues = params.inputValues;
-		this.modulesPaths = new ArrayList<String>();
+		this.modulesPaths = new ArrayList<>();
 		this.modulesPaths.add(params.workingDirModulesPath);
 		if (params.optionalModulesPath != null) {
 			this.modulesPaths.add(params.optionalModulesPath);
@@ -93,7 +90,7 @@ public class Calculation {
 	public String run() {
 		String ans = null;
 		IntermediateResults mapResults;
-		IntermediateResults reduceResults = null;
+		IntermediateResults reduceResults;
 
 		try {
 			ScriptObjectMirror prepareData = runPrepare();
@@ -122,8 +119,7 @@ public class Calculation {
 	/**
 	 * Runs preparation phase when user script is loaded (= all the respective
 	 * functions are registered but no real processing is done yet).
-	 * 
-	 * @return
+	 *
 	 */
 	private ScriptObjectMirror runPrepare() throws CalculationException {
 		LOG.info("Running PREPARE phase.");
@@ -149,12 +145,11 @@ public class Calculation {
 	 * 
 	 * @return key => [value1, value2,..., valueN] for all emitted keys and
 	 *         values
-	 * @throws ScriptException
 	 */
 	private IntermediateResults runMap(ScriptObjectMirror conf)
 			throws CalculationException {
 		ExecutorService executor;
-		List<Future<IntermediateResults>> threadList = new ArrayList<Future<IntermediateResults>>();
+		List<Future<IntermediateResults>> threadList = new ArrayList<>();
 		Callable<IntermediateResults> worker;
 		IntermediateResults mapResults = new IntermediateResults();
 		int numWorkers = (int) conf.get("numChunks");
@@ -173,16 +168,12 @@ public class Calculation {
 			threadList.add(submit);
 		}
 
-		List<Exception> errors = new ArrayList<Exception>();
+		List<Exception> errors = new ArrayList<>();
 		for (int i = 0; i < threadList.size(); i++) {
 			try {
 				mapResults.addAll(threadList.get(i).get());
 
-			} catch (InterruptedException e) {
-				errors.add(e);
-				LOG.error(String.format("Worker[%d]: %s", i, e.getMessage()), e);
-
-			} catch (ExecutionException e) {
+			} catch (InterruptedException | ExecutionException e) {
 				errors.add(e);
 				LOG.error(String.format("Worker[%d]: %s", i, e.getMessage()), e);
 			}
@@ -202,7 +193,7 @@ public class Calculation {
 	private IntermediateResults runReduce(ScriptObjectMirror prepareData,
 			IntermediateResults mapResults) throws ParallelException {
 		ExecutorService executor;
-		List<Future<IntermediateResults>> threadList = new ArrayList<Future<IntermediateResults>>();
+		List<Future<IntermediateResults>> threadList = new ArrayList<>();
 		IntermediateResults reduceResults = new IntermediateResults();
 		int numWorkers = (int) prepareData.get("numReduceWorkers");
 
@@ -224,7 +215,7 @@ public class Calculation {
 			threadList.add(submit);
 		}
 
-		List<Exception> errors = new ArrayList<Exception>();
+		List<Exception> errors = new ArrayList<>();
 		for (int i = 0; i < numWorkers; i++) {
 			try {
 				reduceResults.addAll(threadList.get(i).get());
@@ -247,7 +238,7 @@ public class Calculation {
 
 	private String runFinish(IntermediateResults reduceResults)
 			throws CalculationException {
-		String ans = null;
+		String ans;
 		EnvParams envParams = createEnvParams();
 		JsEngineAdapter jse = new JsEngineAdapter(envParams);
 		FinalResults fr = new FinalResults(reduceResults);
@@ -282,7 +273,7 @@ public class Calculation {
 		// TODO some smart assignment in case lists are very different in length
 		// should be implemented
 		IntermediateResults[] groups = new IntermediateResults[numGroups];
-		List<Object> keys = new ArrayList<Object>(originalResults.keys());
+		List<Object> keys = new ArrayList<>(originalResults.keys());
 		Random rand = new Random();
 
 		for (int i = 0; i < groups.length; i++) {
