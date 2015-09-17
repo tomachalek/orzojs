@@ -26,9 +26,13 @@ export var PopupBox = React.createClass({
     render : function () {
         return (
             <div className="popup">
-            <img className="close" src="/dist/img/High-contrast-dialog-close_24px.png"
-                alt="close" title="close" onClick={this._handleCloseClick} />
-            {this.props.children}
+                <div className="toolbar">
+                    <img className="close" src="/dist/img/High-contrast-dialog-close_24px.png"
+                        alt="close" title="close" onClick={this._handleCloseClick} />
+                </div>
+                <div className="content">
+                    {this.props.children}
+                </div>
             </div>
         );
     }

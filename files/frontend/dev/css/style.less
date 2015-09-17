@@ -1,13 +1,14 @@
 @color-subheading : #eeddcc;
-
 @color-heading: #d44c02;
+@color-light-text: #777777;
+@color-inverted-text: #cccccc;
 
 html, body {
     height: 100%;
 }
 
 body {
-    font-family: sans-serif;
+    font-family: Candara, sans-serif;
     font-size: 13pt;
     margin: 0;
 }
@@ -16,6 +17,10 @@ header {
     background-color: #a83c01;
     color: #FEFEFE;
     padding: 10pt 20pt;
+}
+
+code {
+    font-family: Consolas, mmonospace;
 }
 
 section#menu {
@@ -32,12 +37,12 @@ section#menu {
         li {
             display: inline-block;
             padding: 5pt 10pt;
-            
+
             a {
                 cursor: pointer;
             }
         }
-        
+
         li.active {
             font-weight: bold;
         }
@@ -47,8 +52,8 @@ section#menu {
 #status-bar {
     float: right;
     padding: 2pt 10pt;
-    border-color: #cccccc;
-    color: #cccccc;
+    border-color: @color-inverted-text;
+    color: @color-inverted-text;
     border-style: solid;
     border-width: 0 0 1pt 0;
     text-align: center;
@@ -79,17 +84,30 @@ table {
     }
 
     td, th {
-        padding: 3pt 5pt;
+        padding: 5pt 7pt;
+
+        code {
+            color: @color-light-text;
+        }
+
+        .script-name {
+            font-weight: bold;
+        }
     }
 
     .action {
+        font-size: 90%;
         cursor: pointer;
-        font-weight: bold;
-        color: #4ca6d5;
+        font-weight: normal;
+        background-color: #4ca6d5;
+        border-radius: 3pt;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 3pt 5pt;
     }
 
     .action:hover {
-        text-decoration: underline;
+        background-color: #6fc0ea;
     }
 }
 
@@ -112,10 +130,13 @@ table {
 }
 
 footer {
-    font-size: 11pt;
-    color: #777777;
+    font-size: 10pt;
+    color: @color-light-text;
+    border-style: solid;
+    border-color: #e0e0e0;
+    border-width: 1pt 0 0 0;
     background-color: #ededed;
-    padding: 7pt 20pt 7pt 20pt;
+    padding: 3pt 20pt 3pt 20pt;
 }
 
 .popup {
@@ -124,10 +145,38 @@ footer {
     background-color: #FEFDFD;
     border-radius: 3px;
     box-shadow: 0 0 10pt #a5a5a5;
-    padding: 10pt;
-    
-    img.close {
-        float: right;
-        cursor: pointer;
+
+    .toolbar {
+        text-align: right;
+        padding: 5pt;
+
+        img.close {
+            display: inline-block;
+            cursor: pointer;
+        }
+    }
+
+    .content {
+        padding: 10pt;
+    }
+
+    .submit {
+        margin-top: 5pt;
+        text-align: right;
+    }
+}
+
+.task-reg {
+    ul.input-args {
+        list-style-type: none;
+        margin: 0;
+
+        li {
+            padding: 3pt 5pt;
+        }
+
+        label {
+            color: @color-light-text;
+        }
     }
 }

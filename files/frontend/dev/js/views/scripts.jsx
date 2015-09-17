@@ -49,14 +49,23 @@ export function scriptsTableFactory(dispatcher, scriptsStore) {
             let inputs = [];
             this.props.args.forEach((item, inputId) => {
                 inputs.push(
-                    <input key={inputId} type="text" style={{width: '15em'}}
-                           onChange={this._handleInputChange.bind(this, inputId)}
-                           defaultValue={item} />);
+                    <li key={inputId}>
+                        <label>arg. {inputId}:&nbsp;
+                            <input type="text" style={{width: '15em'}}
+                                   onChange={this._handleInputChange.bind(this, inputId)}
+                                   defaultValue={item} />
+                        </label>
+                    </li>
+                );
             });
             return (
-                <form>
+                <form className="task-reg">
+                    <ul className="input-args">
                     {inputs}
+                    </ul>
+                    <div className="submit">
                     <button type="button" onClick={this._handleButtonClick}>Register</button>
+                    </div>
                 </form>
             );
         }
@@ -123,11 +132,11 @@ export function scriptsTableFactory(dispatcher, scriptsStore) {
             let rows = this.state.data.map(
                   item =>
                   <tr key={item.name}>
-                    <td><a>{item.name}</a></td>
-                    <td>{item.description}</td>
-                    <td>[{item.defaultArgs.join(', ')}]</td>
-                    <td><a className="action" onClick={self._handleActionClick.bind(self, 'run', item.id)}>register new task and run</a></td>
-                    <td><a className="action" onClick={self._handleActionClick.bind(self, 'register', item.id)}>register new task</a></td>
+                    <td><a className="script-name">{item.name}</a></td>
+                    <td style={{maxWidth: '25%'}}>{item.description}</td>
+                    <td><code>[{item.defaultArgs.join(', ')}]</code></td>
+                    <td><a className="action" onClick={self._handleActionClick.bind(self, 'run', item.id)}>new task &amp; run</a></td>
+                    <td><a className="action" onClick={self._handleActionClick.bind(self, 'register', item.id)}>new task</a></td>
                   </tr>
                   );
     	   return (

@@ -158,7 +158,7 @@ export function tasksTableFactory(dispatcher, tasksStore) {
                 currentResult: null
             });
         },
-        
+
         _closeScheduleForm : function () {
             this.setState({
                 data: this.state.data,
@@ -192,9 +192,9 @@ export function tasksTableFactory(dispatcher, tasksStore) {
                     return (
                         <span>
                             <a className="action" onClick={self._handleRunActionClick.bind(self, item.id)}>run now</a>
-                            {'\u00a0|\u00a0'}
+                            &nbsp;
                             <a className="action" onClick={self._handleScheduleActionClick.bind(self, item.id)}>schedule</a>
-                            {'\u00a0|\u00a0'}
+                            &nbsp;
                             <a className="action" onClick={self._handleDeleteTaskClick.bind(self, item.id)}>delete</a>
 
                         </span>
@@ -224,10 +224,10 @@ export function tasksTableFactory(dispatcher, tasksStore) {
             return (
                 <div>
                     {
-                        this.state.scheduleForm ? 
+                        this.state.scheduleForm ?
                         <PopupBox closeAction={this._closeScheduleForm}>
                             <ScheduleForm taskId={this.state.scheduleForm} />
-                        </PopupBox> 
+                        </PopupBox>
                         : null
                     }
                     {this.state.currentResult ?
