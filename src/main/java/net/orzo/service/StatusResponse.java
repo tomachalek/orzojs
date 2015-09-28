@@ -67,7 +67,7 @@ public class StatusResponse {
 	public StatusResponse(Status status, String message, Throwable error) {
 		this.status = status;
 		this.message = message;
-		this.errors = new ArrayList<String>();
+		this.errors = new ArrayList<>();
 		this.errors.add(error.getMessage());
 	}
 

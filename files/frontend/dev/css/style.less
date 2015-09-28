@@ -50,14 +50,34 @@ section#menu {
 }
 
 #status-bar {
-    float: right;
-    padding: 2pt 10pt;
-    border-color: @color-inverted-text;
-    color: @color-inverted-text;
-    border-style: solid;
-    border-width: 0 0 1pt 0;
-    text-align: center;
+    height: 2em;
+    text-align: left;
     font-size: 80%;
+
+    .messages {
+        padding: 2pt 10pt;
+        background-color: @color-inverted-text;
+        text-align: center;
+
+        .dismiss {
+            cursor: pointer;
+        }
+
+        .message {
+            display: inline-block;
+            padding: 3pt 5pt 3pt 27px;
+        }
+
+        span.error {
+            background-image: url("../img/error_icon_24px.png");
+            background-repeat: no-repeat;
+        }
+
+        span.info {
+            background-image: url("../img/info_icon_24px.png");
+            background-repeat: no-repeat;
+        }
+}
 }
 
 section#content {
@@ -79,7 +99,7 @@ table {
         color: @color-heading;
         font-weight: normal;
         border-style: solid;
-        border-width: 1px 0 1px 0;
+        border-width: 0 0 1px 0;
         border-color: @color-heading;
     }
 

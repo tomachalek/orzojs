@@ -23,16 +23,14 @@ export function statusBarFactory(dispatcher, mainStore) {
     return React.createClass({
 
         _handleMainStoreChange : function (store, action) {
-            if (action === 'READY') {
-                this.setState({status: 'ready', message: mainStore.getLastMessage()});
-
-            } else {
-                this.setState({status: 'working', message: null});
+            if (action === 'MESSAGE') {
+                let [msgType, message] = mainStore.getLastMessage();
+                this.setState({msgType: msgType, message: message});
             }
         },
 
         getInitialState : function () {
-            return {status: 'ready'};
+            return {msgType: 'info'};
         },
 
         componentDidMount: function () {
@@ -43,24 +41,37 @@ export function statusBarFactory(dispatcher, mainStore) {
             mainStore.removeChangeListener(this._handleMainStoreChange);
         },
 
+        _handleDismissClick : function () {
+            this.setState({msgType: null, message: null});
+        },
+
         render : function () {
             var status;
 
-            if (this.state.status === 'working') {
-                status = (
-                    <ReactCSSTransitionGroup transitionName="msganim">
-                        <span>{this.state.status}
-                        {this.state.message ? '(' + this.state.message + ')' : ''}
+            if (this.state.msgType === 'working') {
+                return (
+                    <div className="messages">
+                        <ReactCSSTransitionGroup transitionName="msganim">
+                            <span className={'message ' + this.state.msgType}>
+                                {this.state.message ? '(' + this.state.message + ')' : ''}
+                            </span>
+                        </ReactCSSTransitionGroup>
+                    </div>
+                );
+
+            } else if (this.state.message) {
+                return (
+                    <div className="messages">
+                        <span className={'message ' + this.state.msgType}>
+                            {this.state.message ? this.state.message : ''}
                         </span>
-                    </ReactCSSTransitionGroup>
+                        (<a className="dismiss" onClick={this._handleDismissClick}>dismiss</a>)
+                    </div>
                 );
 
             } else {
-                status = <span>{this.state.status}
-                {this.state.message ? '(' + this.state.message + ')' : ''}</span>;
+                return <div className="messages" />;
             }
-
-            return <div>{status}</div>;
         }
     });
 

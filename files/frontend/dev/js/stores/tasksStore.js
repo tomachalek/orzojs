@@ -83,12 +83,18 @@ export class TasksStore extends GeneralStore {
 
         prom.then(
             function (data) {
-                self.notifyChangeListeners('TASK_SCHEDULE');
-                self.synchronize();
+                if (data.status !== 'ERROR') {
+                    self.notifyChangeListeners('TASK_SCHEDULE');
+                    self.synchronize();
+
+                } else {
+                    self.mainStore.addMessage('error', data.message);
+                    self.notifyChangeListeners('ERROR');
+                }
             },
             function (err) {
+                self.mainStore.addMessage('error', err);
                 self.notifyChangeListeners('ERROR', err);
-                self.synchronize();
             }
         );
     }

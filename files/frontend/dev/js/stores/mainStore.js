@@ -27,7 +27,7 @@ export class MainStore extends GeneralStore {
     }
 
     getLastMessage() {
-        return this.messages.length > 0 ? this.messages[this.messages.length - 1] : null;
+        return this.messages.length > 0 ? this.messages[this.messages.length - 1] : [null, null];
     }
 
     handleEvent(payload) {
@@ -38,7 +38,9 @@ export class MainStore extends GeneralStore {
                 break;
             case 'READY':
                 this.notifyChangeListeners(payload.type);
-                this.messages.push(payload.value);
+                if (payload.value) {
+                    this.addMessage('info', payload.value);
+                }
                 break;
         }
     }
@@ -50,5 +52,10 @@ export class MainStore extends GeneralStore {
 
     getActiveTab() {
         return this.activeTab;
+    }
+
+    addMessage(msgType, value) {
+        this.messages.push([msgType, value]);
+        this.notifyChangeListeners('MESSAGE');
     }
 }

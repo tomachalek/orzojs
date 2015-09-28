@@ -75,7 +75,7 @@ export function tasksTableFactory(dispatcher, tasksStore) {
                 });
                 dispatcher.dispatch({
                     type: 'READY',
-                    value: 'tasks loaded'
+                    value: null
                 });
 
             } else if (event === 'TASK_SCHEDULE') {
@@ -120,10 +120,12 @@ export function tasksTableFactory(dispatcher, tasksStore) {
         },
 
         _handleDeleteTaskClick : function (taskId, event) {
-            dispatcher.dispatch({
-                type: 'TASK_DELETE',
-                value: taskId
-            });
+            if (window.confirm('Do you really want to delete the task?')) {
+                dispatcher.dispatch({
+                    type: 'TASK_DELETE',
+                    value: taskId
+                });
+            }
         },
 
         _handleScheduleActionClick : function (taskId, event) {
@@ -202,6 +204,7 @@ export function tasksTableFactory(dispatcher, tasksStore) {
                 }
             };
             let self = this;
+            let formatNum = (v) => v >= 10 ? String(v) : '0' + String(v);
             let rows = this.state.data.map(function (item) {
                 return (
                     <tr key={item.id}>
@@ -211,7 +214,8 @@ export function tasksTableFactory(dispatcher, tasksStore) {
                         <td>{self._resultLink(item)}</td>
                         <td>
                             {item.isScheduled
-                                ? item.startHour + ':' + item.startMinute + ' each '
+                                ? formatNum(item.startHour) + ':'
+                                    + formatNum(item.startMinute) + ' each '
                                     + item.interval + ' secs.'
                                 : 'not scheduled'}
                         </td>

@@ -78,9 +78,9 @@ public class TaskHandler extends JsonProvider
 	@Produces("application/json; charset=UTF-8")
 	public String runTask(@PathParam("task") String taskId,
 			@QueryParam("time") @DefaultValue("") String time,
-			@QueryParam("interval") @DefaultValue("0") int interval) {
+			@QueryParam("interval") @DefaultValue("0") String interval) {
 		try {
-			if (!time.equals("") && interval > 0) {
+			if (!time.equals("") && interval != null) {
 				Pattern ptr = Pattern.compile("([0-2]?[0-9]):([0-5][0-9])");
 				Matcher match = ptr.matcher(time);
 				if (!match.matches()) {
@@ -88,7 +88,8 @@ public class TaskHandler extends JsonProvider
 				}
 				int startHour = Integer.parseInt(match.group(1));
 				int startMinute = Integer.parseInt(match.group(2));
-				this.taskManager.scheduleTask(taskId, startHour, startMinute, interval);
+                int taskInterval = Integer.parseInt(interval);
+				this.taskManager.scheduleTask(taskId, startHour, startMinute, taskInterval);
 
 			} else {
 				this.taskManager.startTask(taskId);
@@ -96,7 +97,7 @@ public class TaskHandler extends JsonProvider
 			return toJson(new StatusResponse(
 					StatusResponse.Status.OK));
 
-		} catch (ResourceNotFound | ArgumentException e) {
+		} catch (ResourceNotFound | ArgumentException | NumberFormatException e) {
 			return toJson(new StatusResponse(
 					StatusResponse.Status.ERROR, e.getMessage(), e));
 		}

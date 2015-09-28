@@ -24,7 +24,7 @@ public class ResourceNotFound extends Exception {
 
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1926478254814241787L;
 
