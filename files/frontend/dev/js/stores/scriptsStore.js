@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {GeneralStore} from './generalStore'; 
+import {GeneralStore} from './generalStore';
 import * as $ from 'jquery';
 
 export class ScriptsStore extends GeneralStore {
@@ -59,14 +59,15 @@ export class ScriptsStore extends GeneralStore {
             },
             function (err) {
                 self.notifyChangeListeners('ERROR', err);
+                self.mainStore.addMessage('error', err);
             }
         );
     }
-    
+
     getDefaultArgs(itemId) {
         return this.defaultArgs[itemId] || [];
     }
-    
+
     // TODO this should remove task from lists
     runScript(scriptId) {
         let prom = $.ajax('/api/task/' + scriptId, {
@@ -82,24 +83,24 @@ export class ScriptsStore extends GeneralStore {
                 });
             },
             function (err) {
-                console.log('error', err); // TODO
+                self.mainStore.addMessage('error', err);
             }
         ).then(
             function (data) {
                 if (data.status === 'OK') {
                     self.mainStore.setActiveTab('tasks');
                     self.notifyChangeListeners('SCRIPT_ACTION_RUN');
-                    
+
                 } else {
-                    console.log('error2.1', data.errors[0]); // TODO
-                }  
+                    self.mainStore.addMessage('error', data.errors[0]);
+                }
             },
             function (err) {
-                console.log('error2.2', err); // TODO
+                self.mainStore.addMessage('error', err);
             }
         );
     }
-    
+
     registerTask(scriptId, args) {
         let self = this;
         let prom = $.ajax('/api/task/' + scriptId, {
@@ -116,6 +117,7 @@ export class ScriptsStore extends GeneralStore {
             },
             function (err) {
                 self.notifyChangeListeners('ERROR', err);
+                self.mainStore.addMessage('error', err);
             }
         );
     }

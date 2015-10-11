@@ -19,9 +19,10 @@ import * as $ from 'jquery';
 
 export class LogStore extends GeneralStore {
 
-    constructor(dispatcher) {
+    constructor(dispatcher, mainStore) {
         super(dispatcher);
         this.data = [];
+        this.mainStore = mainStore;
         this.dispatcherToken = this.dispatcher.register(this.handleEvent.bind(this));
     }
 
@@ -46,6 +47,7 @@ export class LogStore extends GeneralStore {
                 self.notifyChangeListeners('LOG_LOAD');
             },
             function (err) {
+                self.mainStore.addMessage('error', err);
                 self.notifyChangeListeners('ERROR', err);
             }
         );

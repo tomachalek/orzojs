@@ -70,6 +70,7 @@ export class TasksStore extends GeneralStore {
             },
             function (err) {
                 self.notifyChangeListeners('ERROR', err);
+                self.mainStore.addMessage('error', err);
             }
         );
     }
@@ -88,13 +89,13 @@ export class TasksStore extends GeneralStore {
                     self.synchronize();
 
                 } else {
-                    self.mainStore.addMessage('error', data.message);
                     self.notifyChangeListeners('ERROR');
+                    self.mainStore.addMessage('error', data.message);
                 }
             },
             function (err) {
-                self.mainStore.addMessage('error', err);
                 self.notifyChangeListeners('ERROR', err);
+                self.mainStore.addMessage('error', err);
             }
         );
     }
@@ -113,6 +114,7 @@ export class TasksStore extends GeneralStore {
             },
             function (err) {
                 self.notifyChangeListeners('ERROR', err);
+                self.mainStore.addMessage('error', err);
             }
         );
     }
@@ -132,6 +134,7 @@ export class TasksStore extends GeneralStore {
             },
             function (err) {
                 self.notifyChangeListeners('ERROR', err);
+                self.mainStore.addMessage('error', err);
             }
         );
     }
@@ -149,8 +152,9 @@ export class TasksStore extends GeneralStore {
                 self.notifyChangeListeners('TASKS_LOAD');
 
             },
-            function (error) {
-                self.notifyChangeListeners('TASKS_LOAD', error);
+            function (err) {
+                self.notifyChangeListeners('TASKS_LOAD', err);
+                self.mainStore.addMessage('error', err);
             }
         );
     }
