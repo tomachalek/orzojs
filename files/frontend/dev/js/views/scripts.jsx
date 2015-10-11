@@ -109,10 +109,12 @@ export function scriptsTableFactory(dispatcher, scriptsStore) {
 
         componentDidMount : function () {
             scriptsStore.addChangeListener(this._handleScriptsStoreEvent);
+            window.addEventListener('keydown', this._handleKeyEvents);
         },
 
         componentWillUnmount : function () {
             scriptsStore.removeChangeListener(this._handleScriptsStoreEvent);
+            window.removeEventListener('keydown', this._handleKeyEvents);
         },
 
         _closeForm : function () {
@@ -121,6 +123,12 @@ export function scriptsTableFactory(dispatcher, scriptsStore) {
                 eror: this.state.error,
                 scriptInForm: null
             });
+        },
+
+        _handleKeyEvents : function (event) {
+            if (this.state.scriptInForm && event.keyCode === 27) {
+                this._closeForm();
+            }
         },
 
     	render : function () {
@@ -139,7 +147,7 @@ export function scriptsTableFactory(dispatcher, scriptsStore) {
                     <td><a className="action" onClick={self._handleActionClick.bind(self, 'register', item.id)}>new task</a></td>
                   </tr>
                   );
-    	   return (
+            return (
                 <div>
                     { this.state.scriptInForm ?
                         <PopupBox closeAction={this._closeForm}>

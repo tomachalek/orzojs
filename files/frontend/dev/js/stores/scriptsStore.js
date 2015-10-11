@@ -34,7 +34,7 @@ export class ScriptsStore extends GeneralStore {
                 this.loadList();
                 break;
             case 'SCRIPT_ACTION_RUN':
-                this.runScript(payload.value);
+                this.runScript(payload.value.itemId, payload.value.args);
                 break;
             case 'SCRIPT_ACTION_REGISTER':
                 this.registerTask(payload.value.itemId, payload.value.args);
@@ -69,9 +69,11 @@ export class ScriptsStore extends GeneralStore {
     }
 
     // TODO this should remove task from lists
-    runScript(scriptId) {
+    runScript(scriptId, args) {
+        let self = this;
         let prom = $.ajax('/api/task/' + scriptId, {
             dataType: 'text', // TODO JSON
+            data: {arg: args},
             method: 'PUT'
         });
 

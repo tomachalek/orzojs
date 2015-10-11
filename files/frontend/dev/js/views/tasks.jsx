@@ -169,16 +169,29 @@ export function tasksTableFactory(dispatcher, tasksStore) {
             });
         },
 
+        _handleKeyEvents : function (event) {
+            if (event.keyCode === 27) {
+                if (this.state.currentResult) {
+                    this._closeResult();
+                }
+                if (this.state.scheduleForm) {
+                    this._closeScheduleForm();
+                }
+            }
+        },
+
         getInitialState : function () {
             return {data: [], scheduleForm: null};
         },
 
         componentDidMount : function () {
             tasksStore.addChangeListener(this._handleTasksStoreEvent);
+            window.addEventListener('keydown', this._handleKeyEvents);
         },
 
         componentWillUnmount : function () {
             tasksStore.removeChangeListener(this._handleTasksStoreEvent);
+            window.removeEventListener('keydown', this._handleKeyEvents);
         },
 
         render: function () {
