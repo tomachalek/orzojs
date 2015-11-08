@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import net.orzo.service.TaskStatus;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -216,8 +217,14 @@ public final class App {
 					CmdConfig conf = new CmdConfig(userScript.getName(),
 							userScript, optionalModulesPath);
 					TaskManager tm = new TaskManager(conf);
-					tm.startTaskSync(tm.registerTask(userScript.getName(),
-							inputValues));
+					String taskId = tm.registerTask(userScript.getName(), inputValues);
+					tm.startTaskSync(taskId);
+					if (tm.getTask(taskId).getStatus() == TaskStatus.ERROR) {
+						tm.getTask(taskId).getFirstError().getErrors().stream().forEach(
+								(err) -> System.err.println(err));
+					}
+
+
 
 				} else {
 					System.err

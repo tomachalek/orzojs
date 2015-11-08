@@ -572,7 +572,7 @@
     };
 
     /**
-     * 
+     *
      * @param path
      */
     scope.orzo.cleanDirectory = function (path) {
@@ -643,6 +643,29 @@
     scope.orzo.html.find = function (rootElement, query) {
         return scope._lib.web.queryPage(rootElement, query, null);
     };
+
+    scope.orzo.rest = {};
+
+    scope.orzo.rest.get = function (url) {
+        return scope._lib.restClient.get(url);
+    }
+
+    scope.orzo.rest.put = function (url, data) {
+        return scope._lib.restClient.put(url, data);
+    };
+
+    scope.orzo.rest.post = function (url, data) {
+        return scope._lib.restClient.post(url, data);
+    };
+
+    scope.orzo.rest.delete = function (url) {
+        return scope._lib.restClient.delete(url);
+    };
+
+    scope.orzo.rest.head = function (url) {
+        return scope._lib.restClient.head(url);
+    };
+
 
     /**
      * Provides a set of hash functions

@@ -52,6 +52,8 @@ public class Lib {
 
 	public final Templating templating;
 
+	public final RestClient restClient;
+
 	@SuppressWarnings(value = { "unused" })
 	private static final Logger LOG = LoggerFactory.getLogger("user_script");
 
@@ -64,6 +66,7 @@ public class Lib {
 		this.strings = new Strings();
 		this.dataStructures = new DataStructures();
 		this.templating = new Templating();
+		this.restClient = new RestClient();
 	}
 
 	/**

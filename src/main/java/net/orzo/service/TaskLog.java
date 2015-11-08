@@ -31,7 +31,7 @@ public class TaskLog {
 	private final List<TaskExecInfo> rows;
 
 	public TaskLog() {
-		this.rows = new ArrayList<TaskExecInfo>();
+		this.rows = new ArrayList<>();
 	}
 
 	public void logTask(Task task) {
