@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.gson.Gson;
 import jdk.nashorn.internal.runtime.ScriptFunction;
 
 /**
@@ -119,5 +120,15 @@ public class DataStructures {
 		} catch (Throwable ex) {
 			throw new LibException(ex);
 		}
+	}
+
+	/**
+	 * Converts an object to JSON (using Gson library)
+	 *
+	 * @param obj
+	 * @return
+     */
+	public Object toJson(Object obj) {
+		return new Gson().toJson(obj);
 	}
 }
