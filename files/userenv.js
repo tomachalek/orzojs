@@ -775,6 +775,15 @@
     };
 
     /**
+     * Converts an object to JSON. In Orzo.js, this is ofter better
+     * than JSON.stringify() which may return 'undefined' in some situations
+     * (see https://github.com/tomachalek/orzojs/issues/22)
+     */
+    scope.orzo.toJson = function (obj) {
+        return scope._lib.dataStructures.toJson(obj);
+    }
+
+    /**
      * Creates an array of numbers starting from arg0 with increment 1
      * up to arg1 - 1. If only a single argument is passed then values
      * from 0 to arg0 - 1 are generated.

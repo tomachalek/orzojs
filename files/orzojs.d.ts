@@ -506,7 +506,7 @@ declare module orzo {
      * @param chunkId
      * @param filter An optional regular expression specifying names to be accepted
      */
-    function directoryReader<T>(pathInfo:string|Array<string>, chunkId:number, 
+    function directoryReader<T>(pathInfo:string|Array<string>, chunkId:number,
           filter?:RegExp|string):Iterator<T>;
 
     /**
@@ -519,7 +519,7 @@ declare module orzo {
      * @param chunkId
      * @param filter
      */
-    function filePairGenerator<T>(pathInfo:string|Array<string>, chunkId:number, 
+    function filePairGenerator<T>(pathInfo:string|Array<string>, chunkId:number,
           filter?:RegExp|string):Iterator<T>;
 
     /**
@@ -550,7 +550,7 @@ declare module orzo {
      * @param chunkSize A chunk size in lines; if omitted then automatic estimation is performed
      * @param startLine The first line to read (should be 0 by default)
      */
-    function fileChunkReader<T>(path:string, chunkId:number, chunkSize?:number, 
+    function fileChunkReader<T>(path:string, chunkId:number, chunkSize?:number,
           startLine?:number):Iterator<T>;
 
     /**
@@ -579,16 +579,25 @@ declare module orzo {
     function readJSON(path:string):{[key:string]:any};
 
     /**
+     * Converts an object to JSON. In Orzo.js, this is ofter better
+     * than JSON.stringify() which may return 'undefined' in some situations
+     * (see https://github.com/tomachalek/orzojs/issues/22)
+     *
+     * @param obj An object to be converted
+     */
+    function toJson(obj:any):string;
+
+    /**
      * A file writer based on Java's BufferedWriter.
      *
      * @param path
      */
     function fileWriter(path:string):FileWriter;
-    
+
     /**
      * Recursively deletes all the entries from the directory.
      * The directory itself is preserved.
-     * 
+     *
      * @param path A path to a directory
      */
     function cleanDirectory(path):void;
