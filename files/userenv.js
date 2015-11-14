@@ -526,8 +526,17 @@
      * @param {string} path a path to a file
      * @return {*} an object as read and decoded from respective JSON data
      */
-    scope.orzo.readJSON = function (path) {
+    scope.orzo.readJsonFile = function (path) {
         return JSON.parse(scope.orzo.readText(path));
+    };
+
+    /**
+     * Converts an object to JSON. In Orzo.js, this is ofter better
+     * than JSON.stringify() which may return 'undefined' in some situations
+     * (see https://github.com/tomachalek/orzojs/issues/22)
+     */
+    scope.orzo.toJson = function (obj) {
+        return scope._lib.dataStructures.toJson(obj);
     };
 
     /**
@@ -773,15 +782,6 @@
     scope.orzo.numericMatrix = function (width, height) {
         return scope._lib.dataStructures.numericMatrix(width, height);
     };
-
-    /**
-     * Converts an object to JSON. In Orzo.js, this is ofter better
-     * than JSON.stringify() which may return 'undefined' in some situations
-     * (see https://github.com/tomachalek/orzojs/issues/22)
-     */
-    scope.orzo.toJson = function (obj) {
-        return scope._lib.dataStructures.toJson(obj);
-    }
 
     /**
      * Creates an array of numbers starting from arg0 with increment 1

@@ -576,7 +576,7 @@ declare module orzo {
      *
      * @param path A path to a file
      */
-    function readJSON(path:string):{[key:string]:any};
+    function readJsonFile(path:string):{[key:string]:any};
 
     /**
      * Converts an object to JSON. In Orzo.js, this is ofter better
