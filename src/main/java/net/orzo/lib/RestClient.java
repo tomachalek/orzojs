@@ -54,7 +54,6 @@ public class RestClient {
     }
 
     public String post(String url, String body) {
-        System.out.println(body);
         return createWebResourceBuilder(url).post(String.class, body);
     }
 

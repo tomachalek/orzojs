@@ -49,7 +49,7 @@ public class HttpServer implements Service {
 	/**
 	 * 
 	 */
-	private final RestServiceConfig config;
+	private final FullServiceConfig config;
 	
 	/**
 	 * 
@@ -64,7 +64,7 @@ public class HttpServer implements Service {
 	/**
 	 * 
 	 */
-	public HttpServer(RestServiceConfig config,
+	public HttpServer(FullServiceConfig config,
 			JerseyGuiceServletConfig guiceJerseyConfig) {
 		this.config = config;
 		this.guiceJerseyConfig = guiceJerseyConfig;
