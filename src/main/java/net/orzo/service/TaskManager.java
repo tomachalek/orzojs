@@ -121,7 +121,7 @@ public class TaskManager implements Observer {
 		this.tasks.remove(taskId);
 	}
 	
-	public String registerTask(String scriptId, String[] args)
+	public String registerTask(String scriptId, String[] args, Observer onFinished)
 			throws TaskException {
 		if (!this.conf.isAllowedScript(scriptId)) {
 			throw new RuntimeException("Script not allowed"); // TODO
@@ -142,13 +142,19 @@ public class TaskManager implements Observer {
 			params.inputValues = args != null && args.length > 0 ? args : scriptConf.getDefaultArgs();
 			task = new Task(taskId, params);
 			task.addObserver(this);
+			if (onFinished != null) {
+				task.addObserver(onFinished);
+			}
 			this.tasks.put(taskId, task);
 			return taskId;
 
 		} catch (IOException ex) {
 			throw new TaskException(ex.getMessage(), ex);
 		}
+	}
 
+	public String registerTask(String scriptId, String[] args) throws TaskException {
+		return registerTask(scriptId, args, null);
 	}
 
 	/**

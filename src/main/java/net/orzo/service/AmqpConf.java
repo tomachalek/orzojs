@@ -16,23 +16,26 @@
 
 package net.orzo.service;
 
-import java.util.List;
 
-/**
- * 
- * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
- */
-public interface ServiceConfig {
+public class AmqpConf {
 
-	public boolean isAllowedScript(String id);
+    public String host;
 
-	public ScriptConfig getScriptConfig(String id);
+    public Integer port;
 
-	public List<String> getScriptsIds();
+    public String virtualHost;
 
-	public AmqpConf getAmqpConfig();
+    public String queue;
 
-	public AmqpConf getAmqpResponseConfig();
+    public String user;
 
+    public String password;
+
+    public Boolean autoAcknowledge;
+
+    @Override
+    public String toString() {
+        return String.format("%s:****@%s:%s/%s, (queue: %s, autoAck: %s)", this.user, this.host,
+                this.port, this.virtualHost, this.queue, this.autoAcknowledge);
+    }
 }

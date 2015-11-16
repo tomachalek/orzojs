@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.orzo.scripting.SourceCode;
+import net.orzo.service.AmqpConf;
 import net.orzo.service.InternalScriptConfig;
 import net.orzo.service.ScriptConfig;
 import net.orzo.service.ServiceConfig;
@@ -59,5 +60,16 @@ public class CmdConfig implements ServiceConfig {
 		ans.add(this.scriptId);
 		return ans;
 	}
+
+	@Override
+	public AmqpConf getAmqpConfig() {
+		return null;
+	}
+
+	@Override
+	public AmqpConf getAmqpResponseConfig() {
+		return null;
+	}
+
 
 }

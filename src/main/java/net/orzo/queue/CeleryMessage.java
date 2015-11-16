@@ -14,25 +14,32 @@
  * limitations under the License.
  */
 
-package net.orzo.service;
+package net.orzo.queue;
 
 import java.util.List;
+import java.util.Map;
 
-/**
- * 
- * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
- */
-public interface ServiceConfig {
 
-	public boolean isAllowedScript(String id);
+public class CeleryMessage {
 
-	public ScriptConfig getScriptConfig(String id);
+    public String id;
 
-	public List<String> getScriptsIds();
+    public String task;
 
-	public AmqpConf getAmqpConfig();
+    public List<String> args;
 
-	public AmqpConf getAmqpResponseConfig();
+    public Map<String, String> kwargs;
+
+    public Integer retries;
+
+    public String eta;
+
+    public String expires;
+
+    @Override
+    public String toString() {
+        return String.format("CeleryMessage {id: %s, task: %s, args: %s, kwargs: %s, ...",
+                this.id, this.task, this.args, this.kwargs);
+    }
 
 }

@@ -459,6 +459,23 @@ declare var env:Env;
 
 
 /**
+ * REST-client methods
+ */
+interface RestMethods {
+
+    delete(url:string):string;
+
+    get(url:string):string;
+
+    head(url:string):string;
+
+    post(url:string, body:string):string;
+
+    put(url:string, body:string):string;
+}
+
+
+/**
  * Orzojs core library
  */
 declare module orzo {
@@ -576,7 +593,7 @@ declare module orzo {
      *
      * @param path A path to a file
      */
-    function readJsonFile(path:string):{[key:string]:any};
+    function readJsonFile<T>(path:string):T;
 
     /**
      * Converts an object to JSON. In Orzo.js, this is ofter better
@@ -725,10 +742,9 @@ declare module orzo {
      */
     function loadImage(path:string):Image;
 
-    /**
-     *
-     */
-    declare var stringDistance:StringDistances;
+    var stringDistance:StringDistances;
+
+    var rest:Rest;
 }
 
 /**

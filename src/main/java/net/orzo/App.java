@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import net.orzo.queue.AmqpConnection;
+import net.orzo.queue.AmqpService;
 import net.orzo.service.TaskStatus;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -41,7 +43,7 @@ import net.orzo.injection.CoreModule;
 import net.orzo.injection.RestServletModule;
 import net.orzo.scripting.SourceCode;
 import net.orzo.service.HttpServer;
-import net.orzo.service.RestServiceConfig;
+import net.orzo.service.FullServiceConfig;
 import net.orzo.service.TaskManager;
 import net.orzo.tools.ResourceLoader;
 
@@ -52,198 +54,201 @@ import net.orzo.tools.ResourceLoader;
  */
 public final class App {
 
-	protected final Properties props;
+    protected final Properties props;
 
-	private final Options cliOptions;
+    private final Options cliOptions;
 
-	private final List<Service> services;
+    private final List<Service> services;
 
-	private final static String DEMO_SCRIPT = "net/orzo/demo1.js";
+    private final static String DEMO_SCRIPT = "net/orzo/demo1.js";
 
-	/**
-	 * 
-	 */
-	public App() {
-		this.services = new ArrayList<Service>();
-		this.props = new Properties();
-		this.cliOptions = new Options();
-		this.cliOptions.addOption("v", false, "shows version information");
-		this.cliOptions.addOption("d", false, "runs a demo program");
-		this.cliOptions
-				.addOption("g", true,
-						"custom path to a Logback configuration XML file (default is ./logback.xml)");
-		this.cliOptions.addOption("h", false, "print help");
-		this.cliOptions
-				.addOption(
-						"m",
-						true,
-						"additional module path (the directory where your script is located is always included)");
-		this.cliOptions
-				.addOption(
-						"t",
-						true,
-						"writes a code template to a specified file plus creates orzojs.d.ts type definition file for OrzoJS libraries.");
-		this.cliOptions
-				.addOption("T", false,
-						"writes a code template to the standard output (without orzojs.d.ts)");
+    /**
+     *
+     */
+    public App() {
+        this.services = new ArrayList<Service>();
+        this.props = new Properties();
+        this.cliOptions = new Options();
+        this.cliOptions.addOption("v", false, "shows version information");
+        this.cliOptions.addOption("d", false, "runs a demo program");
+        this.cliOptions
+                .addOption("g", true,
+                        "custom path to a Logback configuration XML file (default is ./logback.xml)");
+        this.cliOptions.addOption("h", false, "print help");
+        this.cliOptions
+                .addOption(
+                        "m",
+                        true,
+                        "additional module path (the directory where your script is located is always included)");
+        this.cliOptions
+                .addOption(
+                        "t",
+                        true,
+                        "writes a code template to a specified file plus creates orzojs.d.ts type definition file for OrzoJS libraries.");
+        this.cliOptions
+                .addOption("T", false,
+                        "writes a code template to the standard output (without orzojs.d.ts)");
 
-		this.cliOptions.addOption("s", true,
-				"run in a server mode using provided config");
-	}
+        this.cliOptions.addOption("s", true,
+                "run in a server mode using provided config");
+    }
 
-	/**
-	 * 
-	 */
-	private void startServices() throws Exception {
-		for (Service service : this.services) {
-			service.start();
-		}
-	}
+    /**
+     *
+     */
+    private void startServices() throws Exception {
+        for (Service service : this.services) {
+            service.start();
+        }
+    }
 
-	/**
-	 * 
-	 */
-	public void stopServices() {
-		for (Service service : this.services) {
-			service.stop();
-		}
-	}
+    /**
+     *
+     */
+    public void stopServices() {
+        for (Service service : this.services) {
+            service.stop();
+        }
+    }
 
-	/**
-	 * 
-	 */
-	private CommandLine init(String[] args) throws IOException, ParseException {
-		this.props.load(App.class.getClassLoader().getResourceAsStream(
-				"net/orzo/app.properties"));
-		return (new GnuParser()).parse(this.cliOptions, args);
-	}
+    /**
+     *
+     */
+    private CommandLine init(String[] args) throws IOException, ParseException {
+        this.props.load(App.class.getClassLoader().getResourceAsStream(
+                "net/orzo/app.properties"));
+        return (new GnuParser()).parse(this.cliOptions, args);
+    }
 
-	/**
-	 * 
-	 */
-	public static void main(final String[] args) {
-		final App app = new App();
-		Logger log = null;
-		CommandLine cmd;
+    /**
+     *
+     */
+    public static void main(final String[] args) {
+        final App app = new App();
+        Logger log = null;
+        CommandLine cmd;
 
-		try {
-			cmd = app.init(args);
+        try {
+            cmd = app.init(args);
 
-			if (cmd.hasOption("h")) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter
-						.printHelp(
-								"orzo [options] user_script [user_arg1 [user_arg2 [...]]]\n(to generate a template: orzo -t [file path])",
-								app.cliOptions);
-				
-			} else if (cmd.hasOption("v")) {
-				System.out.printf("Orzo.js version %s\n",
-						app.props.get("orzo.version"));
+            if (cmd.hasOption("h")) {
+                HelpFormatter formatter = new HelpFormatter();
+                formatter
+                        .printHelp(
+                                "orzo [options] user_script [user_arg1 [user_arg2 [...]]]\n(to generate a template: orzo -t [file path])",
+                                app.cliOptions);
 
-			} else if (cmd.hasOption("t")) {
-				String templateSrc = new ResourceLoader()
-						.getResourceAsString("net/orzo/template1.js");
+            } else if (cmd.hasOption("v")) {
+                System.out.printf("Orzo.js version %s\n",
+                        app.props.get("orzo.version"));
 
-				File tplFile = new File(cmd.getOptionValue("t"));
-				FileWriter tplWriter = new FileWriter(tplFile);
-				tplWriter.write(templateSrc);
-				tplWriter.close();
+            } else if (cmd.hasOption("t")) {
+                String templateSrc = new ResourceLoader()
+                        .getResourceAsString("net/orzo/template1.js");
 
-				File dtsFile = new File(String.format("%s/orzojs.d.ts",
-						new File(tplFile.getAbsolutePath()).getParent()));
-				FileWriter dtsWriter = new FileWriter(dtsFile);
-				String dtsSrc = new ResourceLoader()
-						.getResourceAsString("net/orzo/orzojs.d.ts");
-				dtsWriter.write(dtsSrc);
-				dtsWriter.close();
+                File tplFile = new File(cmd.getOptionValue("t"));
+                FileWriter tplWriter = new FileWriter(tplFile);
+                tplWriter.write(templateSrc);
+                tplWriter.close();
 
-			} else if (cmd.hasOption("T")) {
-				String templateSrc = new ResourceLoader()
-						.getResourceAsString("net/orzo/template1.js");
-				System.out.println(templateSrc);
-				
-			} else {
+                File dtsFile = new File(String.format("%s/orzojs.d.ts",
+                        new File(tplFile.getAbsolutePath()).getParent()));
+                FileWriter dtsWriter = new FileWriter(dtsFile);
+                String dtsSrc = new ResourceLoader()
+                        .getResourceAsString("net/orzo/orzojs.d.ts");
+                dtsWriter.write(dtsSrc);
+                dtsWriter.close();
 
-				// Logger initialization
-				if (cmd.hasOption("g")) {
-					System.setProperty("logback.configurationFile",
-							cmd.getOptionValue("g"));
-	
-				} else {
-					System.setProperty("logback.configurationFile", "./logback.xml");
-				}
-				log = LoggerFactory.getLogger(App.class);
-				if (cmd.hasOption("s")) { // Orzo.js as a REST service
-					RestServiceConfig conf = new Gson().fromJson(
-							new FileReader(cmd.getOptionValue("s")),
-							RestServiceConfig.class);
-					Injector injector = Guice.createInjector(new CoreModule(
-							conf), new RestServletModule());
-					HttpServer httpServer = new HttpServer(conf,
-							new JerseyGuiceServletConfig(injector));
-					app.services.add(httpServer);
-					Runtime.getRuntime().addShutdownHook(new ShutdownHook(app));
-					app.startServices();
+            } else if (cmd.hasOption("T")) {
+                String templateSrc = new ResourceLoader()
+                        .getResourceAsString("net/orzo/template1.js");
+                System.out.println(templateSrc);
 
-				} else if (cmd.hasOption("d")) { // Demo mode
-					final String scriptId = "demo";
-					final SourceCode demoScript = SourceCode
-							.fromResource(DEMO_SCRIPT);
-					System.err.printf("Running demo script %s.",
-							demoScript.getName());
-					CmdConfig conf = new CmdConfig(scriptId, demoScript, null);
-					TaskManager tm = new TaskManager(conf);
-					tm.startTaskSync(tm.registerTask(scriptId, new String[0]));
-				
-				} else if (cmd.getArgs().length > 0) { // Command line mode
-					File userScriptFile = new File(cmd.getArgs()[0]);
-					String optionalModulesPath = null;
-					String[] inputValues;
-					SourceCode userScript;
+            } else {
 
-					// custom CommonJS modules path
-					if (cmd.hasOption("m")) {
-						optionalModulesPath = cmd.getOptionValue("m");
-					}
+                // Logger initialization
+                if (cmd.hasOption("g")) {
+                    System.setProperty("logback.configurationFile",
+                            cmd.getOptionValue("g"));
 
-					if (cmd.getArgs().length > 0) {
-						inputValues = Arrays.copyOfRange(cmd.getArgs(), 1,
-								cmd.getArgs().length);
-					} else {
-						inputValues = new String[0];
-					}
+                } else {
+                    System.setProperty("logback.configurationFile", "./logback.xml");
+                }
+                log = LoggerFactory.getLogger(App.class);
+                if (cmd.hasOption("s")) { // Orzo.js as a REST and AMQP service
+                    FullServiceConfig conf = new Gson().fromJson(
+                            new FileReader(cmd.getOptionValue("s")),
+                            FullServiceConfig.class);
+                    Injector injector = Guice.createInjector(new CoreModule(
+                            conf), new RestServletModule());
+                    HttpServer httpServer = new HttpServer(conf,
+                            new JerseyGuiceServletConfig(injector));
+                    app.services.add(httpServer);
+                    app.services.add(injector.getInstance(AmqpConnection.class));
+                    app.services.add(injector.getInstance(AmqpService.class));
 
-					userScript = SourceCode.fromFile(userScriptFile);
-					CmdConfig conf = new CmdConfig(userScript.getName(),
-							userScript, optionalModulesPath);
-					TaskManager tm = new TaskManager(conf);
-					String taskId = tm.registerTask(userScript.getName(), inputValues);
-					tm.startTaskSync(taskId);
-					if (tm.getTask(taskId).getStatus() == TaskStatus.ERROR) {
-						tm.getTask(taskId).getFirstError().getErrors().stream().forEach(
-								(err) -> System.err.println(err));
-					}
+                    Runtime.getRuntime().addShutdownHook(new ShutdownHook(app));
+                    app.startServices();
+
+                } else if (cmd.hasOption("d")) { // Demo mode
+                    final String scriptId = "demo";
+                    final SourceCode demoScript = SourceCode
+                            .fromResource(DEMO_SCRIPT);
+                    System.err.printf("Running demo script %s.",
+                            demoScript.getName());
+                    CmdConfig conf = new CmdConfig(scriptId, demoScript, null);
+                    TaskManager tm = new TaskManager(conf);
+                    tm.startTaskSync(tm.registerTask(scriptId, new String[0]));
+
+                } else if (cmd.getArgs().length > 0) { // Command line mode
+                    File userScriptFile = new File(cmd.getArgs()[0]);
+                    String optionalModulesPath = null;
+                    String[] inputValues;
+                    SourceCode userScript;
+
+                    // custom CommonJS modules path
+                    if (cmd.hasOption("m")) {
+                        optionalModulesPath = cmd.getOptionValue("m");
+                    }
+
+                    if (cmd.getArgs().length > 0) {
+                        inputValues = Arrays.copyOfRange(cmd.getArgs(), 1,
+                                cmd.getArgs().length);
+                    } else {
+                        inputValues = new String[0];
+                    }
+
+                    userScript = SourceCode.fromFile(userScriptFile);
+                    CmdConfig conf = new CmdConfig(userScript.getName(),
+                            userScript, optionalModulesPath);
+                    TaskManager tm = new TaskManager(conf);
+                    String taskId = tm.registerTask(userScript.getName(), inputValues);
+                    tm.startTaskSync(taskId);
+                    if (tm.getTask(taskId).getStatus() == TaskStatus.ERROR) {
+                        tm.getTask(taskId).getFirstError().getErrors().stream().forEach(
+                                (err) -> System.err.println(err));
+                    }
 
 
 
-				} else {
-					System.err
-							.println("Invalid parameters. Try -h for more information.");
-					System.exit(1);
-				}
-			}
+                } else {
+                    System.err
+                            .println("Invalid parameters. Try -h for more information.");
+                    System.exit(1);
+                }
+            }
 
-		} catch (Exception ex) {
-			System.err.println(ex);
-			if (log != null) {
-				log.error(ex.getMessage(), ex);
+        } catch (Exception ex) {
+            System.err.println(ex);
+            if (log != null) {
+                log.error(ex.getMessage(), ex);
 
-			} else {
-				ex.printStackTrace();
-			}
+            } else {
+                ex.printStackTrace();
+            }
 
-		} finally {
+        } finally {
 
-		}
-	}
+        }
+    }
 }

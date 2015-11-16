@@ -15,7 +15,7 @@
  */
 package net.orzo.injection;
 
-import net.orzo.service.RestServiceConfig;
+import net.orzo.service.FullServiceConfig;
 import net.orzo.service.ServiceConfig;
 
 import com.google.inject.AbstractModule;
@@ -29,12 +29,12 @@ import com.google.inject.Singleton;
  */
 public class CoreModule extends AbstractModule {
 
-	private final RestServiceConfig conf;
+	private final FullServiceConfig conf;
 	
 	/**
 	 * 
 	 */
-	public CoreModule(RestServiceConfig conf) {
+	public CoreModule(FullServiceConfig conf) {
 		this.conf = conf;
 	}
 

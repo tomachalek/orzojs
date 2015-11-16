@@ -30,13 +30,17 @@ import com.google.inject.Singleton;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 @Singleton
-public class RestServiceConfig implements ServiceConfig {
+public class FullServiceConfig implements ServiceConfig {
 	
 	private String httpHost;
 
 	private short httpPort;
 
 	private Map<String, TaskScriptConfig> allowedScripts;
+
+	private AmqpConf amqp;
+
+	private AmqpConf amqpResponse;
 	
 	@Override
 	public boolean isAllowedScript(String id) {
@@ -49,11 +53,11 @@ public class RestServiceConfig implements ServiceConfig {
 	}
 
 	public String getHttpHost() {
-		return httpHost;
+		return this.httpHost;
 	}
 
 	public short getHttpPort() {
-		return httpPort;
+		return this.httpPort;
 	}
 	
 	@Override
@@ -68,6 +72,16 @@ public class RestServiceConfig implements ServiceConfig {
 		List<String> ans = new ArrayList<>(this.allowedScripts.keySet());
 		Collections.sort(ans);
 		return ans;
+	}
+
+	@Override
+	public AmqpConf getAmqpConfig() {
+		return this.amqp;
+	}
+
+	@Override
+	public AmqpConf getAmqpResponseConfig() {
+		return this.amqpResponse;
 	}
 
 }
