@@ -35,9 +35,11 @@ public class AmqpConf {
 
     public Boolean autoAcknowledge;
 
+    public Integer qos;
+
     @Override
     public String toString() {
-        return String.format("%s:****@%s:%s/%s, (queue: %s, autoAck: %s)", this.user, this.host,
-                this.port, this.virtualHost, this.queue, this.autoAcknowledge);
+        return String.format("%s:****@%s:%s/%s, (queue: %s, autoAck: %s, qos: %s)", this.user, this.host,
+                this.port, this.virtualHost, this.queue, this.autoAcknowledge, this.qos);
     }
 }

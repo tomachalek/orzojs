@@ -60,6 +60,9 @@ public class AmqpService implements Service {
     @Override
     public void start() throws Exception {
         this.channel = this.channelProvider.createChannel();
+        if (this.conf.getAmqpConfig().qos != null) {
+            this.channel.basicQos(this.conf.getAmqpConfig().qos);
+        }
 
         ResponseClient responseClient;
         if (this.responseChannelProvider.isActive()) {
