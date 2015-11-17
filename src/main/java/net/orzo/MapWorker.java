@@ -30,40 +30,37 @@ import net.orzo.scripting.SourceCode;
  */
 public class MapWorker implements Callable<IntermediateResults> {
 
-	private final JsEngineAdapter jsEngine;
-	
-	private final SourceCode userScript;
+    private final JsEngineAdapter jsEngine;
 
-	private final SourceCode[] sources;		
+    private final SourceCode userScript;
 
-	private final IntermediateResults intermediateData;
+    private final SourceCode[] sources;
 
-	/**
-	 * 
-	 * @param envParams
-	 * @param workerOps
-	 * @param sourceCodes
-	 */
-	public MapWorker(EnvParams envParams, SourceCode userScript,
-			SourceCode... sourceCodes) {
-		this.intermediateData = new IntermediateResults();
-		this.jsEngine = new JsEngineAdapter(envParams, this.intermediateData);
-		this.userScript = userScript;
-		this.sources = sourceCodes;
-	}
+    private final IntermediateResults intermediateData;
 
-	/**
-	 * 
-	 */
-	@Override
-	public IntermediateResults call() throws Exception {
-		this.jsEngine.beginWork();
-		this.jsEngine.runCode(this.sources);
-		this.jsEngine.runFunction("initMap");
-		this.jsEngine.runCode(this.userScript);
-		this.jsEngine.runFunction("runMap");
-		this.jsEngine.endWork();
-		return this.intermediateData;
-	}
+    /**
+     *
+     */
+    public MapWorker(EnvParams envParams, SourceCode userScript,
+            SourceCode... sourceCodes) {
+        this.intermediateData = new IntermediateResults();
+        this.jsEngine = new JsEngineAdapter(envParams, this.intermediateData);
+        this.userScript = userScript;
+        this.sources = sourceCodes;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public IntermediateResults call() throws Exception {
+        this.jsEngine.beginWork();
+        this.jsEngine.runCode(this.sources);
+        this.jsEngine.runFunction("initMap");
+        this.jsEngine.runCode(this.userScript);
+        this.jsEngine.runFunction("runMap");
+        this.jsEngine.endWork();
+        return this.intermediateData;
+    }
 
 }

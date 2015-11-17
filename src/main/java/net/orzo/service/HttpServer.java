@@ -34,90 +34,88 @@ import com.google.inject.Singleton;
 import com.google.inject.servlet.GuiceFilter;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 @Singleton
 public class HttpServer implements Service {
 
-	/**
-	 * 
-	 */
-	private final JerseyGuiceServletConfig guiceJerseyConfig;
-	
-	/**
-	 * 
-	 */
-	private final FullServiceConfig config;
-	
-	/**
-	 * 
-	 */
-	private Server httpServer;
-	
-	/**
-	 * 
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
-	
-	/**
-	 * 
-	 */
-	public HttpServer(FullServiceConfig config,
-			JerseyGuiceServletConfig guiceJerseyConfig) {
-		this.config = config;
-		this.guiceJerseyConfig = guiceJerseyConfig;
-	}
+    /**
+     *
+     */
+    private final JerseyGuiceServletConfig guiceJerseyConfig;
 
-	/**
-	 * 
-	 */
-	@Override
-	public void start() throws Exception {
-		if (this.config.getHttpPort() == 0) {
-			throw new HttpServerException("No HTTP port specified");
-		}
-		InetAddress addr = InetAddress.getByName(config.getHttpHost());
-		InetSocketAddress isa = new InetSocketAddress(addr,
-				this.config.getHttpPort());
-		this.httpServer = new Server(isa);
+    /**
+     *
+     */
+    private final FullServiceConfig config;
 
-		ContextHandlerCollection handlerCollection = new ContextHandlerCollection();
+    /**
+     *
+     */
+    private Server httpServer;
 
-		ResourceHandler staticHandler = new ResourceHandler();
-		staticHandler.setDirectoriesListed(false);
-		staticHandler.setWelcomeFiles(new String[] { "index.html" });
-		staticHandler.setResourceBase(getClass().getClassLoader()
-				.getResource("net/orzo/webui").toExternalForm());
+    /**
+     *
+     */
+    private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
 
-		ServletContextHandler restApiHandler = new ServletContextHandler(
-				handlerCollection, "/api", ServletContextHandler.NO_SESSIONS);
+    /**
+     *
+     */
+    public HttpServer(FullServiceConfig config,
+                      JerseyGuiceServletConfig guiceJerseyConfig) {
+        this.config = config;
+        this.guiceJerseyConfig = guiceJerseyConfig;
+    }
 
-		restApiHandler.addEventListener(this.guiceJerseyConfig);
-		restApiHandler.addFilter(GuiceFilter.class, "/*", null);
-		restApiHandler.addServlet(DefaultServlet.class, "/*");
+    /**
+     *
+     */
+    @Override
+    public void start() throws Exception {
+        if (this.config.getHttpPort() == 0) {
+            throw new HttpServerException("No HTTP port specified");
+        }
+        InetAddress addr = InetAddress.getByName(config.getHttpHost());
+        InetSocketAddress isa = new InetSocketAddress(addr,
+                this.config.getHttpPort());
+        this.httpServer = new Server(isa);
 
-		HandlerList handlerList = new HandlerList();
-		handlerList.addHandler(restApiHandler);
-		handlerList.addHandler(staticHandler);
+        ContextHandlerCollection handlerCollection = new ContextHandlerCollection();
 
-		this.httpServer.setHandler(handlerList);
-		this.httpServer.start();
-	}
+        ResourceHandler staticHandler = new ResourceHandler();
+        staticHandler.setDirectoriesListed(false);
+        staticHandler.setWelcomeFiles(new String[]{"index.html"});
+        staticHandler.setResourceBase(getClass().getClassLoader()  // TODO possible null pointer except.
+                .getResource("net/orzo/webui").toExternalForm());
 
-	/**
-	 * 
-	 */
-	public void stop() {
-		try {
-			this.httpServer.stop();
+        ServletContextHandler restApiHandler = new ServletContextHandler(
+                handlerCollection, "/api", ServletContextHandler.NO_SESSIONS);
 
-		} catch (Exception ex) {
-			logger.error("Failed to stop server properly", ex);
-		}
-		
-	}
-	
-	
+        restApiHandler.addEventListener(this.guiceJerseyConfig);
+        restApiHandler.addFilter(GuiceFilter.class, "/*", null);
+        restApiHandler.addServlet(DefaultServlet.class, "/*");
+
+        HandlerList handlerList = new HandlerList();
+        handlerList.addHandler(restApiHandler);
+        handlerList.addHandler(staticHandler);
+
+        this.httpServer.setHandler(handlerList);
+        this.httpServer.start();
+    }
+
+    /**
+     *
+     */
+    public void stop() {
+        try {
+            this.httpServer.stop();
+
+        } catch (Exception ex) {
+            logger.error("Failed to stop server properly", ex);
+        }
+
+    }
+
+
 }

@@ -18,28 +18,28 @@ package net.orzo.data.graphics;
 
 /**
  * General error in image blending process
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class ImageBlendingException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6287664560686868976L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6287664560686868976L;
 
-	/**
-	 * 
-	 */
-	public ImageBlendingException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    /**
+     *
+     */
+    public ImageBlendingException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	/**
-	 * 
-	 */
-	public ImageBlendingException(String message) {
-		super(message);
-	}
+    /**
+     *
+     */
+    public ImageBlendingException(String message) {
+        super(message);
+    }
 
 }

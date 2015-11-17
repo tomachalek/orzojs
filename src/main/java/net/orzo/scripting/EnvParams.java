@@ -20,34 +20,34 @@ import java.util.List;
 /**
  * This class wraps some essential parameters all Orzo's JavaScript processing
  * needs.
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class EnvParams {
 
-	/**
-	 * Identifies calculation worker
-	 */
-	public int workerId;
+    /**
+     * Identifies calculation worker
+     */
+    public int workerId;
 
-	/**
-	 *  
-	 */
-	public String scriptName;
+    /**
+     *
+     */
+    public String scriptName;
 
-	/**
-	 * 
-	 */
-	public String workingDir;
+    /**
+     *
+     */
+    public String workingDir;
 
-	/**
-	 * Contains parameters user provided via command line
-	 */
-	public String[] inputArgs;
+    /**
+     * Contains parameters user provided via command line
+     */
+    public String[] inputArgs;
 
-	/**
-	 * Paths where Orzo looks when CommonJS require() is used
-	 */
-	public List<String> modulesPaths;
+    /**
+     * Paths where Orzo looks when CommonJS require() is used
+     */
+    public List<String> modulesPaths;
 
 }

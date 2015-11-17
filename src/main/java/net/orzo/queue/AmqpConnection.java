@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+/**
+ * @author Tomas Machalek <tomas.machalek@gmail.com>
+ */
 @Singleton
 public class AmqpConnection implements Service {
 

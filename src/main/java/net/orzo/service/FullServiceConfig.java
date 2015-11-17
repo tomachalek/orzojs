@@ -26,62 +26,62 @@ import com.google.inject.Singleton;
 
 /**
  * Stores a configuration of a script registered during start of the service.
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 @Singleton
 public class FullServiceConfig implements ServiceConfig {
-	
-	private String httpHost;
 
-	private short httpPort;
+    private String httpHost;
 
-	private Map<String, TaskScriptConfig> allowedScripts;
+    private short httpPort;
 
-	private AmqpConf amqp;
+    private Map<String, TaskScriptConfig> allowedScripts;
 
-	private AmqpConf amqpResponse;
-	
-	@Override
-	public boolean isAllowedScript(String id) {
-		return this.allowedScripts.containsKey(id);
-	}
-	
-	@Override
-	public TaskScriptConfig getScriptConfig(String id) {
-		return this.allowedScripts.get(id);
-	}
+    private AmqpConf amqp;
 
-	public String getHttpHost() {
-		return this.httpHost;
-	}
+    private AmqpConf amqpResponse;
 
-	public short getHttpPort() {
-		return this.httpPort;
-	}
-	
-	@Override
-	public String toString() {
-		return String.format("Config {httpHost: %s, httpPort: %s, %s}",
-				this.httpHost, this.httpPort,
-				StringUtils.join(this.allowedScripts.values(), ", "));
-	}
+    @Override
+    public boolean isAllowedScript(String id) {
+        return this.allowedScripts.containsKey(id);
+    }
 
-	@Override
-	public List<String> getScriptsIds() {
-		List<String> ans = new ArrayList<>(this.allowedScripts.keySet());
-		Collections.sort(ans);
-		return ans;
-	}
+    @Override
+    public TaskScriptConfig getScriptConfig(String id) {
+        return this.allowedScripts.get(id);
+    }
 
-	@Override
-	public AmqpConf getAmqpConfig() {
-		return this.amqp;
-	}
+    public String getHttpHost() {
+        return this.httpHost;
+    }
 
-	@Override
-	public AmqpConf getAmqpResponseConfig() {
-		return this.amqpResponse;
-	}
+    public short getHttpPort() {
+        return this.httpPort;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Config {httpHost: %s, httpPort: %s, %s}",
+                this.httpHost, this.httpPort,
+                StringUtils.join(this.allowedScripts.values(), ", "));
+    }
+
+    @Override
+    public List<String> getScriptsIds() {
+        List<String> ans = new ArrayList<>(this.allowedScripts.keySet());
+        Collections.sort(ans);
+        return ans;
+    }
+
+    @Override
+    public AmqpConf getAmqpConfig() {
+        return this.amqp;
+    }
+
+    @Override
+    public AmqpConf getAmqpResponseConfig() {
+        return this.amqpResponse;
+    }
 
 }

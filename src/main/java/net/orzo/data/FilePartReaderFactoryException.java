@@ -22,14 +22,14 @@ package net.orzo.data;
  */
 public class FilePartReaderFactoryException extends Exception {
 
-	private static final long serialVersionUID = -7727325655574846285L;
+    private static final long serialVersionUID = -7727325655574846285L;
 
-	public FilePartReaderFactoryException(String message) {
-		super(message);
-	}
+    public FilePartReaderFactoryException(String message) {
+        super(message);
+    }
 
-	public FilePartReaderFactoryException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public FilePartReaderFactoryException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

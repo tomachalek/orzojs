@@ -22,7 +22,9 @@ import com.sun.jersey.api.client.config.ClientConfig;
 
 import javax.ws.rs.core.MediaType;
 
-
+/**
+ * @author Tomas Machalek <tomas.machalek@gmail.com>
+ */
 public class RestClient {
 
     private Client client;
@@ -42,7 +44,7 @@ public class RestClient {
                 MediaType.TEXT_PLAIN_TYPE,
                 MediaType.APPLICATION_OCTET_STREAM_TYPE,
                 MediaType.TEXT_HTML_TYPE
-                );
+        );
     }
 
     public String get(String url) {

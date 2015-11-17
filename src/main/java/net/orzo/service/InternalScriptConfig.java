@@ -19,50 +19,48 @@ package net.orzo.service;
 import net.orzo.scripting.SourceCode;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 public class InternalScriptConfig implements ScriptConfig {
 
-	private final SourceCode script;
+    private final SourceCode script;
 
-	private final String libraryPath;
+    private final String libraryPath;
 
-	/**
-	 *
-	 */
-	public InternalScriptConfig(SourceCode script, String libraryPath) {
-		this.script = script;
-		this.libraryPath = libraryPath;
-	}
+    /**
+     *
+     */
+    public InternalScriptConfig(SourceCode script, String libraryPath) {
+        this.script = script;
+        this.libraryPath = libraryPath;
+    }
 
-	/**
-	 * 
-	 */
-	@Override
-	public SourceCode getScript() {
-		return this.script;
-	}
+    /**
+     *
+     */
+    @Override
+    public SourceCode getScript() {
+        return this.script;
+    }
 
-	@Override
-	public String getScriptPath() {
-		return this.script.getFullyQualifiedName();
-	}
+    @Override
+    public String getScriptPath() {
+        return this.script.getFullyQualifiedName();
+    }
 
-	@Override
-	public String getLibraryPath() {
-		return this.libraryPath;
-	}
+    @Override
+    public String getLibraryPath() {
+        return this.libraryPath;
+    }
 
-	@Override
-	public String getDescription() {
-		return "";
-	}
+    @Override
+    public String getDescription() {
+        return "";
+    }
 
-	@Override
-	public String[] getDefaultArgs() {
-		return new String[0];
-	}
+    @Override
+    public String[] getDefaultArgs() {
+        return new String[0];
+    }
 
 }

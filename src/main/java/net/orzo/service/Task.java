@@ -24,75 +24,72 @@ import net.orzo.Calculation;
 import net.orzo.CalculationParams;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 public class Task extends Observable {
 
-	private final String id;
+    private final String id;
 
-	private final CalculationParams params;
+    private final CalculationParams params;
 
-	private final List<TaskEvent> events;
+    private final List<TaskEvent> events;
 
-	private String result;
+    private String result;
 
-	public Task(String id, CalculationParams params) {
-		super();
-		this.id = id;
-		this.params = params;
-		this.events = new ArrayList<TaskEvent>();
-		this.events.add(new TaskEvent(TaskStatus.PENDING));
-	}
+    public Task(String id, CalculationParams params) {
+        super();
+        this.id = id;
+        this.params = params;
+        this.events = new ArrayList<>();
+        this.events.add(new TaskEvent(TaskStatus.PENDING));
+    }
 
-	public String getResult() throws ResourceNotAvailable {
-		if (!getStatus().hasEnded()) {
-			throw new ResourceNotAvailable("Result is not yet available");
-		}
-		return result;
-	}
+    public String getResult() throws ResourceNotAvailable {
+        if (!getStatus().hasEnded()) {
+            throw new ResourceNotAvailable("Result is not yet available");
+        }
+        return result;
+    }
 
-	public String getId() {
-		return this.id;
-	}
+    public String getId() {
+        return this.id;
+    }
 
-	public String getName() {
-		return this.params.userScript.getName();
-	}
+    public String getName() {
+        return this.params.userScript.getName();
+    }
 
-	public TaskStatus getStatus() {
-		return this.events.get(this.events.size() - 1).getStatus();
-	}
+    public TaskStatus getStatus() {
+        return this.events.get(this.events.size() - 1).getStatus();
+    }
 
-	public TaskEvent getFirstError() {
-		return this.events.stream()
-				.filter((e) -> e.getStatus() == TaskStatus.ERROR).findFirst()
-				.get();
-	}
+    public TaskEvent getFirstError() {
+        return this.events.stream()
+                .filter((e) -> e.getStatus() == TaskStatus.ERROR).findFirst()
+                .get();
+    }
 
-	public List<TaskEvent> getEvents() {
-		return this.events;
-	}
+    public List<TaskEvent> getEvents() {
+        return this.events;
+    }
 
-	public long getTimeCreated() {
-		if (this.events.size() > 0) {
-			return this.events.get(0).getCreated();
-		}
-		return -1;
-	}
+    public long getTimeCreated() {
+        if (this.events.size() > 0) {
+            return this.events.get(0).getCreated();
+        }
+        return -1;
+    }
 
-	public void addEvent(TaskEvent event) {
-		this.events.add(event);
-		setChanged();
-		notifyObservers();
-	}
+    public void addEvent(TaskEvent event) {
+        this.events.add(event);
+        setChanged();
+        notifyObservers();
+    }
 
-	protected void run() {
-		this.events.add(new TaskEvent(TaskStatus.RUNNING));
-		Calculation proc = new Calculation(params,
-				(taskEvent) -> addEvent(taskEvent));
-		this.result = proc.run();
-	}
+    protected void run() {
+        this.events.add(new TaskEvent(TaskStatus.RUNNING));
+        Calculation proc = new Calculation(params, this::addEvent);
+        this.result = proc.run();
+    }
 
 }

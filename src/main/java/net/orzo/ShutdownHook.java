@@ -20,30 +20,29 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.LoggerContext;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class ShutdownHook extends Thread {
 
-	/**
-	 * 
-	 */
-	private final App app;
+    /**
+     *
+     */
+    private final App app;
 
-	/**
-	 * 
-	 */
-	public ShutdownHook(App app) {
-		this.app = app;
-	}
+    /**
+     *
+     */
+    public ShutdownHook(App app) {
+        this.app = app;
+    }
 
-	/**
-	 * 
-	 */
-	@Override
-	public void run() {
-		this.app.stopServices();
-		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-		loggerContext.stop();
-	}
+    /**
+     *
+     */
+    @Override
+    public void run() {
+        this.app.stopServices();
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.stop();
+    }
 }

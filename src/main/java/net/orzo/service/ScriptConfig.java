@@ -19,20 +19,18 @@ package net.orzo.service;
 import net.orzo.scripting.SourceCode;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 public interface ScriptConfig {
 
-	SourceCode getScript();
+    SourceCode getScript();
 
-	String getScriptPath();
+    String getScriptPath();
 
-	String getLibraryPath();
+    String getLibraryPath();
 
-	String getDescription();
+    String getDescription();
 
-	String[] getDefaultArgs();
+    String[] getDefaultArgs();
 
 }

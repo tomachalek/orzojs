@@ -23,9 +23,6 @@ package net.orzo.data;
  */
 public class FilePartReaderMisconfiguration extends RuntimeException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1370050332959025927L;
+    private static final long serialVersionUID = 1370050332959025927L;
 
 }

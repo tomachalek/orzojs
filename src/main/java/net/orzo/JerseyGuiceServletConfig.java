@@ -19,30 +19,27 @@ import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class JerseyGuiceServletConfig extends GuiceServletContextListener {
 
-	/**
-	 * 
-	 */
-	private final Injector injector;
-	
-	/**
-	 * 
-	 */
-	public JerseyGuiceServletConfig(Injector injector)
-	{
-		this.injector = injector;
-	}
-	
-	/**
-	 * 
-	 */
-	@Override
-	protected Injector getInjector()
-	{
-		return this.injector;
-	}
+    /**
+     *
+     */
+    private final Injector injector;
+
+    /**
+     *
+     */
+    public JerseyGuiceServletConfig(Injector injector) {
+        this.injector = injector;
+    }
+
+    /**
+     *
+     */
+    @Override
+    protected Injector getInjector() {
+        return this.injector;
+    }
 }

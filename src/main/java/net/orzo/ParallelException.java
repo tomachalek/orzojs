@@ -26,28 +26,28 @@ import java.util.List;
  */
 public class ParallelException extends CalculationException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2709776634004687856L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2709776634004687856L;
 
-	List<Exception> errors;
+    List<Exception> errors;
 
-	public ParallelException(String message, List<Exception> errors) {
-		super(message);
-		this.errors = new ArrayList<Exception>();
-		this.errors.addAll(errors);
-	}
+    public ParallelException(String message, List<Exception> errors) {
+        super(message);
+        this.errors = new ArrayList<>();
+        this.errors.addAll(errors);
+    }
 
-	public ParallelException(String message, Exception error) {
-		super(message);
-		this.errors = new ArrayList<Exception>();
-		this.errors.add(error);
-	}
+    public ParallelException(String message, Exception error) {
+        super(message);
+        this.errors = new ArrayList<>();
+        this.errors.add(error);
+    }
 
-	@Override
-	public List<Exception> getAllErrors() {
-		return this.errors;
-	}
+    @Override
+    public List<Exception> getAllErrors() {
+        return this.errors;
+    }
 
 }

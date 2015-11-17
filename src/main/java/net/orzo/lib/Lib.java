@@ -36,103 +36,99 @@ import org.slf4j.LoggerFactory;
  * objects within user scripts (e.g. you can create the same chunked file reader
  * multiple times in your dataChunks() function and it is still the same
  * object).
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 @SuppressWarnings("restriction")
 public class Lib {
 
-	public final Files files;
+    public final Files files;
 
-	public final Web web;
+    public final Web web;
 
-	public final Strings strings;
+    public final Strings strings;
 
-	public final DataStructures dataStructures;
+    public final DataStructures dataStructures;
 
-	public final Templating templating;
+    public final Templating templating;
 
-	public final RestClient restClient;
+    public final RestClient restClient;
 
-	@SuppressWarnings(value = { "unused" })
-	private static final Logger LOG = LoggerFactory.getLogger("user_script");
+    @SuppressWarnings(value = {"unused"})
+    private static final Logger LOG = LoggerFactory.getLogger("user_script");
 
-	/**
-	 * 
-	 */
-	public Lib() {
-		this.files = new Files();
-		this.web = new Web();
-		this.strings = new Strings();
-		this.dataStructures = new DataStructures();
-		this.templating = new Templating();
-		this.restClient = new RestClient();
-	}
+    /**
+     *
+     */
+    public Lib() {
+        this.files = new Files();
+        this.web = new Web();
+        this.strings = new Strings();
+        this.dataStructures = new DataStructures();
+        this.templating = new Templating();
+        this.restClient = new RestClient();
+    }
 
-	/**
-	 * 
-	 * @param t
-	 *            time in seconds (fractions are available, e.g. sleep(3.7))
-	 * @throws InterruptedException
-	 */
-	public void sleep(double t) throws InterruptedException {
-		Thread.sleep(Math.round(t * 1000));
-	}
+    /**
+     * @param t time in seconds (fractions are available, e.g. sleep(3.7))
+     * @throws InterruptedException
+     */
+    public void sleep(double t) throws InterruptedException {
+        Thread.sleep(Math.round(t * 1000));
+    }
 
-	/**
-	 * Returns a number of available processors. Please note that Intel CPUs
-	 * with hyper-threading report twice as high as is actual number of physical
-	 * cores.
-	 */
-	public int numOfProcessors() {
-		return Runtime.getRuntime().availableProcessors();
-	}
+    /**
+     * Returns a number of available processors. Please note that Intel CPUs
+     * with hyper-threading report twice as high as is actual number of physical
+     * cores.
+     */
+    public int numOfProcessors() {
+        return Runtime.getRuntime().availableProcessors();
+    }
 
-	/**
-	 * Measures the execution time of the provided function. Please note that in
-	 * case of asynchronous code you may not obtain the value you have been
-	 * expecting.
-	 * 
-	 * @param function
-	 * @return time in milliseconds
-	 */
-	public long measureTime(ScriptFunction function) {
-		long startTime = System.currentTimeMillis();
-		MethodHandle mh = function.getBoundInvokeHandle(Context.getContext());
+    /**
+     * Measures the execution time of the provided function. Please note that in
+     * case of asynchronous code you may not obtain the value you have been
+     * expecting.
+     *
+     * @param function
+     * @return time in milliseconds
+     */
+    public long measureTime(ScriptFunction function) {
+        long startTime = System.currentTimeMillis();
+        MethodHandle mh = function.getBoundInvokeHandle(Context.getContext());
 
-		try {
-			mh.invoke();
+        try {
+            mh.invoke();
 
-		} catch (Throwable e) {
-			throw new LibException(e);
-		}
-		return System.currentTimeMillis() - startTime;
-	}
+        } catch (Throwable e) {
+            throw new LibException(e);
+        }
+        return System.currentTimeMillis() - startTime;
+    }
 
-	/**
-	 * 
-	 * @param coll
-	 * @param cmp
-	 * @throws Throwable
-	 */
-	public void sortList(List<Object> coll, ScriptFunction cmp) {
-		ErrorHandlingComparator javaCmp = new ErrorHandlingComparator(cmp);
-		Collections.sort(coll, javaCmp);
-		if (javaCmp.lastError() != null) {
-			throw new RuntimeException(String.format(
-					"Failed to sort the list: %s", javaCmp.lastError()
-							.getMessage()), javaCmp.lastError());
-		}
-	}
+    /**
+     * @param coll
+     * @param cmp
+     * @throws Throwable
+     */
+    public void sortList(List<Object> coll, ScriptFunction cmp) {
+        ErrorHandlingComparator javaCmp = new ErrorHandlingComparator(cmp);
+        Collections.sort(coll, javaCmp);
+        if (javaCmp.lastError() != null) {
+            throw new RuntimeException(String.format(
+                    "Failed to sort the list: %s", javaCmp.lastError()
+                            .getMessage()), javaCmp.lastError());
+        }
+    }
 
-	/**
-	 * 
-	 * @param path
-	 * @return
-	 * @throws IOException
-	 */
-	public GreyscalePicture loadImage(String path) throws IOException {
-		return GreyscalePicture.load(path);
-	}
+    /**
+     * @param path
+     * @return
+     * @throws IOException
+     */
+    public GreyscalePicture loadImage(String path) throws IOException {
+        return GreyscalePicture.load(path);
+    }
 
 }

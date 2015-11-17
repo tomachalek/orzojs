@@ -27,45 +27,43 @@ import java.util.Iterator;
  */
 public class TwoGroupFilePairGenerator extends AbstractListGenerator<String[]> {
 
-	private final DirectoryReader directoryReader1;
-	
-	private final DirectoryReader directoryReader2;
+    private final DirectoryReader directoryReader1;
 
-	/**
-	 * 
-	 * @param pathList1
-	 * @param pathList2
-	 * @param numChunks
-	 * @param filter
-	 */
-	public TwoGroupFilePairGenerator(String[] pathList1, String[] pathList2, 
-			int numChunks, String filter) {
-		super(numChunks, new ArrayList<String[]>());
-		this.directoryReader1 = new DirectoryReader(pathList1, 1, filter);
-		this.directoryReader2 = new DirectoryReader(pathList2, 1, filter);
-	}
+    private final DirectoryReader directoryReader2;
 
-	/**
-	 * 
-	 * @param chunkId
-	 * @return
-	 */
-	public Iterator<String[]> getIterator(int chunkId) {
-		if (isEmpty()) {
-			Iterator<String> iter1 = this.directoryReader1.getIterator(0);
-			Iterator<String> iter2 = this.directoryReader2.getIterator(0);
-			String item1;
-			String item2;
+    /**
+     *
+     * @param pathList1 pair's first item source group
+     * @param pathList2 pair's second item source group
+     * @param numChunks number of pair chunks to produce
+     * @param filter filename filter (regexp pattern)
+     */
+    public TwoGroupFilePairGenerator(String[] pathList1, String[] pathList2,
+            int numChunks, String filter) {
+        super(numChunks, new ArrayList<>());
+        this.directoryReader1 = new DirectoryReader(pathList1, 1, filter);
+        this.directoryReader2 = new DirectoryReader(pathList2, 1, filter);
+    }
 
-			while (iter1.hasNext()) {
-				item1 = iter1.next();
-				while (iter2.hasNext()) {
-					item2 = iter2.next();
-					addItem(new String[] { item1, item2 });
-				}
-			}				
-		}
-		return subList(chunkId).iterator();
-	}
+    /**
+     *
+     */
+    public Iterator<String[]> getIterator(int chunkId) {
+        if (isEmpty()) {
+            Iterator<String> iter1 = this.directoryReader1.getIterator(0);
+            Iterator<String> iter2 = this.directoryReader2.getIterator(0);
+            String item1;
+            String item2;
+
+            while (iter1.hasNext()) {
+                item1 = iter1.next();
+                while (iter2.hasNext()) {
+                    item2 = iter2.next();
+                    addItem(new String[] { item1, item2 });
+                }
+            }
+        }
+        return subList(chunkId).iterator();
+    }
 
 }

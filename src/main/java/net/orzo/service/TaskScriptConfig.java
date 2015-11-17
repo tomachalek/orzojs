@@ -22,66 +22,64 @@ import net.orzo.scripting.ScriptConfigurationException;
 import net.orzo.scripting.SourceCode;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 public class TaskScriptConfig implements ScriptConfig {
 
-	private final String scriptPath;
+    private final String scriptPath;
 
-	private final String libraryPath;
+    private final String libraryPath;
 
-	private final String description;
+    private final String description;
 
-	private final String[] defaultArgs;
+    private final String[] defaultArgs;
 
-	public TaskScriptConfig(String scriptPath, String libraryPath, String description,
-			String[] defaultArgs) {
-		super();
-		this.scriptPath = scriptPath;
-		this.libraryPath = libraryPath;
-		this.description = description;
-		this.defaultArgs = defaultArgs;
-	}
+    public TaskScriptConfig(String scriptPath, String libraryPath, String description,
+                            String[] defaultArgs) {
+        super();
+        this.scriptPath = scriptPath;
+        this.libraryPath = libraryPath;
+        this.description = description;
+        this.defaultArgs = defaultArgs;
+    }
 
-	/**
-	 * @throws ScriptConfigurationException
-	 */
-	@Override
-	public SourceCode getScript() {
-		try {
-			return SourceCode.fromFile(new File(scriptPath));
-		} catch (IOException e) {
-			throw new ScriptConfigurationException("Failed to load script "
-					+ scriptPath, e);
-		}
-	}
+    /**
+     * @throws ScriptConfigurationException
+     */
+    @Override
+    public SourceCode getScript() {
+        try {
+            return SourceCode.fromFile(new File(scriptPath));
+        } catch (IOException e) {
+            throw new ScriptConfigurationException("Failed to load script "
+                    + scriptPath, e);
+        }
+    }
 
-	@Override
-	public String getScriptPath() {
-		return this.scriptPath;
-	}
+    @Override
+    public String getScriptPath() {
+        return this.scriptPath;
+    }
 
-	@Override
-	public String getLibraryPath() {
-		return this.libraryPath;
-	}
+    @Override
+    public String getLibraryPath() {
+        return this.libraryPath;
+    }
 
-	@Override
-	public String getDescription() {
-		return this.description;
-	}
+    @Override
+    public String getDescription() {
+        return this.description;
+    }
 
-	@Override
-	public String toString() {
-		return String.format("ScriptConfig {scriptPath: %s, libraryPath: %s}",
-				this.scriptPath, this.libraryPath);
-	}
+    @Override
+    public String toString() {
+        return String.format("ScriptConfig {scriptPath: %s, libraryPath: %s}",
+                this.scriptPath, this.libraryPath);
+    }
 
-	@Override
-	public String[] getDefaultArgs() {
-		return this.defaultArgs != null ? this.defaultArgs : new String[0];
-	}
+    @Override
+    public String[] getDefaultArgs() {
+        return this.defaultArgs != null ? this.defaultArgs : new String[0];
+    }
 
 }

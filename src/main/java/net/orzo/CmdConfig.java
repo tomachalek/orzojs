@@ -32,44 +32,44 @@ import net.orzo.service.ServiceConfig;
  */
 public class CmdConfig implements ServiceConfig {
 
-	private final String scriptId;
+    private final String scriptId;
 
-	private final InternalScriptConfig scriptConfig;
+    private final InternalScriptConfig scriptConfig;
 
-	public CmdConfig(String scriptId, SourceCode userScript, String libPath) {
-		this.scriptId = scriptId;
-		this.scriptConfig = new InternalScriptConfig(userScript, libPath);
-	}
+    public CmdConfig(String scriptId, SourceCode userScript, String libPath) {
+        this.scriptId = scriptId;
+        this.scriptConfig = new InternalScriptConfig(userScript, libPath);
+    }
 
-	@Override
-	public boolean isAllowedScript(String id) {
-		return this.scriptId == id;
-	}
+    @Override
+    public boolean isAllowedScript(String id) {
+        return this.scriptId.equals(id);
+    }
 
-	@Override
-	public ScriptConfig getScriptConfig(String id) {
-		if (isAllowedScript(id)) {
-			return this.scriptConfig;
-		}
-		return null;
-	}
+    @Override
+    public ScriptConfig getScriptConfig(String id) {
+        if (isAllowedScript(id)) {
+            return this.scriptConfig;
+        }
+        return null;
+    }
 
-	@Override
-	public List<String> getScriptsIds() {
-		List<String> ans = new ArrayList<>();
-		ans.add(this.scriptId);
-		return ans;
-	}
+    @Override
+    public List<String> getScriptsIds() {
+        List<String> ans = new ArrayList<>();
+        ans.add(this.scriptId);
+        return ans;
+    }
 
-	@Override
-	public AmqpConf getAmqpConfig() {
-		return null;
-	}
+    @Override
+    public AmqpConf getAmqpConfig() {
+        return null;
+    }
 
-	@Override
-	public AmqpConf getAmqpResponseConfig() {
-		return null;
-	}
+    @Override
+    public AmqpConf getAmqpResponseConfig() {
+        return null;
+    }
 
 
 }

@@ -42,103 +42,97 @@ import com.google.common.collect.Iterators;
 @SuppressWarnings("restriction")
 public class Web {
 
-	private final static Logger LOG = LoggerFactory.getLogger(Web.class);
+    private final static Logger LOG = LoggerFactory.getLogger(Web.class);
 
-	private final CloseableHttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
-	public Web() {
-		this.httpClient = HttpClients.createDefault();
-	}
+    public Web() {
+        this.httpClient = HttpClients.createDefault();
+    }
 
-	/**
-	 * 
-	 * @param URL
-	 * @return
-	 */
-	public String get(String URL) {
-		HttpGet httpget = new HttpGet(URL);
-		CloseableHttpResponse response = null;
-		HttpEntity httpEntity;
-		String result = null;
+    /**
+     *
+     */
+    public String get(String URL) {
+        HttpGet httpget = new HttpGet(URL);
+        CloseableHttpResponse response = null;
+        HttpEntity httpEntity;
+        String result = null;
 
-		try {
-			response = this.httpClient.execute(httpget);
-			httpEntity = response.getEntity();
-			if (httpEntity != null) {
-				httpEntity = new BufferedHttpEntity(httpEntity);
-				result = EntityUtils.toString(httpEntity);
-			}
+        try {
+            response = this.httpClient.execute(httpget);
+            httpEntity = response.getEntity();
+            if (httpEntity != null) {
+                httpEntity = new BufferedHttpEntity(httpEntity);
+                result = EntityUtils.toString(httpEntity);
+            }
 
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
 
-		} finally {
-			if (response != null) {
-				try {
-					response.close();
-				} catch (IOException e) {
-					LOG.warn(String.format(
-							"Failed to close response object: %s", e));
-				}
-			}
-		}
-		return result;
-	}
+        } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (IOException e) {
+                    LOG.warn(String.format(
+                            "Failed to close response object: %s", e));
+                }
+            }
+        }
+        return result;
+    }
 
-	/**
-	 * 
-	 * @param URL
-	 * @return
-	 */
-	public Document loadWebsite(String URL) {
-		try {
-			return Jsoup.connect(URL).get();
+    /**
+     *
+     */
+    public Document loadWebsite(String URL) {
+        try {
+            return Jsoup.connect(URL).get();
 
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	/**
-	 * 
-	 * @param html
-	 * @return
-	 */
-	public Document parseHTML(String html) {
-		return Jsoup.parse(html);
-	}
+    /**
+     *
+     */
+    public Document parseHTML(String html) {
+        return Jsoup.parse(html);
+    }
 
-	/**
-	 * 
-	 */
-	public List<Element> queryPage(Element root, String select,
-			ScriptFunction fn) {
-		MethodHandle mh;
-		Element curr;
-		List<Element> ans = null; // returns null in case fn is null
+    /**
+     *
+     */
+    public List<Element> queryPage(Element root, String select,
+            ScriptFunction fn) {
+        MethodHandle mh;
+        Element curr;
+        List<Element> ans = null; // returns null in case fn is null
 
-		try {
-			if (fn != null) {
-				for (Iterator<Element> iter = root.select(select).iterator(); iter
-						.hasNext();) {
-					curr = iter.next();
-					mh = fn.getBoundInvokeHandle(curr);
-					mh.invoke(curr);
-				}
+        try {
+            if (fn != null) {
+                for (Iterator<Element> iter = root.select(select).iterator(); iter
+                        .hasNext();) {
+                    curr = iter.next();
+                    mh = fn.getBoundInvokeHandle(curr);
+                    mh.invoke(curr);
+                }
 
-			} else {
-				ans = new ArrayList<Element>();
-				Iterators.addAll(ans, root.select(select).iterator());
-			}
-			return ans;
+            } else {
+                ans = new ArrayList<>();
+                Iterators.addAll(ans, root.select(select).iterator());
+            }
+            return ans;
 
-		} catch (Throwable ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+        } catch (Throwable ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-	public List<Element> queryPage(Document document, String select,
-			ScriptFunction fn) {
-		return queryPage(document.body(), select, fn);
-	}
+    public List<Element> queryPage(Document document, String select,
+            ScriptFunction fn) {
+        return queryPage(document.body(), select, fn);
+    }
 }

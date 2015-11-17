@@ -17,26 +17,25 @@
 package net.orzo.service;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class ResourceNotAvailable extends TaskException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4675839843436289683L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4675839843436289683L;
 
-	/**
-	 * 
-	 */
+    /**
+     *
+     */
 
-	public ResourceNotAvailable(String message) {
-		super(message);
-	}
+    public ResourceNotAvailable(String message) {
+        super(message);
+    }
 
-	public ResourceNotAvailable(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public ResourceNotAvailable(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

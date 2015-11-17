@@ -18,33 +18,31 @@ package net.orzo;
 import net.orzo.scripting.SourceCode;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- * 
  */
 public class CalculationParams {
 
-	public SourceCode userenvScript;
+    public SourceCode userenvScript;
 
-	public SourceCode datalibScript;
+    public SourceCode datalibScript;
 
-	public SourceCode userScript;
-	
-	public SourceCode calculationScript;
+    public SourceCode userScript;
 
-	/**
-	 * A directory where user script is located.
-	 */
-	public String workingDirModulesPath;	
+    public SourceCode calculationScript;
 
-	/**
-	 * An additional user-defined libs location
-	 */
-	public String optionalModulesPath;
+    /**
+     * A directory where user script is located.
+     */
+    public String workingDirModulesPath;
 
-	/**
-	 * Command line parameters for the script
-	 */
-	public String[] inputValues;
+    /**
+     * An additional user-defined libs location
+     */
+    public String optionalModulesPath;
+
+    /**
+     * Command line parameters for the script
+     */
+    public String[] inputValues;
 
 }

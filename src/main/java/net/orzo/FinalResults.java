@@ -24,81 +24,67 @@ import java.util.List;
 import jdk.nashorn.internal.runtime.ScriptFunction;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 @SuppressWarnings("restriction")
 public class FinalResults {
 
-	/**
-	 * To make Nashorn expose FinalResults' 'sorted' property (which is an
-	 * anonymous class) a public interface must be defined.
-	 */
-	public interface SortedResults {
-		void each(ScriptFunction fn);
-	}
+    /**
+     * To make Nashorn expose FinalResults' 'sorted' property (which is an
+     * anonymous class) a public interface must be defined.
+     */
+    public interface SortedResults {
+        void each(ScriptFunction fn);
+    }
 
-	/**
-	 * 
-	 */
-	private final IntermediateResults results;
+    /**
+     *
+     */
+    private final IntermediateResults results;
 
-	/**
-	 * 
-	 * @param context
-	 * @param scope
-	 */
-	public FinalResults(IntermediateResults results) {
-		this.results = results;
-	}
+    /**
+     *
+     */
+    public FinalResults(IntermediateResults results) {
+        this.results = results;
+    }
 
 
-	/**
-	 * Returns a result list identified by a key
-	 * 
-	 * @param key
-	 *            a result entry key
-	 */
-	public Collection<Object> get(String key) {
-		return this.results.getData().get(key);
-	}
+    /**
+     * Returns a result list identified by a key
+     *
+     * @param key a result entry key
+     */
+    public Collection<Object> get(String key) {
+        return this.results.getData().get(key);
+    }
 
-	/**
-	 * 
-	 */
-	public boolean contains(String key) {
-		return this.results.getData().containsKey(key);
-	}
+    /**
+     *
+     */
+    public boolean contains(String key) {
+        return this.results.getData().containsKey(key);
+    }
 
-	/**
-	 * 
-	 * @param sorted
-	 * @return
-	 */
-	public List<Object> keys(boolean sorted) {
-		if (sorted) {
-			return sortedKeys();
+    /**
+     *
+     */
+    public List<Object> keys(boolean sorted) {
+        if (sorted) {
+            return sortedKeys();
 
-		} else {
-			return new ArrayList<Object>(this.results.keys());
-		}
-	}
+        } else {
+            return new ArrayList<>(this.results.keys());
+        }
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	private List<Object> sortedKeys() {
-		List<Object> keys = new ArrayList<Object>(this.results.keys());
+    /**
+     */
+    private List<Object> sortedKeys() {
+        List<Object> keys = new ArrayList<>(this.results.keys());
 
-		Comparator<Object> cmp = new Comparator<Object>() {
-			@Override
-			public int compare(Object o1, Object o2) {
-				return o1.toString().compareTo(o2.toString());
-			}
-		};
-		Collections.sort(keys, cmp);
-		return keys;
-	}
+        Comparator<Object> cmp = (Object o1, Object o2) -> o1.toString().compareTo(o2.toString());
+        Collections.sort(keys, cmp);
+        return keys;
+    }
 }

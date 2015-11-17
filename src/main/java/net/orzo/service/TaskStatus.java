@@ -17,19 +17,18 @@
 package net.orzo.service;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public enum TaskStatus {
-	PENDING(0), RUNNING(1), IDLE(2), FINISHED(3), ERROR(4);
+    PENDING(0), RUNNING(1), IDLE(2), FINISHED(3), ERROR(4);
 
-	private final int id;
+    private final int id;
 
-	private TaskStatus(int id) {
-		this.id = id;
-	}
+    TaskStatus(int id) {
+        this.id = id;
+    }
 
-	public boolean hasEnded() {
-		return this.id >= 3;
-	}
+    public boolean hasEnded() {
+        return this.id >= 3;
+    }
 }

@@ -27,12 +27,12 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
  */
 public class RestServletModule extends JerseyServletModule {
 
-	@Override
-	protected void configureServlets() {
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("com.sun.jersey.config.property.packages", "net.orzo.rest");
-		bind(net.orzo.rest.TaskHandler.class);
-		serve("/*").with(GuiceContainer.class, params);
-	}
+    @Override
+    protected void configureServlets() {
+        Map<String, String> params = new HashMap<>();
+        params.put("com.sun.jersey.config.property.packages", "net.orzo.rest");
+        bind(net.orzo.rest.TaskHandler.class);
+        serve("/*").with(GuiceContainer.class, params);
+    }
 
 }

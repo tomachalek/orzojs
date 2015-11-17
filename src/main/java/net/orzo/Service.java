@@ -16,18 +16,19 @@
 package net.orzo;
 
 /**
- * 
+ * A general service used along with Guice DI container
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public interface Service {
 
-	/**
-	 * 
-	 */
-	public void start() throws Exception;
-	
-	/**
-	 * 
-	 */
-	public void stop();
+    /**
+     *
+     */
+    public void start() throws Exception;
+
+    /**
+     *
+     */
+    public void stop();
 }
