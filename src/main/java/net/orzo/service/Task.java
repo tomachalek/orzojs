@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Observable;
 
 import net.orzo.Calculation;
+import net.orzo.CalculationException;
 import net.orzo.CalculationParams;
 
 /**
@@ -34,7 +35,7 @@ public class Task extends Observable {
 
     private final List<TaskEvent> events;
 
-    private String result;
+    private Object result;
 
     public Task(String id, CalculationParams params) {
         super();
@@ -44,7 +45,7 @@ public class Task extends Observable {
         this.events.add(new TaskEvent(TaskStatus.PENDING));
     }
 
-    public String getResult() throws ResourceNotAvailable {
+    public Object getResult() throws ResourceNotAvailable {
         if (!getStatus().hasEnded()) {
             throw new ResourceNotAvailable("Result is not yet available");
         }
@@ -88,8 +89,14 @@ public class Task extends Observable {
 
     protected void run() {
         this.events.add(new TaskEvent(TaskStatus.RUNNING));
-        Calculation proc = new Calculation(this.params, this::addEvent);
-        this.result = proc.run();
+        Calculation proc = new Calculation(this.params);
+        try {
+            this.result = proc.run();
+            addEvent(new TaskEvent(TaskStatus.FINISHED));
+
+        } catch (CalculationException e) {
+            addEvent(new TaskEvent(TaskStatus.ERROR, e));
+        }
     }
 
 }

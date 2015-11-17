@@ -76,7 +76,7 @@ public class ResultHandler extends JsonProvider {
                         "Action failed", errEvent.getErrors()));
 
             } else {
-                return task.getResult();
+                return this.toJson(task.getResult());
             }
 
         } catch (Exception e) {

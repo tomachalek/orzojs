@@ -184,13 +184,14 @@ public final class App {
                             new JerseyGuiceServletConfig(injector));
                     app.services.add(httpServer);
 
+                    if (conf.getAmqpResponseConfig() != null) {
+                        // response AMQP service must be initialized before receiving one
+                        app.services.add(injector.getInstance(AmqpResponseConnection.class));
+                    }
+
                     if (conf.getAmqpConfig() != null) {
                         app.services.add(injector.getInstance(AmqpConnection.class));
                         app.services.add(injector.getInstance(AmqpService.class));
-                    }
-
-                    if (conf.getAmqpResponseConfig() != null) {
-                        app.services.add(injector.getInstance(AmqpResponseConnection.class));
                     }
 
                     Runtime.getRuntime().addShutdownHook(new ShutdownHook(app));

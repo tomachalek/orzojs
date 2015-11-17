@@ -53,17 +53,12 @@ public class TaskConsumer extends DefaultConsumer {
                                byte[] body)
             throws IOException {
         try {
-            if (!properties.getContentType().equals("application/json")) {
-                throw new IllegalArgumentException("Incorrect content type");
-            }
-
             Observer obs = (Observable o, Object arg) -> {
                 try {
                     getChannel().basicAck(envelope.getDeliveryTag(), false);
 
                     if (o instanceof Task) {
-                        System.out.println("XXX: " + ((Task)o).getResult());
-                        this.responseClient.response(((Task)o).getResult());
+                        this.responseClient.response(new Gson().toJson(((Task)o).getResult()));
                     }
 
                 } catch (IOException e) {
@@ -76,13 +71,22 @@ public class TaskConsumer extends DefaultConsumer {
                 }
             };
 
-            CeleryMessage msg = new Gson().fromJson((new String(body, "utf-8")), CeleryMessage.class);
-            String taskId = this.taskManager.registerTask(msg.task,
-                    msg.args.toArray(new String[msg.args.size()]), obs);
-            this.taskManager.startTask(taskId);
+            String rawMessage = new String(body, "utf-8");
+            CeleryMessage msg = new Gson().fromJson((rawMessage), CeleryMessage.class);
+
+            if (msg.task != null) {
+                String taskId = this.taskManager.registerTask(msg.task,
+                        msg.args.toArray(new String[msg.args.size()]), obs);
+                this.taskManager.startTask(taskId);
+
+            } else {
+                throw new IllegalArgumentException(
+                        String.format("Invalid message: %s", rawMessage));
+            }
 
         } catch (Exception e) {
             LoggerFactory.getLogger(TaskConsumer.class).error(e.getMessage());
+            getChannel().basicAck(envelope.getDeliveryTag(), false); // to get rid of invalid message
         }
     }
 }
