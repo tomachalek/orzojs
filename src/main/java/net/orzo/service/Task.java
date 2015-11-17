@@ -88,7 +88,7 @@ public class Task extends Observable {
 
     protected void run() {
         this.events.add(new TaskEvent(TaskStatus.RUNNING));
-        Calculation proc = new Calculation(params, this::addEvent);
+        Calculation proc = new Calculation(this.params, this::addEvent);
         this.result = proc.run();
     }
 

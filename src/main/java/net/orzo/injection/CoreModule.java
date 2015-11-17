@@ -15,6 +15,10 @@
  */
 package net.orzo.injection;
 
+import com.google.inject.name.Names;
+import net.orzo.queue.AmqpConnection;
+import net.orzo.queue.AmqpResponseConnection;
+import net.orzo.queue.ChannelProvider;
 import net.orzo.service.FullServiceConfig;
 import net.orzo.service.ServiceConfig;
 
@@ -43,6 +47,13 @@ public class CoreModule extends AbstractModule {
      */
     @Override
     protected void configure() {
+        bind(ChannelProvider.class)
+                .annotatedWith(Names.named("receiver"))
+                .to(AmqpConnection.class);
+
+        bind(ChannelProvider.class)
+                .annotatedWith(Names.named("responder"))
+                .to(AmqpResponseConnection.class);
     }
 
     /**

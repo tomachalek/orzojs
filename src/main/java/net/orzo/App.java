@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Properties;
 
 import net.orzo.queue.AmqpConnection;
+import net.orzo.queue.AmqpResponseConnection;
 import net.orzo.queue.AmqpService;
 import net.orzo.service.TaskStatus;
 import org.apache.commons.cli.CommandLine;
@@ -182,8 +183,15 @@ public final class App {
                     HttpServer httpServer = new HttpServer(conf,
                             new JerseyGuiceServletConfig(injector));
                     app.services.add(httpServer);
-                    app.services.add(injector.getInstance(AmqpConnection.class));
-                    app.services.add(injector.getInstance(AmqpService.class));
+
+                    if (conf.getAmqpConfig() != null) {
+                        app.services.add(injector.getInstance(AmqpConnection.class));
+                        app.services.add(injector.getInstance(AmqpService.class));
+                    }
+
+                    if (conf.getAmqpResponseConfig() != null) {
+                        app.services.add(injector.getInstance(AmqpResponseConnection.class));
+                    }
 
                     Runtime.getRuntime().addShutdownHook(new ShutdownHook(app));
                     app.startServices();
