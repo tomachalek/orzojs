@@ -32,27 +32,27 @@ import jdk.nashorn.internal.runtime.ScriptFunction;
 @SuppressWarnings("restriction")
 public class ErrorHandlingComparator implements Comparator<Object> {
 
-	private Throwable err;
-	
-	private final ScriptFunction cmp;
-	
-	public ErrorHandlingComparator(ScriptFunction cmp) {
-		this.cmp = cmp;
-	}
-	
-	@Override
-	public int compare(Object o1, Object o2) {
-		MethodHandle mh = cmp.getBoundInvokeHandle(null);
-		try {
-			return (int)mh.invoke(o1, o2);
-		} catch (Throwable e) {
-			err = e;
-		}
-		return -1;
-	}
-	
-	public Throwable lastError() {
-		return this.err;
-	}
+    private Throwable err;
+
+    private final ScriptFunction cmp;
+
+    public ErrorHandlingComparator(ScriptFunction cmp) {
+        this.cmp = cmp;
+    }
+
+    @Override
+    public int compare(Object o1, Object o2) {
+        MethodHandle mh = cmp.getBoundInvokeHandle(null);
+        try {
+            return (int)mh.invoke(o1, o2);
+        } catch (Throwable e) {
+            err = e;
+        }
+        return -1;
+    }
+
+    public Throwable lastError() {
+        return this.err;
+    }
 
 }

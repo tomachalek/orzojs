@@ -19,28 +19,28 @@ import java.util.List;
 
 /**
  * Abstraction of object providing feature point detection service.
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public interface FeaturePointDetector {
 
-	/**
-	 * Searches for image's feature points using some feature point detection
-	 * algorithm.
-	 * 
-	 * @return list of corner points
-	 */
-	public FeaturePointDetector analyze(int threshold);
+    /**
+     * Searches for image's feature points using some feature point detection
+     * algorithm.
+     *
+     * @return list of corner points
+     */
+    public FeaturePointDetector analyze(int threshold);
 
-	/**
-	 * Searches for image's feature points with default threshold.
-	 */
-	public FeaturePointDetector analyze();
+    /**
+     * Searches for image's feature points with default threshold.
+     */
+    public FeaturePointDetector analyze();
 
-	/**
-	 * Fetches feature points with specified minimum distance between strongest
-	 * ones.
-	 */
-	public List<CornerPoint> fetchPoints(int dmin);
+    /**
+     * Fetches feature points with specified minimum distance between strongest
+     * ones.
+     */
+    public List<CornerPoint> fetchPoints(int dmin);
 
 }

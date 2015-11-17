@@ -32,64 +32,57 @@ import net.orzo.service.TaskManager;
 import net.orzo.service.TaskStatus;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 @Path("result")
 public class ResultHandler extends JsonProvider {
 
-	private final TaskManager taskManager;
+    private final TaskManager taskManager;
 
-	/**
-	 * 
-	 */
-	@Inject
-	public ResultHandler(TaskManager taskManager) {
-		this.taskManager = taskManager;
-	}
+    /**
+     *
+     */
+    @Inject
+    public ResultHandler(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
 
-	/**
-	 * 
-	 * @param e
-	 * @return
-	 */
-	private List<Exception> getErrors(Exception e) {
-		List<Exception> info = new ArrayList<Exception>();
-		if (e instanceof CalculationException) {
-			CalculationException cex = (CalculationException) e;
-			for (Throwable e2 : cex.getAllErrors()) {
-				info.add((Exception) e2);
-			}
+    /**
+     */
+    private List<Exception> getErrors(Exception e) {
+        List<Exception> info = new ArrayList<>();
+        if (e instanceof CalculationException) {
+            CalculationException cex = (CalculationException) e;
+            cex.getAllErrors().stream().forEach((Throwable e2) -> info.add((Exception) e2));
 
-		} else {
-			info.add((Exception) e.getCause());
-		}
-		return info;
-	}
+        } else {
+            info.add((Exception) e.getCause());
+        }
+        return info;
+    }
 
-	/**
-	 * 
-	 */
-	@GET
-	@Path("{task}")
-	@Produces("application/json; charset=UTF-8")
-	public String getResult(@PathParam("task") String taskId) {
-		try {
-			net.orzo.service.Task task = this.taskManager.getTask(taskId);
-			if (task.getStatus() == TaskStatus.ERROR) {
-				TaskEvent errEvent = task.getFirstError();
-				return toJson(new StatusResponse(StatusResponse.Status.ERROR,
-						"Action failed", errEvent.getErrors()));
+    /**
+     *
+     */
+    @GET
+    @Path("{task}")
+    @Produces("application/json; charset=UTF-8")
+    public String getResult(@PathParam("task") String taskId) {
+        try {
+            net.orzo.service.Task task = this.taskManager.getTask(taskId);
+            if (task.getStatus() == TaskStatus.ERROR) {
+                TaskEvent errEvent = task.getFirstError();
+                return toJson(new StatusResponse(StatusResponse.Status.ERROR,
+                        "Action failed", errEvent.getErrors()));
 
-			} else {
-				return task.getResult();
-			}
+            } else {
+                return task.getResult();
+            }
 
-		} catch (Exception e) {
-			return toJson(new StatusResponse(
-					StatusResponse.Status.ERROR, e.getMessage(), getErrors(e)));
-		}
-	}
+        } catch (Exception e) {
+            return toJson(new StatusResponse(
+                    StatusResponse.Status.ERROR, e.getMessage(), getErrors(e)));
+        }
+    }
 
 }

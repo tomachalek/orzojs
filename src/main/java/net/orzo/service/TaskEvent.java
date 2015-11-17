@@ -25,48 +25,46 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 public class TaskEvent {
 
-	private final TaskStatus status;
+    private final TaskStatus status;
 
-	private final long created;
+    private final long created;
 
-	private final List<Exception> errors;
+    private final List<Exception> errors;
 
-	private static final Logger LOG = LoggerFactory.getLogger(TaskEvent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TaskEvent.class);
 
-	public TaskEvent(TaskStatus status) {
-		this.created = System.currentTimeMillis();
-		this.status = status;
-		LOG.info(String.format("Created event <%s>", this.status));
-		this.errors = new ArrayList<Exception>();
-	}
+    public TaskEvent(TaskStatus status) {
+        this.created = System.currentTimeMillis();
+        this.status = status;
+        LOG.info(String.format("Created event <%s>", this.status));
+        this.errors = new ArrayList<>();
+    }
 
-	public TaskEvent(TaskStatus status, CalculationException error) {
-		this(status);
-		this.errors.addAll(error.getAllErrors());
-	}
+    public TaskEvent(TaskStatus status, CalculationException error) {
+        this(status);
+        this.errors.addAll(error.getAllErrors());
+    }
 
-	public TaskEvent(TaskStatus status, Exception error) {
-		this(status);
-		this.errors.add(error);
-	}
+    public TaskEvent(TaskStatus status, Exception error) {
+        this(status);
+        this.errors.add(error);
+    }
 
 
-	public TaskStatus getStatus() {
-		return this.status;
-	}
+    public TaskStatus getStatus() {
+        return this.status;
+    }
 
-	public long getCreated() {
-		return this.created;
-	}
+    public long getCreated() {
+        return this.created;
+    }
 
-	public List<Exception> getErrors() {
-		return this.errors;
-	}
+    public List<Exception> getErrors() {
+        return this.errors;
+    }
 
 }

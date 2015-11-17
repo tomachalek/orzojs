@@ -37,109 +37,100 @@ import com.google.common.io.ByteStreams;
  * is a "script", even a text (i.e. it is possible to initialize an instance
  * with binary data too and no error occurs until it is used somewhere where a
  * text is expected).
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class SourceCode {
 
-	/**
-	 * 
-	 */
-	private final String fullyQualifiedName;
+    /**
+     *
+     */
+    private final String fullyQualifiedName;
 
-	/**
-	 * 
-	 */
-	private final String name;
+    /**
+     *
+     */
+    private final String name;
 
-	/**
-	 * 
-	 */
-	private final String contents;
+    /**
+     *
+     */
+    private final String contents;
 
-	/**
-	 * @param id
-	 *            name of the script
-	 * @param contents
-	 *            source code of the script
-	 */
-	public SourceCode(String fullyQualifiedName, String name, String contents) {
-		this.fullyQualifiedName = fullyQualifiedName;
-		this.name = name != null ? name : "unnamed";
-		this.contents = contents != null ? contents : "";
-	}
+    /**
+     * @param fullyQualifiedName full identification of the script (~ path)
+     * @param name               name of the script (~ filename)
+     * @param contents           source code of the script
+     */
+    public SourceCode(String fullyQualifiedName, String name, String contents) {
+        this.fullyQualifiedName = fullyQualifiedName;
+        this.name = name != null ? name : "unnamed";
+        this.contents = contents != null ? contents : "";
+    }
 
-	/**
-	 * 
-	 */
-	@Override
-	public String toString() {
-		return String.format("<%s> (length: %s)", this.fullyQualifiedName,
-				this.contents.length());
-	}
+    /**
+     *
+     */
+    @Override
+    public String toString() {
+        return String.format("<%s> (length: %s)", this.fullyQualifiedName,
+                this.contents.length());
+    }
 
-	/**
-	 * Returns informative name of the script (it can be e.g. a file name)
-	 */
-	public String getName() {
-		return this.name;
-	}
+    /**
+     * Returns informative name of the script (it can be e.g. a file name)
+     */
+    public String getName() {
+        return this.name;
+    }
 
-	/**
-	 * Returns full identification of the script (e.g. resource path, file path)
-	 * 
-	 * @return
-	 */
-	public String getFullyQualifiedName() {
-		return this.fullyQualifiedName;
-	}
+    /**
+     * Returns full identification of the script (e.g. resource path, file path)
+     *
+     */
+    public String getFullyQualifiedName() {
+        return this.fullyQualifiedName;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getContents() {
-		return contents;
-	}
+    /**
+     */
+    public String getContents() {
+        return contents;
+    }
 
-	/**
-	 * 
-	 * @param compilable
-	 * @return
-	 * @throws ScriptException
-	 */
-	public CompiledScript compile(Compilable compilable) throws ScriptException {
-		return compilable.compile(getContents());
-	}
+    /**
+     * @throws ScriptException
+     */
+    public CompiledScript compile(Compilable compilable) throws ScriptException {
+        return compilable.compile(getContents());
+    }
 
-	/**
-	 * Creates a source code object using contents of provided file. UTF-8 BOM
-	 * (if present) is automatically removed.
-	 * 
-	 * @param f
-	 *            text file containing source code
-	 * @return source code containing contents of file f
-	 */
-	public static SourceCode fromFile(File f) throws IOException {
-		try (BOMInputStream bis = new BOMInputStream(new FileInputStream(f))) {
-			return new SourceCode(f.getAbsolutePath(), f.getName(), new String(
-					ByteStreams.toByteArray(bis)));
-		}
-	}
+    /**
+     * Creates a source code object using contents of provided file. UTF-8 BOM
+     * (if present) is automatically removed.
+     *
+     * @param f text file containing source code
+     * @return source code containing contents of file f
+     */
+    public static SourceCode fromFile(File f) throws IOException {
+        try (BOMInputStream bis = new BOMInputStream(new FileInputStream(f))) {
+            return new SourceCode(f.getAbsolutePath(), f.getName(), new String(
+                    ByteStreams.toByteArray(bis)));
+        }
+    }
 
-	/**
-	 * Creates source code from a Java resource identified by its absolute path
-	 * (e.g. net/orzo/userenv.js)
-	 * 
-	 * @param res
-	 * 
-	 */
-	public static SourceCode fromResource(String res) throws IOException {
-		String id = res.substring(Math.max(0, res.lastIndexOf("/") + 1));
-		String source = new ResourceLoader().getResourceAsString(res);
-		if (source == null) {
-			throw new IOException("Failed to load data from resource " + res);
-		}
-		return new SourceCode(res, id, source);
-	}
+    /**
+     * Creates source code from a Java resource identified by its absolute path
+     * (e.g. net/orzo/userenv.js)
+     *
+     * @param res
+     */
+    public static SourceCode fromResource(String res) throws IOException {
+        String id = res.substring(Math.max(0, res.lastIndexOf("/") + 1));
+        String source = new ResourceLoader().getResourceAsString(res);
+        if (source == null) {
+            throw new IOException("Failed to load data from resource " + res);
+        }
+        return new SourceCode(res, id, source);
+    }
 }

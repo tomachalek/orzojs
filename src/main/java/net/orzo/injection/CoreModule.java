@@ -29,30 +29,30 @@ import com.google.inject.Singleton;
  */
 public class CoreModule extends AbstractModule {
 
-	private final FullServiceConfig conf;
-	
-	/**
-	 * 
-	 */
-	public CoreModule(FullServiceConfig conf) {
-		this.conf = conf;
-	}
+    private final FullServiceConfig conf;
 
-	/**
-	 * 
-	 */
-	@Override
-	protected void configure() {
-	}
+    /**
+     *
+     */
+    public CoreModule(FullServiceConfig conf) {
+        this.conf = conf;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	@Provides
-	@Singleton
-	public ServiceConfig getConfig() {
-		return this.conf;
-	}
+    /**
+     *
+     */
+    @Override
+    protected void configure() {
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Provides
+    @Singleton
+    public ServiceConfig getConfig() {
+        return this.conf;
+    }
 
 }

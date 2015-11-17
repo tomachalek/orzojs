@@ -31,208 +31,187 @@ import net.orzo.CalculationParams;
 import net.orzo.scripting.SourceCode;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 @Singleton
 public class TaskManager implements Observer {
 
-	private final static String USERENV_PATH = "net/orzo/userenv.js";
+    private final static String USERENV_PATH = "net/orzo/userenv.js";
 
-	private final static String DATALIB_SCRIPT = "net/orzo/datalib.js";
+    private final static String DATALIB_SCRIPT = "net/orzo/datalib.js";
 
-	private final static String CALCULATION_SCRIPT = "net/orzo/calculation.js";
+    private final static String CALCULATION_SCRIPT = "net/orzo/calculation.js";
 
-	private final Map<String, Task> tasks;
+    private final Map<String, Task> tasks;
 
-	private final ServiceConfig conf;
+    private final ServiceConfig conf;
 
-	private final ScheduledExecutorService scheduler;
+    private final ScheduledExecutorService scheduler;
 
-	private final Map<Task, ScheduledTaskRunner> schedules;
-	
-	private final TaskLog execLog;
+    private final Map<Task, ScheduledTaskRunner> schedules;
 
-	/**
-	 * 
-	 * @param conf
-	 */
-	@Inject
-	public TaskManager(ServiceConfig conf) {
-		this.conf = conf;
-		this.tasks = new HashMap<String, Task>();
-		this.scheduler = Executors.newScheduledThreadPool(1); // TODO size
-		this.schedules = new HashMap<Task, ScheduledTaskRunner>();
-		this.execLog = new TaskLog();
-	}
+    private final TaskLog execLog;
 
-	/**
-	 * 
-	 * @param taskId
-	 * @return
-	 */
-	public Task getTask(String taskId) {
-		if (this.tasks.containsKey(taskId)) {
-			return this.tasks.get(taskId);
+    /**
+     */
+    @Inject
+    public TaskManager(ServiceConfig conf) {
+        this.conf = conf;
+        this.tasks = new HashMap<>();
+        this.scheduler = Executors.newScheduledThreadPool(1); // TODO size
+        this.schedules = new HashMap<>();
+        this.execLog = new TaskLog();
+    }
 
-		} else {
-			throw new TaskNotFound(String.format("Task %s not found", taskId));
-		}
-	}
+    /**
+     */
+    public Task getTask(String taskId) {
+        if (this.tasks.containsKey(taskId)) {
+            return this.tasks.get(taskId);
 
-	public Collection<Task> getTasks() {
-		return this.tasks.values();
-	}
+        } else {
+            throw new TaskNotFound(String.format("Task %s not found", taskId));
+        }
+    }
 
-	/**
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	public static CalculationParams createDefaultCalculationParams()
-			throws IOException {
-		CalculationParams params = new CalculationParams();
-		params.userenvScript = SourceCode.fromResource(USERENV_PATH);
-		params.datalibScript = SourceCode.fromResource(DATALIB_SCRIPT);
-		params.calculationScript = SourceCode.fromResource(CALCULATION_SCRIPT);
-		return params;
-	}
-	
-	/**
-	 * 
-	 * @param taskId
-	 * @return
-	 */
-	public boolean containsTask(String taskId) {
-		return this.tasks.containsKey(taskId);
-	}
+    public Collection<Task> getTasks() {
+        return this.tasks.values();
+    }
 
-	/**
-	 * 
-	 * @param taskId
-	 * @throws TaskNotFound
-	 */
-	public void deleteTask(String taskId) throws ResourceNotFound {
-		Task task = getTask(taskId);
-		if (this.schedules.containsKey(task)) {
-			this.schedules.get(task).cancel(); // TODO may interrupt
-														// ?
-		}
-		this.tasks.remove(taskId);
-	}
-	
-	public String registerTask(String scriptId, String[] args, Observer onFinished)
-			throws TaskException {
-		if (!this.conf.isAllowedScript(scriptId)) {
-			throw new RuntimeException("Script not allowed"); // TODO
-		}
-		String taskId = DigestUtils.sha1Hex(UUID.randomUUID().toString());
-		ScriptConfig scriptConf = this.conf.getScriptConfig(scriptId);
-		File userScriptFile = new File(scriptConf.getScriptPath());
-		Task task;
+    /**
+     */
+    public static CalculationParams createDefaultCalculationParams()
+            throws IOException {
+        CalculationParams params = new CalculationParams();
+        params.userenvScript = SourceCode.fromResource(USERENV_PATH);
+        params.datalibScript = SourceCode.fromResource(DATALIB_SCRIPT);
+        params.calculationScript = SourceCode.fromResource(CALCULATION_SCRIPT);
+        return params;
+    }
 
-		try {
-			CalculationParams params = createDefaultCalculationParams();
-			params.userenvScript = SourceCode.fromResource(USERENV_PATH);
-			if (scriptConf.getLibraryPath() != null) {
-				params.optionalModulesPath = scriptConf.getLibraryPath();
-			}
-			params.userScript = scriptConf.getScript();
-			params.workingDirModulesPath = userScriptFile.getParent();
-			params.inputValues = args != null && args.length > 0 ? args : scriptConf.getDefaultArgs();
-			task = new Task(taskId, params);
-			task.addObserver(this);
-			if (onFinished != null) {
-				task.addObserver(onFinished);
-			}
-			this.tasks.put(taskId, task);
-			return taskId;
+    /**
+     */
+    public boolean containsTask(String taskId) {
+        return this.tasks.containsKey(taskId);
+    }
 
-		} catch (IOException ex) {
-			throw new TaskException(ex.getMessage(), ex);
-		}
-	}
+    /**
+     * @throws TaskNotFound
+     */
+    public void deleteTask(String taskId) throws ResourceNotFound {
+        Task task = getTask(taskId);
+        if (this.schedules.containsKey(task)) {
+            this.schedules.get(task).cancel(); // TODO may interrupt
+            // ?
+        }
+        this.tasks.remove(taskId);
+    }
 
-	public String registerTask(String scriptId, String[] args) throws TaskException {
-		return registerTask(scriptId, args, null);
-	}
+    public String registerTask(String scriptId, String[] args, Observer onFinished)
+            throws TaskException {
+        if (!this.conf.isAllowedScript(scriptId)) {
+            throw new RuntimeException("Script not allowed"); // TODO
+        }
+        String taskId = DigestUtils.sha1Hex(UUID.randomUUID().toString());
+        ScriptConfig scriptConf = this.conf.getScriptConfig(scriptId);
+        File userScriptFile = new File(scriptConf.getScriptPath());
+        Task task;
 
-	/**
-	 *
-	 */
-	public void startTask(String taskId) throws ResourceNotFound {
-		if (this.tasks.containsKey(taskId)) {
-			new Thread() {
-				@Override
-				public void run() {
-					TaskManager.this.tasks.get(taskId).run();
-				}
-			}.start();
+        try {
+            CalculationParams params = createDefaultCalculationParams();
+            params.userenvScript = SourceCode.fromResource(USERENV_PATH);
+            if (scriptConf.getLibraryPath() != null) {
+                params.optionalModulesPath = scriptConf.getLibraryPath();
+            }
+            params.userScript = scriptConf.getScript();
+            params.workingDirModulesPath = userScriptFile.getParent();
+            params.inputValues = args != null && args.length > 0 ? args : scriptConf.getDefaultArgs();
+            task = new Task(taskId, params);
+            task.addObserver(this);
+            if (onFinished != null) {
+                task.addObserver(onFinished);
+            }
+            this.tasks.put(taskId, task);
+            return taskId;
 
-		} else {
-			throw new ResourceNotFound(String.format("task %s not found",
-					taskId));
-		}
-	}
+        } catch (IOException ex) {
+            throw new TaskException(ex.getMessage(), ex);
+        }
+    }
 
-	/**
-	 * 
-	 * @param taskId
-	 */
-	public void startTaskSync(String taskId) {
-		getTask(taskId).run();
-	}
+    public String registerTask(String scriptId, String[] args) throws TaskException {
+        return registerTask(scriptId, args, null);
+    }
+
+    /**
+     *
+     */
+    public void startTask(String taskId) throws ResourceNotFound {
+        if (this.tasks.containsKey(taskId)) {
+            new Thread() {
+                @Override
+                public void run() {
+                    TaskManager.this.tasks.get(taskId).run();
+                }
+            }.start();
+
+        } else {
+            throw new ResourceNotFound(String.format("task %s not found",
+                    taskId));
+        }
+    }
+
+    /**
+     */
+    public void startTaskSync(String taskId) {
+        getTask(taskId).run();
+    }
 
 
-	/**
-	 * 
-	 * @param taskId
-	 * @param startHour
-	 * @param startMinute
-	 * @param interval
-	 */
-	public void scheduleTask(String taskId, int startHour, int startMinute,
-			int interval) {
-		if (this.schedules.containsKey(taskId)) {
-			throw new TaskSchedulingException("Task already scheduled. Please use/create another task.");
-		}
-		
-		ScheduledTaskRunner scheduledTask = new ScheduledTaskRunner(this.scheduler, startHour, startMinute, interval);
-		this.schedules.put(this.tasks.get(taskId), scheduledTask);
-		scheduledTask.start(this.tasks.get(taskId));
-	}
+    /**
+     */
+    public void scheduleTask(String taskId, int startHour, int startMinute,
+                             int interval) {
+        if (this.schedules.containsKey(taskId)) {
+            throw new TaskSchedulingException("Task already scheduled. Please use/create another task.");
+        }
 
-	public boolean isScheduled(Task task) {
-		return this.schedules.containsKey(task);
-	}
+        ScheduledTaskRunner scheduledTask = new ScheduledTaskRunner(this.scheduler, startHour, startMinute, interval);
+        this.schedules.put(this.tasks.get(taskId), scheduledTask);
+        scheduledTask.start(this.tasks.get(taskId));
+    }
 
-	public ScheduledTaskRunner getSchedulingInfo(Task task) {
-		if (isScheduled(task)) {
-			return this.schedules.get(task);
+    public boolean isScheduled(Task task) {
+        return this.schedules.containsKey(task);
+    }
 
-		} else {
-			throw new TaskNotFound(String.format("Task %s is not scheduled.", task.getId()));
-		}
-	}
+    public ScheduledTaskRunner getSchedulingInfo(Task task) {
+        if (isScheduled(task)) {
+            return this.schedules.get(task);
 
-	@Override
-	public void update(Observable obj, Object arg1) {
-		if (obj instanceof Task) {
-			this.execLog.logTask((Task) obj);
-		}
-	}
+        } else {
+            throw new TaskNotFound(String.format("Task %s is not scheduled.", task.getId()));
+        }
+    }
 
-	public TaskLog getExecLog() {
-		return this.execLog;
-	}
+    @Override
+    public void update(Observable obj, Object arg1) {
+        if (obj instanceof Task) {
+            this.execLog.logTask((Task) obj);
+        }
+    }
 
-	public List<String> getScriptsIds() {
-		return this.conf.getScriptsIds();
-	}
+    public TaskLog getExecLog() {
+        return this.execLog;
+    }
 
-	public ScriptConfig getScriptConfig(String id) {
-		return this.conf.getScriptConfig(id);
-	}
+    public List<String> getScriptsIds() {
+        return this.conf.getScriptsIds();
+    }
+
+    public ScriptConfig getScriptConfig(String id) {
+        return this.conf.getScriptConfig(id);
+    }
 
 
 }

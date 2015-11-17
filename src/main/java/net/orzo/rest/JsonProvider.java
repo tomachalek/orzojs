@@ -19,20 +19,18 @@ package net.orzo.rest;
 import com.google.gson.Gson;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 public class JsonProvider {
 
-	private final Gson gson;
+    private final Gson gson;
 
-	public JsonProvider() {
-		this.gson = new Gson();
-	}
+    public JsonProvider() {
+        this.gson = new Gson();
+    }
 
-	public String toJson(Object o) {
-		return this.gson.toJson(o);
-	}
+    public String toJson(Object o) {
+        return this.gson.toJson(o);
+    }
 
 }

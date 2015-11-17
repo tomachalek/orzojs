@@ -37,179 +37,163 @@ import org.slf4j.LoggerFactory;
 /**
  * Defines a library of files-related functions available to JavaScript
  * environment.
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class Files {
 
-	private static final Logger LOG = LoggerFactory.getLogger(Files.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Files.class);
 
-	/**
-	 * Obtains an iterator which reads provided file (specified by path) line by
-	 * line. Iterator can be accessed by a classic method pair <i>hasNext()</li>
-	 * and <i>next()</i>.
-	 */
-	public FileIterator<Object> fileReader(final String path) throws IOException {
-		final LineIterator itr = FileUtils
-				.lineIterator(new File(path), "UTF-8");
-		return new FileIterator<Object>() {
+    /**
+     * Obtains an iterator which reads provided file (specified by path) line by
+     * line. Iterator can be accessed by a classic method pair <i>hasNext()</li>
+     * and <i>next()</i>.
+     */
+    public FileIterator<Object> fileReader(final String path) throws IOException {
+        final LineIterator itr = FileUtils
+                .lineIterator(new File(path), "UTF-8");
+        return new FileIterator<Object>() {
 
-			@Override
-			public boolean hasNext() {
-				return itr.hasNext();
-			}
+            @Override
+            public boolean hasNext() {
+                return itr.hasNext();
+            }
 
-			@Override
-			public Object next() {
-				return itr.nextLine(); // TODO wrapping???
-			}
+            @Override
+            public Object next() {
+                return itr.nextLine(); // TODO wrapping???
+            }
 
-			@Override
-			public void remove() {
-				itr.remove();
-			}
+            @Override
+            public void remove() {
+                itr.remove();
+            }
 
-			public void close() {
-				itr.close();
-			}
-		
-			public String getPath() {
-				if (File.separator == "/") {
-					return path;
+            public void close() {
+                itr.close();
+            }
 
-				} else {
-					return path.replace(File.separator, "/");
-				}
-			}
-		};
-	}
+            public String getPath() {
+                if (File.separator.equals("/")) {
+                    return path;
 
-	/**
-	 * Creates a factory to generate one or more readers for a (typically large)
-	 * file where each reader reads only part of the file.
-	 * 
-	 * @param path
-	 *            path to the file we want to read
-	 * @param numReaders
-	 *            number of readers we want to apply to read whole file
-	 * @param chunkSize
-	 * @param startLine
-	 * @see FilePartReaderFactory
-	 */
-	public synchronized FilePartReaderFactory filePartReaderFactory(
-			String path, int numReaders, Integer chunkSize, Integer startLine) {
-		return new FilePartReaderFactory(new File(path), numReaders, chunkSize,
-				startLine);
-	}
+                } else {
+                    return path.replace(File.separator, "/");
+                }
+            }
+        };
+    }
 
-	/**
-	 * Scans recursively a directory and creates numChunks iterators over these
-	 * files.
-	 * 
-	 * @param pathList
-	 *            list of directories to start search in
-	 * @param numChunks
-	 * @param filter
-	 *            a regular expression to specify accepted files
-	 * @return
-	 */
-	public DirectoryReader directoryReader(String[] pathList, int numChunks,
-			String filter) {
-		return new DirectoryReader(pathList, numChunks, filter);
-	}
+    /**
+     * Creates a factory to generate one or more readers for a (typically large)
+     * file where each reader reads only part of the file.
+     *
+     * @param path       path to the file we want to read
+     * @param numReaders number of readers we want to apply to read whole file
+     * @param chunkSize
+     * @param startLine
+     * @see FilePartReaderFactory
+     */
+    public synchronized FilePartReaderFactory filePartReaderFactory(
+            String path, int numReaders, Integer chunkSize, Integer startLine) {
+        return new FilePartReaderFactory(new File(path), numReaders, chunkSize,
+                startLine);
+    }
 
-	/**
-	 * 
-	 * @param pathList
-	 * @param numChunks
-	 * @param filter
-	 * @return
-	 */
-	public FilePairGenerator filePairGenerator(String[] pathList,
-			int numChunks, String filter) {
-		return new FilePairGenerator(pathList, numChunks, filter);
-	}
-	
-	/**
-	 * 
-	 * @param pathList1
-	 * @param pathList2
-	 * @param numChunks
-	 * @param filter
-	 * @return
-	 */
-	public TwoGroupFilePairGenerator twoGroupFilePairGenerator(String[] pathList1,
-			String[] pathList2, int numChunks, String filter) {
-		return new TwoGroupFilePairGenerator(pathList1, pathList2, numChunks, filter);
-	}
+    /**
+     * Scans recursively a directory and creates numChunks iterators over these
+     * files.
+     *
+     * @param pathList  list of directories to start search in
+     * @param numChunks A number of chunks to be produced
+     * @param filter    a regular expression to specify accepted files
+     * @return
+     */
+    public DirectoryReader directoryReader(String[] pathList, int numChunks,
+                                           String filter) {
+        return new DirectoryReader(pathList, numChunks, filter);
+    }
 
-	/**
-	 * Saves a string to a file.
-	 * 
-	 * @param path
-	 * @param s
-	 *            string to be saved
-	 * @return true on success else false
-	 */
-	public boolean saveText(String path, String s) {
-		FileWriter writer = null;
-		BufferedWriter bWriter = null;
+    /**
+     * @param pathList
+     * @param numChunks
+     * @param filter
+     * @return
+     */
+    public FilePairGenerator filePairGenerator(String[] pathList,
+                                               int numChunks, String filter) {
+        return new FilePairGenerator(pathList, numChunks, filter);
+    }
 
-		try {
-			writer = new FileWriter(new File(path));
-			bWriter = new BufferedWriter(writer);
-			bWriter.write(s);
+    /**
+     * @see TwoGroupFilePairGenerator
+     */
+    public TwoGroupFilePairGenerator twoGroupFilePairGenerator(String[] pathList1,
+                                                               String[] pathList2, int numChunks, String filter) {
+        return new TwoGroupFilePairGenerator(pathList1, pathList2, numChunks, filter);
+    }
 
-		} catch (IOException ex) {
-			LOG.error(ex.getMessage());
+    /**
+     * Saves a string to a file.
+     *
+     * @param path
+     * @param s    string to be saved
+     * @return true on success else false
+     */
+    public boolean saveText(String path, String s) {
+        FileWriter writer;
+        BufferedWriter bWriter = null;
 
-		} finally {
-			if (bWriter != null) {
-				try {
-					bWriter.close();
-				} catch (IOException ex2) {
-					LOG.error(ex2.getMessage());
-				}
-			}
-		}
-		return false;
-	}
+        try {
+            writer = new FileWriter(new File(path));
+            bWriter = new BufferedWriter(writer);
+            bWriter.write(s);
 
-	/**
-	 * 
-	 * @param path
-	 * @return
-	 */
-	public String readText(String path) {
-		String ans = null;
+        } catch (IOException ex) {
+            LOG.error(ex.getMessage());
 
-		try {
-			ans = FileUtils.readFileToString(new File(path),
-					StandardCharsets.UTF_8);
+        } finally {
+            if (bWriter != null) {
+                try {
+                    bWriter.close();
+                } catch (IOException ex2) {
+                    LOG.error(ex2.getMessage());
+                }
+            }
+        }
+        return false;
+    }
 
-		} catch (IOException ex) {
-			LOG.error(ex.getMessage());
+    /**
+     * @param path
+     * @return
+     */
+    public String readText(String path) {
+        String ans = null;
 
-		} catch (UnsupportedCharsetException ex) {
-			LOG.error(ex.getMessage());
-		}
-		return ans;
-	}
+        try {
+            ans = FileUtils.readFileToString(new File(path),
+                    StandardCharsets.UTF_8);
 
-	/**
-	 * Creates a buffered file writer.
-	 */
-	public BufferedWriter createTextFileWriter(String path) throws IOException {
-		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
-				path), "UTF-8"));
-	}
+        } catch (IOException | UnsupportedCharsetException ex) {
+            LOG.error(ex.getMessage());
+        }
+        return ans;
+    }
 
-	/**
-	 * 
-	 * @param path
-	 * @throws IOException
-	 */
-	public void cleanDirectory(String path) throws IOException {
-		FileUtils.cleanDirectory(new File(path));
-	}
+    /**
+     * Creates a buffered file writer.
+     */
+    public BufferedWriter createTextFileWriter(String path) throws IOException {
+        return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
+                path), "UTF-8"));
+    }
+
+    /**
+     * @param path
+     * @throws IOException
+     */
+    public void cleanDirectory(String path) throws IOException {
+        FileUtils.cleanDirectory(new File(path));
+    }
 }

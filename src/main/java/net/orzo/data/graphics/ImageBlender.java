@@ -19,20 +19,20 @@ import java.awt.image.BufferedImage;
 
 /**
  * Abstract blending service
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public interface ImageBlender {
 
-	/**
-	 * 
-	 */
-	public BufferedImage blendImages() throws ImageBlendingException;
+    /**
+     *
+     */
+    public BufferedImage blendImages() throws ImageBlendingException;
 
-	/**
-	 * @param tileIndices
-	 */
-	public BufferedImage blendImages(int[] tileIndices)
-			throws ImageBlendingException;
+    /**
+     * @param tileIndices
+     */
+    public BufferedImage blendImages(int[] tileIndices)
+            throws ImageBlendingException;
 
 }

@@ -16,32 +16,29 @@
 package net.orzo.service;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class HttpServerException extends Exception {
 
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7427900161934756481L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7427900161934756481L;
 
-	/**
-	 * 
-	 * @param message
-	 * @param cause
-	 */
-	public HttpServerException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    /**
+     * @param message
+     * @param cause
+     */
+    public HttpServerException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	/**
-	 * 
-	 * @param message
-	 */
-	public HttpServerException(String message) {
-		super(message);
-	}
+    /**
+     * @param message
+     */
+    public HttpServerException(String message) {
+        super(message);
+    }
 
 }

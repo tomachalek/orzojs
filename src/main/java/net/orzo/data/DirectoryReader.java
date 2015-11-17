@@ -34,99 +34,98 @@ import java.util.regex.Pattern;
  */
 public class DirectoryReader {
 
-	private final File[] rootList;
+    private final File[] rootList;
 
-	private final int numChunks;
+    private final int numChunks;
 
-	private final String filterRegexp;
+    private final String filterRegexp;
 
-	private ArrayList<String> fileList = null;
+    private ArrayList<String> fileList = null;
 
-	private int filesPerChunk;
+    private int filesPerChunk;
 
-	/**
-	 * 
-	 * @param pathList
-	 *            a list of directories to be searched
-	 * @param numChunks
-	 * @param filter
-	 *            a regular expression to filter accepted files, null is also ok
-	 */
-	public DirectoryReader(String[] pathList, int numChunks, String filter) {
-		this.rootList = new File[pathList.length];
-		for (int i = 0; i < pathList.length; i++) {
-			this.rootList[i] = new File(pathList[i]);
-		}
-		this.numChunks = numChunks;
-		this.filterRegexp = filter != null ? filter : ".+";
-	}
+    /**
+     *
+     * @param pathList
+     *            a list of directories to be searched
+     * @param numChunks
+     * @param filter
+     *            a regular expression to filter accepted files, null is also ok
+     */
+    public DirectoryReader(String[] pathList, int numChunks, String filter) {
+        this.rootList = new File[pathList.length];
+        for (int i = 0; i < pathList.length; i++) {
+            this.rootList[i] = new File(pathList[i]);
+        }
+        this.numChunks = numChunks;
+        this.filterRegexp = filter != null ? filter : ".+";
+    }
 
-	/**
-	 * 
-	 * @param idx
-	 *            iterator id (valid values are from interval [0, numChunks-1])
-	 * @return
-	 */
-	public Iterator<String> getIterator(int idx) {
-		int rightIdx;
+    /**
+     *
+     * @param idx
+     *            iterator id (valid values are from interval [0, numChunks-1])
+     */
+    public Iterator<String> getIterator(int idx) {
+        int rightIdx;
 
-		if (this.fileList == null) {
-			this.fileList = fetchFileList();
-			this.filesPerChunk = (int) Math.ceil((float)this.fileList.size()
-					/ this.numChunks);
-		}
-		rightIdx = Math.min(this.filesPerChunk * (idx + 1),
-				this.fileList.size());
+        if (this.fileList == null) {
+            this.fileList = fetchFileList();
+            this.filesPerChunk = (int) Math.ceil((float)this.fileList.size()
+                    / this.numChunks);
+        }
+        rightIdx = Math.min(this.filesPerChunk * (idx + 1),
+                this.fileList.size());
 
-		if (idx * this.filesPerChunk < rightIdx) {
-			return this.fileList.subList(idx * this.filesPerChunk, rightIdx).iterator();
+        if (idx * this.filesPerChunk < rightIdx) {
+            return this.fileList.subList(idx * this.filesPerChunk, rightIdx).iterator();
 
-		} else {
-			return Collections.emptyIterator();
-		}
-	}
+        } else {
+            return Collections.emptyIterator();
+        }
+    }
 
-	/**
-	 * Lists all files in a specified directory (including contents of
-	 * subdirectories)
-	 * 
-	 * @return
-	 */
-	private ArrayList<String> fetchFileList() {
-		ArrayList<String> fileList = new ArrayList<String>();
-		for (File f : this.rootList) {
-			getDirectoryList(f, fileList);
-		}
-		Collections.sort(fileList);
-		return fileList;
-	}
-	
+    /**
+     * Lists all files in a specified directory (including contents of
+     * subdirectories)
+     *
+     * @return
+     */
+    private ArrayList<String> fetchFileList() {
+        ArrayList<String> fileList = new ArrayList<>();
+        for (File f : this.rootList) {
+            getDirectoryList(f, fileList);
+        }
+        Collections.sort(fileList);
+        return fileList;
+    }
 
-	/**
-	 * Recursive method which searches for files/directories on a specified path
-	 * 
-	 * @param rootDir
-	 * @param foundFiles
-	 *            results are stored here
-	 */
-	private void getDirectoryList(File rootDir, ArrayList<String> foundFiles) {
-		File[] list = rootDir.listFiles();
-		Matcher matcher;
 
-		if (list != null) {
-			Pattern filter = Pattern.compile(this.filterRegexp);
+    /**
+     * Recursive method which searches for files/directories on a specified path
+     *
+     * @param rootDir
+     * @param foundFiles
+     *            results are stored here
+     */
+    private void getDirectoryList(File rootDir, ArrayList<String> foundFiles) {
+        File[] list = rootDir.listFiles();
+        Matcher matcher;
 
-			for (File f : list) {
-				if (f.isDirectory()) {
-					getDirectoryList(f, foundFiles);
+        if (list != null) {
+            Pattern filter = Pattern.compile(this.filterRegexp);
 
-				} else if (f.isFile()) {
-					matcher = filter.matcher(f.getName());
-					if (matcher.find()) {
-						foundFiles.add(normalizePath(f.getAbsolutePath()));
-					}
-				}
-			}
-		}
-	}
+            for (File f : list) {
+                if (f.isDirectory()) {
+                    getDirectoryList(f, foundFiles);
+
+                } else if (f.isFile()) {
+                    matcher = filter.matcher(f.getName());
+                    if (matcher.find()) {
+                        foundFiles.add(normalizePath(f.getAbsolutePath()));
+                    }
+                }
+            }
+        }
+    }
 }

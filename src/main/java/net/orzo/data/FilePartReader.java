@@ -57,79 +57,79 @@ import org.apache.commons.io.LineIterator;
  */
 public class FilePartReader implements Iterator<String> {
 
-	/**
-	 * 
-	 */
-	private final PositionAwareLineIterator lineIterator;
+    /**
+     *
+     */
+    private final PositionAwareLineIterator lineIterator;
 
-	/**
-	 * 
-	 */
-	private final int numGroups;
+    /**
+     *
+     */
+    private final int numGroups;
 
-	/**
-	 * 
-	 */
-	private final int linesPerGroup;
+    /**
+     *
+     */
+    private final int linesPerGroup;
 
-	/**
-	 * 
-	 */
-	private int currLine;
+    /**
+     *
+     */
+    private int currLine;
 
-	/**
-	 * @param lineIterator
-	 *            a source iterator; please note that initial offset must be
-	 *            already set (i.e. this class does not initialize it for you).
-	 * @param numGroups
-	 *            how many iterators will be defined to read the file
-	 * @param linesPerGroup
-	 *            how many individual lines will a single group contain
-	 */
-	public FilePartReader(PositionAwareLineIterator lineIterator,
-			int numGroups, int linesPerGroup) throws IllegalArgumentException {
-		this.lineIterator = lineIterator;
-		this.numGroups = numGroups;
-		this.linesPerGroup = linesPerGroup;
-		this.currLine = 0;
-	}
+    /**
+     * @param lineIterator
+     *            a source iterator; please note that initial offset must be
+     *            already set (i.e. this class does not initialize it for you).
+     * @param numGroups
+     *            how many iterators will be defined to read the file
+     * @param linesPerGroup
+     *            how many individual lines will a single group contain
+     */
+    public FilePartReader(PositionAwareLineIterator lineIterator,
+            int numGroups, int linesPerGroup) throws IllegalArgumentException {
+        this.lineIterator = lineIterator;
+        this.numGroups = numGroups;
+        this.linesPerGroup = linesPerGroup;
+        this.currLine = 0;
+    }
 
-	/**
-	 * 
-	 */
-	@Override
-	public boolean hasNext() {
-		if (this.numGroups <= 0 || this.linesPerGroup <= 0) {
-			throw new FilePartReaderMisconfiguration();
-		}
-		return this.lineIterator.hasNext();
-	}
+    /**
+     *
+     */
+    @Override
+    public boolean hasNext() {
+        if (this.numGroups <= 0 || this.linesPerGroup <= 0) {
+            throw new FilePartReaderMisconfiguration();
+        }
+        return this.lineIterator.hasNext();
+    }
 
-	/**
-	 * Returns the next line. Please note that in case of {@link FilePartReader}
-	 * the next line may be in fact many lines ahead of the previously read line
-	 * (see the class' documentation).
-	 */
-	@Override
-	public String next() {
-		if (this.numGroups <= 0 || this.linesPerGroup <= 0) {
-			throw new FilePartReaderMisconfiguration();
-		}
+    /**
+     * Returns the next line. Please note that in case of {@link FilePartReader}
+     * the next line may be in fact many lines ahead of the previously read line
+     * (see the class' documentation).
+     */
+    @Override
+    public String next() {
+        if (this.numGroups <= 0 || this.linesPerGroup <= 0) {
+            throw new FilePartReaderMisconfiguration();
+        }
 
-		String ans = this.lineIterator.next();
+        String ans = this.lineIterator.next();
 
-		this.currLine++;
-		if (this.currLine == this.linesPerGroup) {
-			this.lineIterator.skipBy(this.linesPerGroup * (this.numGroups - 1) + 1);
-			this.currLine = 0;
-		}
-		return ans;
-	}
+        this.currLine++;
+        if (this.currLine == this.linesPerGroup) {
+            this.lineIterator.skipBy(this.linesPerGroup * (this.numGroups - 1) + 1);
+            this.currLine = 0;
+        }
+        return ans;
+    }
 
-	/**
-	 * Unsupported
-	 */
-	@Override
-	public void remove() {
-	}
+    /**
+     * Unsupported
+     */
+    @Override
+    public void remove() {
+    }
 }

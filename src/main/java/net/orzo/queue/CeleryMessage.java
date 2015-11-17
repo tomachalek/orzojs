@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * @author Tomas Machalek <tomas.machalek@gmail.com>
+ */
 public class CeleryMessage {
 
     public String id;

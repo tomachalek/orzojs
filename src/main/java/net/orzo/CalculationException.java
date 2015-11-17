@@ -20,31 +20,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 public class CalculationException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1406932257925252314L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1406932257925252314L;
 
-	public CalculationException(String message) {
-		super(message);
-	}
+    public CalculationException(String message) {
+        super(message);
+    }
 
-	public CalculationException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public CalculationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public List<Exception> getAllErrors() {
-		List<Exception> ans = new ArrayList<Exception>();
-		if (getCause() != null) {
-			ans.add((Exception) getCause());
-		}
-		return ans;
-	}
+    public List<Exception> getAllErrors() {
+        List<Exception> ans = new ArrayList<>();
+        if (getCause() != null) {
+            ans.add((Exception) getCause());
+        }
+        return ans;
+    }
 
 }

@@ -25,56 +25,55 @@ import java.util.stream.Collectors;
  * A simple status wrapper used as a REST response in these cases: 1)
  * void-returning methods in both OK/ERROR situations 2) methods returning data
  * in case of an error
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class StatusResponse {
 
-	public enum Status {
-		OK("OK"), ERROR("ERROR");
-		
-		private final String repr;
-		
-		private Status(String repr) {
-			this.repr = repr;
-		}
+    public enum Status {
+        OK("OK"), ERROR("ERROR");
 
-		@Override
-		public String toString() {
-			return this.repr;
-		}
-	}
+        private final String repr;
 
-	public final Status status;
+        private Status(String repr) {
+            this.repr = repr;
+        }
 
-	public final String message;
+        @Override
+        public String toString() {
+            return this.repr;
+        }
+    }
 
-	public final List<String> errors;
+    public final Status status;
 
-	/**
-	 * 
-	 * @param status
-	 * @param message
-	 */
-	public StatusResponse(Status status, String message,
-			List<? extends Throwable> errors) {
-		this.status = status;
-		this.message = message;
-		this.errors = errors.stream().map((e) -> e.getMessage())
-				.collect(Collectors.toList());
-	}
-	
-	public StatusResponse(Status status, String message, Throwable error) {
-		this.status = status;
-		this.message = message;
-		this.errors = new ArrayList<>();
-		this.errors.add(error.getMessage());
-	}
+    public final String message;
 
-	public StatusResponse(Status status) {
-		this.status = status;
-		this.message = null;
-		this.errors = Collections.emptyList();
-	}
+    public final List<String> errors;
+
+    /**
+     * @param status
+     * @param message
+     */
+    public StatusResponse(Status status, String message,
+                          List<? extends Throwable> errors) {
+        this.status = status;
+        this.message = message;
+        this.errors = errors.stream().map(Throwable::getMessage)
+                .collect(Collectors.toList());
+    }
+
+    public StatusResponse(Status status, String message, Throwable error) {
+        this.status = status;
+        this.message = message;
+        this.errors = new ArrayList<>();
+        this.errors.add(error.getMessage());
+    }
+
+    public StatusResponse(Status status) {
+        this.status = status;
+        this.message = null;
+        this.errors = Collections.emptyList();
+    }
 
 }

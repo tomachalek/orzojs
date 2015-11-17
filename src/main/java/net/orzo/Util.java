@@ -20,18 +20,18 @@ import java.io.File;
 
 /**
  * Miscellaneous helper functions.
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class Util {
 
-	public static String normalizePath(String path) {
-		if (File.separator == "/") {
-			return path;
+    public static String normalizePath(String path) {
+        if (File.separator.equals("/")) {
+            return path;
 
-		} else {
-			return path.replace(File.separator, "/");
-		}
-	}
+        } else {
+            return path.replace(File.separator, "/");
+        }
+    }
 
 }

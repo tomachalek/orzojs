@@ -16,32 +16,25 @@
 package net.orzo.scripting;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 public class ModuleException extends RuntimeException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7782810662103453290L;	
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7782810662103453290L;
 
-	/**
-	 * 
-	 * @param message
-	 */
-	public ModuleException(String message) {
-		super(message);
-	}
-	
-	/**
-	 * 
-	 * @param message
-	 * @param error
-	 */
-	public ModuleException(String message, Throwable error) {
-		super(message, error);
-	}
+    /**
+     */
+    public ModuleException(String message) {
+        super(message);
+    }
+
+    /**
+     */
+    public ModuleException(String message, Throwable error) {
+        super(message, error);
+    }
 
 }

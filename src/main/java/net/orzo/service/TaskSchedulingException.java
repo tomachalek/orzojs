@@ -17,24 +17,22 @@
 package net.orzo.service;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 public class TaskSchedulingException extends RuntimeException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1334704795866956330L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -1334704795866956330L;
 
-	public TaskSchedulingException(String message) {
-		super(message);
-	}
+    public TaskSchedulingException(String message) {
+        super(message);
+    }
 
-	public TaskSchedulingException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public TaskSchedulingException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 
 }

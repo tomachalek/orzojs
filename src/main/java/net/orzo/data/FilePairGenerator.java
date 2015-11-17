@@ -29,40 +29,40 @@ import java.util.List;
  */
 public class FilePairGenerator extends AbstractListGenerator<String[]> {
 
-	
-	private final DirectoryReader directoryReader;
 
-	/**
-	 * 
-	 * @param pathList
-	 * @param numChunks
-	 * @param filter
-	 */
-	public FilePairGenerator(String[] pathList, int numChunks, String filter) {
-		super(numChunks, new ArrayList<String[]>());
-		this.directoryReader = new DirectoryReader(pathList, 1, filter);
-	}
+    private final DirectoryReader directoryReader;
 
-	/**
-	 * 
-	 * @param chunkId
-	 * @return
-	 */
-	public Iterator<String[]> getIterator(int chunkId) {
-		if (isEmpty()) {
-			Iterator<String> iter = this.directoryReader.getIterator(0);
-			final List<String> visitedItems = new ArrayList<String>();
-			String currItem;
+    /**
+     *
+     * @param pathList
+     * @param numChunks
+     * @param filter
+     */
+    public FilePairGenerator(String[] pathList, int numChunks, String filter) {
+        super(numChunks, new ArrayList<>());
+        this.directoryReader = new DirectoryReader(pathList, 1, filter);
+    }
 
-			while (iter.hasNext()) {
-				currItem = iter.next();
-				for (String visitedItem : visitedItems) {
-					addItem(new String[] { currItem, visitedItem });
-				}
-				visitedItems.add(currItem);
-			}
-		}
-		return subList(chunkId).iterator();
-	}
+    /**
+     *
+     * @param chunkId
+     * @return
+     */
+    public Iterator<String[]> getIterator(int chunkId) {
+        if (isEmpty()) {
+            Iterator<String> iter = this.directoryReader.getIterator(0);
+            final List<String> visitedItems = new ArrayList<>();
+            String currItem;
+
+            while (iter.hasNext()) {
+                currItem = iter.next();
+                for (String visitedItem : visitedItems) {
+                    addItem(new String[] { currItem, visitedItem });
+                }
+                visitedItems.add(currItem);
+            }
+        }
+        return subList(chunkId).iterator();
+    }
 
 }

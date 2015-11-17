@@ -32,47 +32,46 @@ import de.neuland.jade4j.template.TemplateLoader;
  */
 public class Templating {
 
-	/**
-	 * 
-	 * @param templatePath
-	 * @param cssURI
-	 * @param model
-	 * @return
-	 */
-	public String renderTemplate(String templateURI, String cssURI, Object model)
-			throws IOException {
+    /**
+     *
+     * @param templatePath
+     * @param cssURI
+     * @param model
+     * @return
+     * @todo This is still quite experimental
+     */
+    public String renderTemplate(String templateURI, String cssURI, Object model)
+            throws IOException {
 
-		Map<String, Object> javaModel = (Map<String, Object>) model; // TODO type unwrapping???
-		JadeConfiguration config = new JadeConfiguration();
-		javaModel.put("__css__", loadStylesheet(cssURI));
+        Map<String, Object> javaModel = (Map<String, Object>) model; // TODO type unwrapping???
+        JadeConfiguration config = new JadeConfiguration();
+        javaModel.put("__css__", loadStylesheet(cssURI));
 
-		config.setPrettyPrint(true);
-		config.setTemplateLoader(new TemplateLoader() {
+        config.setPrettyPrint(true);
+        config.setTemplateLoader(new TemplateLoader() {
 
-			@Override
-			public Reader getReader(String templateName) throws IOException {
-				ResourceLoader loader = new ResourceLoader();
-				return new StringReader(loader
-						.getResourceAsString(templateName));
-			}
+            @Override
+            public Reader getReader(String templateName) throws IOException {
+                ResourceLoader loader = new ResourceLoader();
+                return new StringReader(loader
+                        .getResourceAsString(templateName));
+            }
 
-			@Override
-			public long getLastModified(String arg0) throws IOException {
-				return 0;
-			}
-		});
+            @Override
+            public long getLastModified(String arg0) throws IOException {
+                return 0;
+            }
+        });
 
-		return config
-				.renderTemplate(config.getTemplate(templateURI), javaModel);
-	}
+        return config
+                .renderTemplate(config.getTemplate(templateURI), javaModel);
+    }
 
-	/**
-	 * 
-	 * @param cssURI
-	 * @param outputPath
-	 */
-	private String loadStylesheet(String cssURI) throws IOException {
-		ResourceLoader loader = new ResourceLoader();
-		return loader.getResourceAsString(cssURI);
-	}
+    /**
+     *
+     */
+    private String loadStylesheet(String cssURI) throws IOException {
+        ResourceLoader loader = new ResourceLoader();
+        return loader.getResourceAsString(cssURI);
+    }
 }

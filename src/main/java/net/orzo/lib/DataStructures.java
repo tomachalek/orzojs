@@ -32,103 +32,96 @@ import jdk.nashorn.internal.runtime.ScriptFunction;
 @SuppressWarnings("restriction")
 public class DataStructures {
 
-	/**
-	 * Creates a native JavaScript array. It should be faster than doing this in
-	 * JavaScript.
-	 * 
-	 * @param size
-	 * @return native JavaScript array
-	 */
-	public Object array(int size) {
-		return new Object[size]; // TODO wrapping???
-	}
-
-	/**
-	 * Creates a native JavaScript zero-filled array. It should be faster than
-	 * doing this in JavaScript.
-	 * 
-	 * @param size
-	 * @return native JavaScript array
-	 */
-	public Object zeroFillArray(int size) {
-		return new double[size]; // TODO wrapping ???
-	}
-
-	/**
-	 * 
-	 * @param width
-	 * @param height
-	 * @return
-	 */
-	public Object numericMatrix(int width, int height) {
-		return new double[width][height]; // TODO wrapping???
-	}
-
-	/**
-	 * 
-	 * @param arr
-	 * @return
-	 */
-	public Object flattenMatrix(Object inMatrix) {
-		double[][] arr = (double[][]) inMatrix; // TODO wrapping ???
-		double[] ans = new double[arr.length * arr[0].length];
-
-		// this method is less then 1% slower then System.arraycopy
-		// and does not depend on native implementation
-		for (int i = 0; i < arr.length; i++) {
-			for (int j = 0; j < arr[i].length; j++) {
-				ans[i * arr[i].length + j] = arr[i][j];
-			}
-		}
-		return ans; // TODO wrapping???
-	}
-
-	/**
-	 * From a JavaScript array it creates a new one with unique occurrence of
-	 * items.
-	 * 
-	 * @param jsArray
-	 *            a JavaScript or Java array
-	 * @param key
-	 *            a JavaScript function to access values to be considered; null
-	 *            is also possible (in such case, the value itself is used)
-	 * @return a JavaScript array with unique items
-	 */
-	public Object uniq(Object jsArray, ScriptFunction key) {
-		Set<Object> set = new HashSet<Object>();
-		Collection<?> origData;
-
-		if (jsArray.getClass().isArray()) {
-			origData = Arrays.asList(jsArray);
-
-		} else {
-			origData = (Collection<?>) jsArray; // TODO wrapping???
-		}
-
-		try {
-			if (key == null) {
-				set.addAll(origData);
-
-			} else {
-				for (Object item : origData) {
-					MethodHandle mh = key.getBoundInvokeHandle(item);
-					set.add(mh.invoke(item));
-				}
-			}
-			return set; // TODO wrapping???
-
-		} catch (Throwable ex) {
-			throw new LibException(ex);
-		}
-	}
-
-	/**
-	 * Converts an object to JSON (using Gson library)
-	 *
-	 * @param obj
-	 * @return
+    /**
+     * Creates a native JavaScript array. It should be faster than doing this in
+     * JavaScript.
+     *
+     * @param size
+     * @return native JavaScript array
      */
-	public Object toJson(Object obj) {
-		return new Gson().toJson(obj);
-	}
+    public Object array(int size) {
+        return new Object[size]; // TODO wrapping???
+    }
+
+    /**
+     * Creates a native JavaScript zero-filled array. It should be faster than
+     * doing this in JavaScript.
+     *
+     * @param size
+     * @return native JavaScript array
+     */
+    public Object zeroFillArray(int size) {
+        return new double[size]; // TODO wrapping ???
+    }
+
+    /**
+     *
+     */
+    public Object numericMatrix(int width, int height) {
+        return new double[width][height]; // TODO wrapping???
+    }
+
+    /**
+     *
+     */
+    public Object flattenMatrix(Object inMatrix) {
+        double[][] arr = (double[][]) inMatrix; // TODO wrapping ???
+        double[] ans = new double[arr.length * arr[0].length];
+
+        // this method is less then 1% slower then System.arraycopy
+        // and does not depend on native implementation
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < arr[i].length; j++) {
+                ans[i * arr[i].length + j] = arr[i][j];
+            }
+        }
+        return ans; // TODO wrapping???
+    }
+
+    /**
+     * From a JavaScript array it creates a new one with unique occurrence of
+     * items.
+     *
+     * @param jsArray
+     *            a JavaScript or Java array
+     * @param key
+     *            a JavaScript function to access values to be considered; null
+     *            is also possible (in such case, the value itself is used)
+     * @return a JavaScript array with unique items
+     */
+    public Object uniq(Object jsArray, ScriptFunction key) {
+        Set<Object> set = new HashSet<>();
+        Collection<?> origData;
+
+        if (jsArray.getClass().isArray()) {
+            origData = Arrays.asList(jsArray);
+
+        } else {
+            origData = (Collection<?>) jsArray; // TODO wrapping???
+        }
+
+        try {
+            if (key == null) {
+                set.addAll(origData);
+
+            } else {
+                for (Object item : origData) {
+                    MethodHandle mh = key.getBoundInvokeHandle(item);
+                    set.add(mh.invoke(item));
+                }
+            }
+            return set; // TODO wrapping???
+
+        } catch (Throwable ex) {
+            throw new LibException(ex);
+        }
+    }
+
+    /**
+     * Converts an object to JSON (using Gson library)
+     *
+     */
+    public Object toJson(Object obj) {
+        return new Gson().toJson(obj);
+    }
 }

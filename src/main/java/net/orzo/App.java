@@ -49,7 +49,7 @@ import net.orzo.tools.ResourceLoader;
 
 /**
  * Entry class. Handles command line parameters and runs the calculation.
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public final class App {
@@ -66,7 +66,7 @@ public final class App {
      *
      */
     public App() {
-        this.services = new ArrayList<Service>();
+        this.services = new ArrayList<>();
         this.props = new Properties();
         this.cliOptions = new Options();
         this.cliOptions.addOption("v", false, "shows version information");
@@ -106,9 +106,7 @@ public final class App {
      *
      */
     public void stopServices() {
-        for (Service service : this.services) {
-            service.stop();
-        }
+        this.services.stream().forEach(Service::stop);
     }
 
     /**
@@ -226,9 +224,8 @@ public final class App {
                     tm.startTaskSync(taskId);
                     if (tm.getTask(taskId).getStatus() == TaskStatus.ERROR) {
                         tm.getTask(taskId).getFirstError().getErrors().stream().forEach(
-                                (err) -> System.err.println(err));
+                                System.err::println);
                     }
-
 
 
                 } else {
@@ -239,16 +236,14 @@ public final class App {
             }
 
         } catch (Exception ex) {
-            System.err.println(ex);
+            System.err.printf("Orzo.js crashed with error: %s\nSee the log for details.\n",
+                    ex.getMessage());
             if (log != null) {
                 log.error(ex.getMessage(), ex);
 
             } else {
                 ex.printStackTrace();
             }
-
-        } finally {
-
         }
     }
 }

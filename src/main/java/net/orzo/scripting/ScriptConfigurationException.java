@@ -17,28 +17,24 @@ package net.orzo.scripting;
 
 /**
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- * 
  */
 public class ScriptConfigurationException extends RuntimeException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7693100222382807092L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7693100222382807092L;
 
-	/**
-	 * @param message
-	 */
-	public ScriptConfigurationException(String message) {
-		super(message);
-	}
+    /**
+     */
+    public ScriptConfigurationException(String message) {
+        super(message);
+    }
 
-	/**
-	 * @param message
-	 * @param cause
-	 */
-	public ScriptConfigurationException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    /**
+     */
+    public ScriptConfigurationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

@@ -16,7 +16,9 @@
 
 package net.orzo.service;
 
-
+/**
+ * @author Tomas Machalek <tomas.machalek@gmail.com>
+ */
 public class AmqpConf {
 
     public String host;

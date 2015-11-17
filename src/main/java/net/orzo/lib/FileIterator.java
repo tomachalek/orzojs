@@ -25,9 +25,9 @@ import java.util.Iterator;
  *
  */
 public interface FileIterator<T> extends Iterator<T> {
-	
-	public void close();
-	
-	public String getPath();
+
+    public void close();
+
+    public String getPath();
 
 }

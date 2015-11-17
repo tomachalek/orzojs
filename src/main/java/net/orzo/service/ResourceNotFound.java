@@ -17,23 +17,22 @@
 package net.orzo.service;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class ResourceNotFound extends Exception {
 
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -1926478254814241787L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -1926478254814241787L;
 
-	public ResourceNotFound(String message) {
-		super(message);
-	}
+    public ResourceNotFound(String message) {
+        super(message);
+    }
 
-	public ResourceNotFound(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public ResourceNotFound(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

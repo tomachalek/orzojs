@@ -25,28 +25,26 @@ import net.orzo.service.TaskManager;
 import com.google.inject.Inject;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 @Path("log")
 public class LogHandler extends JsonProvider {
-	
-	private final TaskManager taskManager;
 
-	/**
-	 * 
-	 */
-	@Inject
-	public LogHandler(TaskManager taskManager) {
-		super();
-		this.taskManager = taskManager;
-	}
-	
-	@GET
-	@Produces("text/plain; charset=UTF-8")
-	public String getList() {
-		return toJson(this.taskManager.getExecLog().getData());
-	}
+    private final TaskManager taskManager;
+
+    /**
+     *
+     */
+    @Inject
+    public LogHandler(TaskManager taskManager) {
+        super();
+        this.taskManager = taskManager;
+    }
+
+    @GET
+    @Produces("text/plain; charset=UTF-8")
+    public String getList() {
+        return toJson(this.taskManager.getExecLog().getData());
+    }
 
 }

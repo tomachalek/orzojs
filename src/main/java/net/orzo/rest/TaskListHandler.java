@@ -30,69 +30,72 @@ import net.orzo.service.ScheduledTaskRunner;
 import net.orzo.service.Task;
 import net.orzo.service.TaskManager;
 
+/**
+ * @author Tomas Machalek <tomas.machalek@gmail.com>
+ */
 @Path("tasks")
 public class TaskListHandler extends JsonProvider {
 
-	private final TaskManager taskManager;
+    private final TaskManager taskManager;
 
-	/**
-	 * 
-	 */
-	@Inject
-	public TaskListHandler(TaskManager taskManager) {
-		this.taskManager = taskManager;
-	}
-	
-	@GET
-	@Produces("application/json; charset=UTF-8")
-	public String getList() {
-		Collection<Task> tasks = this.taskManager.getTasks();
-		List<TaskInfo> sortedTasks = tasks
-				.stream()
-				.sorted((t1, t2) -> Long.compare(t1.getTimeCreated(),
-						t2.getTimeCreated())).map((t) -> new TaskInfo(t))
-				.collect(Collectors.toList());
-		return toJson(sortedTasks);
-	}
+    /**
+     *
+     */
+    @Inject
+    public TaskListHandler(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
 
-	class TaskInfo {
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    public String getList() {
+        Collection<Task> tasks = this.taskManager.getTasks();
+        List<TaskInfo> sortedTasks = tasks
+                .stream()
+                .sorted((t1, t2) -> Long.compare(t1.getTimeCreated(),
+                        t2.getTimeCreated())).map(TaskInfo::new)
+                .collect(Collectors.toList());
+        return toJson(sortedTasks);
+    }
 
-		public final String id;
+    class TaskInfo {
 
-		public final String name;
+        public final String id;
 
-		public final long created;
+        public final String name;
 
-		public final String status;
+        public final long created;
 
-		public final boolean isScheduled;
+        public final String status;
 
-		public final Integer startHour;
+        public final boolean isScheduled;
 
-		public final Integer startMinute;
+        public final Integer startHour;
 
-		public final Integer interval;
+        public final Integer startMinute;
+
+        public final Integer interval;
 
 
-		TaskInfo(Task task) {
-			this.id = task.getId();
-			this.name = task.getName();
-			this.created = task.getTimeCreated();
-			this.status = task.getStatus().toString();
-			if (TaskListHandler.this.taskManager.isScheduled(task)) {
-				this.isScheduled = true;
-				ScheduledTaskRunner str = TaskListHandler.this.taskManager.getSchedulingInfo(task);
-				this.startHour = str.getStartHour();
-				this.startMinute = str.getStartMinute();
-				this.interval = str.getInterval();
+        TaskInfo(Task task) {
+            this.id = task.getId();
+            this.name = task.getName();
+            this.created = task.getTimeCreated();
+            this.status = task.getStatus().toString();
+            if (TaskListHandler.this.taskManager.isScheduled(task)) {
+                this.isScheduled = true;
+                ScheduledTaskRunner str = TaskListHandler.this.taskManager.getSchedulingInfo(task);
+                this.startHour = str.getStartHour();
+                this.startMinute = str.getStartMinute();
+                this.interval = str.getInterval();
 
-			} else {
-				this.isScheduled = false;
-				this.startHour = null;
-				this.startMinute = null;
-				this.interval = null;
-			}
-		}
-	}
+            } else {
+                this.isScheduled = false;
+                this.startHour = null;
+                this.startMinute = null;
+                this.interval = null;
+            }
+        }
+    }
 
 }

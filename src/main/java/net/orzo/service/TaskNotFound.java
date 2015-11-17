@@ -17,27 +17,25 @@
 package net.orzo.service;
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- *
  */
 public class TaskNotFound extends RuntimeException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5109433240049842787L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5109433240049842787L;
 
-	public TaskNotFound(String message) {
-		super(message);
-	}
+    public TaskNotFound(String message) {
+        super(message);
+    }
 
-	public TaskNotFound(Throwable cause) {
-		super(cause);
-	}
+    public TaskNotFound(Throwable cause) {
+        super(cause);
+    }
 
-	public TaskNotFound(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public TaskNotFound(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

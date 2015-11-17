@@ -23,50 +23,45 @@ import net.orzo.scripting.SourceCode;
 
 /**
  * Handles a processing thread of the REDUCE phase.
- * 
+ *
  * @author Tomas Machalek <tomas.machalek@gmail.com>
- * 
  */
 public class ReduceWorker implements Callable<IntermediateResults> {
 
-	private final EnvParams envParams;
+    private final EnvParams envParams;
 
-	private final SourceCode userScript;
-	
-	private final SourceCode[] sources;
+    private final SourceCode userScript;
 
-	private final IntermediateResults mapResults;
+    private final SourceCode[] sources;
 
-	private final IntermediateResults resultData;
+    private final IntermediateResults mapResults;
 
-	private final JsEngineAdapter jsEngine;
+    private final IntermediateResults resultData;
 
-	/**
-	 * 
-	 * @param envParams
-	 * @param workerOps
-	 * @param sourceCodes
-	 */
-	public ReduceWorker(EnvParams envParams,
-			IntermediateResults mapResults, SourceCode userScript, SourceCode... sourceCodes) {
-		this.envParams = envParams;
-		this.mapResults = mapResults;
-		this.userScript = userScript;
-		this.resultData = new IntermediateResults();
-		this.jsEngine = new JsEngineAdapter(this.envParams, this.resultData);
-		this.sources = sourceCodes;
-	}
+    private final JsEngineAdapter jsEngine;
 
-	@Override
-	public IntermediateResults call() throws Exception {
-		this.jsEngine.beginWork();
-		this.jsEngine.runCode(this.sources);
-		this.jsEngine.runFunction("initReduce");
-		this.jsEngine.runCode(this.userScript);
-		for (Object key : this.mapResults.keys()) {
-			this.jsEngine.runFunction("runReduce", key, this.mapResults.values(key));			
-		}
-		return this.resultData;
-	}
+    /**
+     */
+    public ReduceWorker(EnvParams envParams,
+                        IntermediateResults mapResults, SourceCode userScript, SourceCode... sourceCodes) {
+        this.envParams = envParams;
+        this.mapResults = mapResults;
+        this.userScript = userScript;
+        this.resultData = new IntermediateResults();
+        this.jsEngine = new JsEngineAdapter(this.envParams, this.resultData);
+        this.sources = sourceCodes;
+    }
+
+    @Override
+    public IntermediateResults call() throws Exception {
+        this.jsEngine.beginWork();
+        this.jsEngine.runCode(this.sources);
+        this.jsEngine.runFunction("initReduce");
+        this.jsEngine.runCode(this.userScript);
+        for (Object key : this.mapResults.keys()) {
+            this.jsEngine.runFunction("runReduce", key, this.mapResults.values(key));
+        }
+        return this.resultData;
+    }
 
 }

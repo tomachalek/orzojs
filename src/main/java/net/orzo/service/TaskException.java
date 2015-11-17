@@ -18,27 +18,26 @@ package net.orzo.service;
 
 
 /**
- * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public class TaskException extends Exception {
 
-	private static final long serialVersionUID = -2358140285246128678L;
+    private static final long serialVersionUID = -2358140285246128678L;
 
-	public TaskException() {
-		super();
-	}
+    public TaskException() {
+        super();
+    }
 
-	public TaskException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public TaskException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public TaskException(String message) {
-		super(message);
-	}
+    public TaskException(String message) {
+        super(message);
+    }
 
-	public TaskException(Throwable cause) {
-		super(cause);
-	}
+    public TaskException(Throwable cause) {
+        super(cause);
+    }
 
 }

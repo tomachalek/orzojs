@@ -27,7 +27,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Observable;
 
-
+/**
+ * @author Tomas Machalek <tomas.machalek@gmail.com>
+ */
 public class TaskConsumer extends DefaultConsumer {
 
     private final TaskManager taskManager;
@@ -42,8 +44,7 @@ public class TaskConsumer extends DefaultConsumer {
                                Envelope envelope,
                                AMQP.BasicProperties properties,
                                byte[] body)
-            throws IOException
-    {
+            throws IOException {
         try {
             if (!properties.getContentType().equals("application/json")) {
                 throw new IllegalArgumentException("Incorrect content type");
