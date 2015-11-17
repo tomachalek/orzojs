@@ -1,7 +1,7 @@
 Orzo.js
 =======
 
-Orzo.js is a simple **multi-threaded, in-memory ETL tool* making use of Map-Reduce
+Orzo.js is a simple **multi-threaded, in-memory ETL tool** making use of Map-Reduce
 to distribute processing across multiple CPUs/cores. Tasks are **programmed in JavaScript**.
 
 Orzo.js comes with a bunch of predefined functions you can use to perform your tasks and
