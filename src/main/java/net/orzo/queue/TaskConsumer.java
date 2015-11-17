@@ -21,11 +21,14 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import net.orzo.service.ResourceNotAvailable;
+import net.orzo.service.Task;
 import net.orzo.service.TaskManager;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Observable;
+import java.util.Observer;
 
 /**
  * @author Tomas Machalek <tomas.machalek@gmail.com>
@@ -34,8 +37,12 @@ public class TaskConsumer extends DefaultConsumer {
 
     private final TaskManager taskManager;
 
-    public TaskConsumer(Channel channel, TaskManager taskManager) {
+    private final ResponseClient responseClient;
+
+
+    public TaskConsumer(Channel channel, ResponseClient responseClient, TaskManager taskManager) {
         super(channel);
+        this.responseClient = responseClient;
         this.taskManager = taskManager;
     }
 
@@ -46,25 +53,40 @@ public class TaskConsumer extends DefaultConsumer {
                                byte[] body)
             throws IOException {
         try {
-            if (!properties.getContentType().equals("application/json")) {
-                throw new IllegalArgumentException("Incorrect content type");
+            Observer obs = (Observable o, Object arg) -> {
+                try {
+                    getChannel().basicAck(envelope.getDeliveryTag(), false);
+
+                    if (o instanceof Task) {
+                        this.responseClient.response(new Gson().toJson(((Task)o).getResult()));
+                    }
+
+                } catch (IOException e) {
+                    LoggerFactory.getLogger(TaskConsumer.class).error(
+                            String.format("Failed to acknowledge sender: %s", e.getMessage()));
+
+                } catch (ResourceNotAvailable e) {
+                    LoggerFactory.getLogger(TaskConsumer.class).error(
+                            String.format("Failed to send response message: %s", e.getMessage()));
+                }
+            };
+
+            String rawMessage = new String(body, "utf-8");
+            CeleryMessage msg = new Gson().fromJson((rawMessage), CeleryMessage.class);
+
+            if (msg.task != null) {
+                String taskId = this.taskManager.registerTask(msg.task,
+                        msg.args.toArray(new String[msg.args.size()]), obs);
+                this.taskManager.startTask(taskId);
+
+            } else {
+                throw new IllegalArgumentException(
+                        String.format("Invalid message: %s", rawMessage));
             }
-
-            CeleryMessage msg = new Gson().fromJson((new String(body, "utf-8")), CeleryMessage.class);
-            String taskId = this.taskManager.registerTask(msg.task,
-                    msg.args.toArray(new String[msg.args.size()]), (Observable o, Object arg) -> {
-                        try {
-                            getChannel().basicAck(envelope.getDeliveryTag(), false);
-
-                        } catch (IOException e) {
-                            LoggerFactory.getLogger(TaskConsumer.class).error(
-                                    String.format("Failed to acknowledge sender: %s", e.getMessage()));
-                        }
-                    });
-            this.taskManager.startTask(taskId);
 
         } catch (Exception e) {
             LoggerFactory.getLogger(TaskConsumer.class).error(e.getMessage());
+            getChannel().basicAck(envelope.getDeliveryTag(), false); // to get rid of invalid message
         }
     }
 }

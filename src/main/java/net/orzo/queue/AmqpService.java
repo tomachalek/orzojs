@@ -17,6 +17,7 @@
 package net.orzo.queue;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.rabbitmq.client.Channel;
 import net.orzo.Service;
 import net.orzo.service.AmqpConf;
@@ -27,14 +28,18 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-
+/**
+ * @author Tomas Machalek <tomas.machalek@gmail.com>
+ */
 public class AmqpService implements Service {
 
-    private final AmqpConnection connection;
+    private final ChannelProvider channelProvider;
+
+    private final ChannelProvider responseChannelProvider;
 
     private final TaskManager taskManager;
 
-    private final AmqpConf conf;
+    private final ServiceConfig conf;
 
     private Channel channel;
 
@@ -42,18 +47,31 @@ public class AmqpService implements Service {
 
 
     @Inject
-    public AmqpService(AmqpConnection connection, TaskManager taskManager, ServiceConfig conf) {
+    public AmqpService(@Named("receiver") ChannelProvider channelProvider,
+                       @Named("responder") ChannelProvider responseChannelProvider,
+                       TaskManager taskManager, ServiceConfig conf) {
         super();
-        this.connection = connection;
+        this.channelProvider = channelProvider;
+        this.responseChannelProvider = responseChannelProvider;
         this.taskManager = taskManager;
-        this.conf = conf.getAmqpConfig();
+        this.conf = conf;
     }
 
     @Override
     public void start() throws Exception {
-        this.channel = this.connection.createChannel();
-        this.taskConsumer = new TaskConsumer(this.channel, this.taskManager);
-        this.channel.basicConsume(this.conf.queue, this.conf.autoAcknowledge, this.taskConsumer);
+        this.channel = this.channelProvider.createChannel();
+
+        ResponseClient responseClient;
+        if (this.responseChannelProvider.isActive()) {
+            responseClient = new AmqpResponse(responseChannelProvider, this.conf.getAmqpResponseConfig());
+
+        } else {
+            responseClient = new DummyResponse();
+        }
+
+        this.taskConsumer = new TaskConsumer(this.channel, responseClient, this.taskManager);
+        AmqpConf confIn = this.conf.getAmqpConfig();
+        this.channel.basicConsume(confIn.queue, confIn.autoAcknowledge, this.taskConsumer);
     }
 
     @Override

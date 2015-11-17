@@ -33,14 +33,14 @@ import java.io.IOException;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 @Singleton
-public class AmqpConnection implements Service, ChannelProvider {
+public class AmqpResponseConnection implements Service, ChannelProvider {
 
     private Connection connection;
 
     private final AmqpConf conf;
 
     @Inject
-    public AmqpConnection(ServiceConfig conf) {
+    public AmqpResponseConnection(ServiceConfig conf) {
         this.conf = conf.getAmqpConfig();
     }
 

@@ -64,16 +64,11 @@ public class Calculation {
      */
     private final String[] inputValues;
 
-
-    private final Consumer<TaskEvent> statusListener;
-
     /**
      *
      */
-    public Calculation(CalculationParams params,
-                       Consumer<TaskEvent> statusListener) {
+    public Calculation(CalculationParams params) {
         this.params = params;
-        this.statusListener = statusListener;
         this.inputValues = params.inputValues;
         this.modulesPaths = new ArrayList<>();
         this.modulesPaths.add(params.workingDirModulesPath);
@@ -85,23 +80,13 @@ public class Calculation {
     /**
      * Starts and controls the calculation.
      */
-    public String run() {
-        String ans = null;
+    public Object run() throws CalculationException {
         IntermediateResults mapResults;
         IntermediateResults reduceResults;
-
-        try {
-            ScriptObjectMirror prepareData = runPrepare();
-            mapResults = runMap(prepareData);
-            reduceResults = runReduce(prepareData, mapResults);
-            ans = runFinish(reduceResults);
-            this.statusListener.accept(new TaskEvent(TaskStatus.FINISHED));
-
-        } catch (CalculationException e) {
-            this.statusListener.accept(new TaskEvent(TaskStatus.ERROR, e));
-        }
-
-        return ans;
+        ScriptObjectMirror prepareData = runPrepare();
+        mapResults = runMap(prepareData);
+        reduceResults = runReduce(prepareData, mapResults);
+        return runFinish(reduceResults);
     }
 
     private EnvParams createEnvParams() {
@@ -229,9 +214,9 @@ public class Calculation {
         return reduceResults;
     }
 
-    private String runFinish(IntermediateResults reduceResults)
+    private Object runFinish(IntermediateResults reduceResults)
             throws CalculationException {
-        String ans;
+        Object ans;
         EnvParams envParams = createEnvParams();
         JsEngineAdapter jse = new JsEngineAdapter(envParams);
         FinalResults fr = new FinalResults(reduceResults);
@@ -244,7 +229,7 @@ public class Calculation {
                     this.params.userenvScript, this.params.datalibScript);
             jse.runFunction("initFinish");
             jse.runCode(this.params.userScript);
-            ans = (String) jse.runFunction("runFinish", fr);
+            ans = jse.runFunction("runFinish", fr);
 
         } catch (NoSuchMethodException | ScriptException ex) {
             throw new CalculationException("Failed to perform FINISH: "
