@@ -62,10 +62,6 @@
 									<include>orzo.css</include>
 								</resource>
 								<resource>
-									<directory>files/templates</directory>
-									<include>report1.jade</include>
-								</resource>
-								<resource>
 									<directory>files/examples</directory>
 									<include>demo1.js</include>
 								</resource>
@@ -173,11 +169,6 @@
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
 			<version>6.8.7</version>
-		</dependency>
-		<dependency>
-			<groupId>de.neuland-bfi</groupId>
-			<artifactId>jade4j</artifactId>
-			<version>0.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>

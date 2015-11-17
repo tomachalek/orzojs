@@ -20,9 +20,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.parboiled.common.StringUtils;
 
 import com.google.inject.Singleton;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Stores a configuration of a script registered during start of the service.

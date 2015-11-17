@@ -725,16 +725,6 @@ declare module orzo {
     function measureTime(fn:(v:any)=>any):number;
 
     /**
-     * Renders a Jade template with custom CSS file
-     *
-     * @param templatePath
-     * @param cssPath
-     * @param data Template data
-     * @return resulting HTML
-     */
-    function renderTemplate(templatePath:string, cssPath:string, data:{[k:string]:any}):string;
-
-    /**
      * Loads a bitmap picture from filesystem.
      * Please note that the returned Image is always greyscale.
      *

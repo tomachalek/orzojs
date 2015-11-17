@@ -22,7 +22,6 @@ import java.util.List;
 
 import jdk.nashorn.internal.runtime.Context;
 import jdk.nashorn.internal.runtime.ScriptFunction;
-import net.orzo.data.Templating;
 import net.orzo.data.Web;
 import net.orzo.data.graphics.GreyscalePicture;
 
@@ -50,8 +49,6 @@ public class Lib {
 
     public final DataStructures dataStructures;
 
-    public final Templating templating;
-
     public final RestClient restClient;
 
     @SuppressWarnings(value = {"unused"})
@@ -65,7 +62,6 @@ public class Lib {
         this.web = new Web();
         this.strings = new Strings();
         this.dataStructures = new DataStructures();
-        this.templating = new Templating();
         this.restClient = new RestClient();
     }
 

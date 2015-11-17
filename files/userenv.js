@@ -847,18 +847,6 @@
     };
 
     /**
-     * Renders Orzo's Jade template with custom CSS file
-     *
-     * @param templatePath
-     * @param cssPath
-     * @param data
-     * @return {string} resulting HTML
-     */
-    scope.orzo.renderTemplate = function (templatePath, cssPath, data) {
-        return scope._lib.templating.renderTemplate(templatePath, cssPath, data);
-    };
-
-    /**
      *
      * @typedef {object} Image
      * @property {number} width
