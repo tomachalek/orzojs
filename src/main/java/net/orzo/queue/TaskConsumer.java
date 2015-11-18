@@ -39,10 +39,14 @@ public class TaskConsumer extends DefaultConsumer {
 
     private final ResponseClient responseClient;
 
+    private final ResultStorage resultStorage;
 
-    public TaskConsumer(Channel channel, ResponseClient responseClient, TaskManager taskManager) {
+
+    public TaskConsumer(Channel channel, ResponseClient responseClient,
+                        ResultStorage resultStorage, TaskManager taskManager) {
         super(channel);
         this.responseClient = responseClient;
+        this.resultStorage = resultStorage;
         this.taskManager = taskManager;
     }
 
@@ -53,12 +57,22 @@ public class TaskConsumer extends DefaultConsumer {
                                byte[] body)
             throws IOException {
         try {
+            String rawMessage = new String(body, "utf-8");
+            CeleryMessage msg = new Gson().fromJson((rawMessage), CeleryMessage.class);
+
             Observer obs = (Observable o, Object arg) -> {
+                String result;
                 try {
                     getChannel().basicAck(envelope.getDeliveryTag(), false);
 
                     if (o instanceof Task) {
-                        this.responseClient.response(new Gson().toJson(((Task)o).getResult()));
+                        result = new Gson().toJson(((Task)o).getResult());
+
+                        this.responseClient.response(result);
+
+                        if (this.resultStorage.isActive()) {
+                            this.resultStorage.set(msg.id, result);
+                        }
                     }
 
                 } catch (IOException e) {
@@ -70,9 +84,6 @@ public class TaskConsumer extends DefaultConsumer {
                             String.format("Failed to send response message: %s", e.getMessage()));
                 }
             };
-
-            String rawMessage = new String(body, "utf-8");
-            CeleryMessage msg = new Gson().fromJson((rawMessage), CeleryMessage.class);
 
             if (msg.task != null) {
                 String taskId = this.taskManager.registerTask(msg.task,

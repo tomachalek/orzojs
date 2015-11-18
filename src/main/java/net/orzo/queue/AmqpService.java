@@ -45,14 +45,17 @@ public class AmqpService implements Service {
 
     private TaskConsumer taskConsumer;
 
+    private ResultStorage resultStorage;
+
 
     @Inject
     public AmqpService(@Named("receiver") ChannelProvider channelProvider,
                        @Named("responder") ChannelProvider responseChannelProvider,
-                       TaskManager taskManager, ServiceConfig conf) {
+                       ResultStorage resultStorage, TaskManager taskManager, ServiceConfig conf) {
         super();
         this.channelProvider = channelProvider;
         this.responseChannelProvider = responseChannelProvider;
+        this.resultStorage = resultStorage;
         this.taskManager = taskManager;
         this.conf = conf;
     }
@@ -72,7 +75,8 @@ public class AmqpService implements Service {
             responseClient = new DummyResponse();
         }
 
-        this.taskConsumer = new TaskConsumer(this.channel, responseClient, this.taskManager);
+        this.taskConsumer = new TaskConsumer(this.channel, responseClient, this.resultStorage,
+                this.taskManager);
         AmqpConf confIn = this.conf.getAmqpConfig();
         this.channel.basicConsume(confIn.queue, confIn.autoAcknowledge, this.taskConsumer);
     }
