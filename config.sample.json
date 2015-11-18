@@ -1,0 +1,37 @@
+{
+    "httpPort": 8088,
+    "httpHost": "127.0.0.1",
+    "amqp": {
+        "host": "127.0.0.1",
+        "port": 5672,
+        "virtualHost": "/orzotasks",
+        "queue": "celery",
+        "autoAcknowledge": false,
+        "user": "orzojs",
+        "password": "orzojs",
+        "qos": 1
+    },
+    "amqpResponse" : {
+        "host": "192.168.1.50",
+        "port": 5672,
+        "virtualHost": "/orzotasks",
+        "queue": "response",
+        "autoAcknowledge": true,
+        "user": "orzojs",
+        "password": "orzojs"
+    },
+    "redis" : {
+        "host": "127.0.0.1",
+        "port": 6379,
+        "db": 1,
+        "taskKeyPrefix": "celery-task-meta-"
+    },
+    "allowedScripts": {
+        "demo1": {
+            "description": "demonstrating Orzo.js capabilities...",
+            "scriptPath": "d:/work/orzo/files/examples/demo1.js",
+            "libraryPath": "d:/work/orzo/files",
+            "defaultArgs": ["foo", "bar"]
+        }
+    }
+}
