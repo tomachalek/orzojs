@@ -16,9 +16,7 @@
 package net.orzo.injection;
 
 import com.google.inject.name.Names;
-import net.orzo.queue.AmqpConnection;
-import net.orzo.queue.AmqpResponseConnection;
-import net.orzo.queue.ChannelProvider;
+import net.orzo.queue.*;
 import net.orzo.service.FullServiceConfig;
 import net.orzo.service.ServiceConfig;
 
@@ -54,6 +52,9 @@ public class CoreModule extends AbstractModule {
         bind(ChannelProvider.class)
                 .annotatedWith(Names.named("responder"))
                 .to(AmqpResponseConnection.class);
+
+        bind(ResultStorage.class)
+                .to(RedisStorage.class);
     }
 
     /**

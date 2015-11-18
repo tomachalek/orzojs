@@ -42,6 +42,8 @@ public class FullServiceConfig implements ServiceConfig {
 
     private AmqpConf amqpResponse;
 
+    private RedisConf redis;
+
     @Override
     public boolean isAllowedScript(String id) {
         return this.allowedScripts.containsKey(id);
@@ -82,6 +84,11 @@ public class FullServiceConfig implements ServiceConfig {
     @Override
     public AmqpConf getAmqpResponseConfig() {
         return this.amqpResponse;
+    }
+
+    @Override
+    public RedisConf getRedisConf() {
+        return this.redis;
     }
 
 }

@@ -27,7 +27,8 @@ import java.util.Properties;
 import net.orzo.queue.AmqpConnection;
 import net.orzo.queue.AmqpResponseConnection;
 import net.orzo.queue.AmqpService;
-import net.orzo.service.TaskStatus;
+import net.orzo.queue.RedisStorage;
+import net.orzo.service.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -43,9 +44,6 @@ import com.google.inject.Injector;
 import net.orzo.injection.CoreModule;
 import net.orzo.injection.RestServletModule;
 import net.orzo.scripting.SourceCode;
-import net.orzo.service.HttpServer;
-import net.orzo.service.FullServiceConfig;
-import net.orzo.service.TaskManager;
 import net.orzo.tools.ResourceLoader;
 
 /**
@@ -192,6 +190,10 @@ public final class App {
                     if (conf.getAmqpConfig() != null) {
                         app.services.add(injector.getInstance(AmqpConnection.class));
                         app.services.add(injector.getInstance(AmqpService.class));
+                    }
+
+                    if (conf.getRedisConf() != null) {
+                        app.services.add(injector.getInstance(RedisStorage.class));
                     }
 
                     Runtime.getRuntime().addShutdownHook(new ShutdownHook(app));

@@ -33,4 +33,6 @@ public interface ServiceConfig {
 
     public AmqpConf getAmqpResponseConfig();
 
+    public RedisConf getRedisConf();
+
 }
