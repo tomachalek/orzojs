@@ -27,9 +27,11 @@ import java.util.Iterator;
  */
 public class TwoGroupFilePairGenerator extends AbstractListGenerator<String[]> {
 
-    private final DirectoryReader directoryReader1;
+    private final String[] pathList1;
 
-    private final DirectoryReader directoryReader2;
+    private final String[] pathList2;
+
+    private final String filter;
 
     /**
      *
@@ -41,8 +43,9 @@ public class TwoGroupFilePairGenerator extends AbstractListGenerator<String[]> {
     public TwoGroupFilePairGenerator(String[] pathList1, String[] pathList2,
             int numChunks, String filter) {
         super(numChunks, new ArrayList<>());
-        this.directoryReader1 = new DirectoryReader(pathList1, 1, filter);
-        this.directoryReader2 = new DirectoryReader(pathList2, 1, filter);
+        this.pathList1 = pathList1;
+        this.pathList2 = pathList2;
+        this.filter = filter;
     }
 
     /**
@@ -50,13 +53,15 @@ public class TwoGroupFilePairGenerator extends AbstractListGenerator<String[]> {
      */
     public Iterator<String[]> getIterator(int chunkId) {
         if (isEmpty()) {
-            Iterator<String> iter1 = this.directoryReader1.getIterator(0);
-            Iterator<String> iter2 = this.directoryReader2.getIterator(0);
+            Iterator<String> iter1 = new DirectoryReader(
+                    this.pathList1, 1, this.filter).getIterator(0);
             String item1;
             String item2;
 
             while (iter1.hasNext()) {
                 item1 = iter1.next();
+                Iterator<String> iter2 = new DirectoryReader(
+                        this.pathList2, 1, this.filter).getIterator(0);
                 while (iter2.hasNext()) {
                     item2 = iter2.next();
                     addItem(new String[] { item1, item2 });
