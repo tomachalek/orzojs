@@ -19,9 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 
 /**
  * Represents intermediate results of a single worker thread. These results are
@@ -45,11 +43,23 @@ public class IntermediateResults {
         return this.data.toString();
     }
 
+    public IntermediateResults(ListMultimap<Object, Object> data) {
+        this.data = data;
+    }
+
     /**
      *
      */
     public IntermediateResults() {
         this.data = ArrayListMultimap.create();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int size() {
+        return this.data.size();
     }
 
     /**
@@ -104,6 +114,11 @@ public class IntermediateResults {
      */
     public Multimap<Object, Object> getData() {
         return this.data;
+    }
+
+    public IntermediateResults makeImmutableVersion() {
+        return new IntermediateResults(
+                Multimaps.unmodifiableListMultimap(this.data));
     }
 
     /**

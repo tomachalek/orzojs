@@ -15,6 +15,7 @@
  */
 package net.orzo;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import net.orzo.scripting.EnvParams;
@@ -36,16 +37,20 @@ public class ReduceWorker implements Callable<IntermediateResults> {
 
     private final IntermediateResults mapResults;
 
+    private final List<Object> keys;
+
     private final IntermediateResults resultData;
 
     private final JsEngineAdapter jsEngine;
 
     /**
      */
-    public ReduceWorker(EnvParams envParams,
-                        IntermediateResults mapResults, SourceCode userScript, SourceCode... sourceCodes) {
+    public ReduceWorker(EnvParams envParams, IntermediateResults mapResults,
+                        List<Object> keys, SourceCode userScript,
+                        SourceCode... sourceCodes) {
         this.envParams = envParams;
         this.mapResults = mapResults;
+        this.keys = keys;
         this.userScript = userScript;
         this.resultData = new IntermediateResults();
         this.jsEngine = new JsEngineAdapter(this.envParams, this.resultData);
@@ -58,7 +63,7 @@ public class ReduceWorker implements Callable<IntermediateResults> {
         this.jsEngine.runCode(this.sources);
         this.jsEngine.runFunction("initReduce");
         this.jsEngine.runCode(this.userScript);
-        for (Object key : this.mapResults.keys()) {
+        for (Object key : this.keys) {
             this.jsEngine.runFunction("runReduce", key, this.mapResults.values(key));
         }
         return this.resultData;

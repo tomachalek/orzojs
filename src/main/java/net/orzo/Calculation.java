@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 
 import javax.script.ScriptException;
 
+import com.google.common.collect.Lists;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.orzo.scripting.EnvParams;
 import net.orzo.scripting.JsEngineAdapter;
@@ -154,6 +155,7 @@ public class Calculation {
         for (int i = 0; i < threadList.size(); i++) {
             try {
                 mapResults.addAll(threadList.get(i).get());
+                threadList.get(i).get().getData().clear(); // TODO does this make a difference?
 
             } catch (InterruptedException | ExecutionException e) {
                 errors.add(e);
@@ -164,7 +166,7 @@ public class Calculation {
         if (errors.size() > 0) {
             throw new ParallelException("Failed to perform MAP", errors);
         }
-        return mapResults;
+        return mapResults.makeImmutableVersion();
     }
 
     /**
@@ -178,10 +180,7 @@ public class Calculation {
         List<Future<IntermediateResults>> threadList = new ArrayList<>();
         IntermediateResults reduceResults = new IntermediateResults();
         int numWorkers = (int) prepareData.get("numReduceWorkers");
-
-        IntermediateResults[] mapResultPortions = groupResults(mapResults,
-                numWorkers);
-
+        List<List<Object>> splitKeys = groupResults(mapResults, numWorkers);
         LOG.info(String.format("Starting %d REDUCE workers.", numWorkers));
 
         executor = Executors.newFixedThreadPool(numWorkers);
@@ -190,7 +189,7 @@ public class Calculation {
             workerEnvParams.workerId = i;
 
             ReduceWorker reduceWorker = new ReduceWorker(workerEnvParams,
-                    mapResultPortions[i], this.params.userScript,
+                    mapResults, splitKeys.get(i), this.params.userScript,
                     this.params.calculationScript, this.params.userenvScript,
                     this.params.datalibScript);
             Future<IntermediateResults> submit = executor.submit(reduceWorker);
@@ -241,25 +240,12 @@ public class Calculation {
 
     /**
      */
-    private IntermediateResults[] groupResults(
+    private List<List<Object>> groupResults(
             IntermediateResults originalResults, int numGroups) {
 
-        // TODO some smart assignment in case lists are very different in length should be implemented
-        IntermediateResults[] groups = new IntermediateResults[numGroups];
         List<Object> keys = new ArrayList<>(originalResults.keys());
-        Random rand = new Random();
-
-        for (int i = 0; i < groups.length; i++) {
-            groups[i] = new IntermediateResults();
-        }
-
-        int j = 0;
-        while (keys.size() > 0) {
-            Object key = keys.remove(rand.nextInt(keys.size()));
-            groups[j % numGroups].addMultiple(key, originalResults.remove(key));
-            j++;
-        }
-        return groups;
+        int itemsPerChunk = (int)Math.ceil(originalResults.size() / numGroups);
+        return Lists.partition(keys, itemsPerChunk);
     }
 
 }
