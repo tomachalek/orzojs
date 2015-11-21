@@ -17,6 +17,7 @@
 package net.orzo;
 
 import java.io.File;
+import java.text.DecimalFormat;
 
 /**
  * Miscellaneous helper functions.
@@ -32,6 +33,19 @@ public class Util {
         } else {
             return path.replace(File.separator, "/");
         }
+    }
+
+    public static String milliSecondsToHMS(long numMillis) {
+        if (numMillis < 0) {
+            return "-";
+        }
+        DecimalFormat restFormatter = new DecimalFormat("00.00");
+        int numSeconds = (int)(numMillis / 1000);
+        long rest = numMillis - numSeconds * 1000;
+        int hours = numSeconds / 3600;
+        int minutes = (numSeconds % 3600) / 60;
+        double seconds = (numSeconds % 60) + rest / 1000.0;
+        return String.format("%02d:%02d:%s", hours, minutes, restFormatter.format(seconds));
     }
 
 }
