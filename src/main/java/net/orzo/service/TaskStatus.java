@@ -29,7 +29,7 @@ public enum TaskStatus {
         this.id = id;
     }
 
-    public boolean hasEnded() {
+    public boolean isFinal() {
         return this.id >= 7;
     }
 }

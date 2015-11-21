@@ -53,7 +53,7 @@ public class Task extends Observable implements Observer {
     }
 
     public Object getResult() throws ResourceNotAvailable {
-        if (!getStatus().hasEnded()) {
+        if (!getStatus().isFinal()) {
             throw new ResourceNotAvailable("Result is not yet available");
         }
         return result;
@@ -92,7 +92,7 @@ public class Task extends Observable implements Observer {
         long from = getTimeCreated();
         if (from > - 1
                 && this.events.size() > 1
-                && this.events.get(this.events.size() - 1).getStatus().hasEnded()) {
+                && this.events.get(this.events.size() - 1).getStatus().isFinal()) {
             return this.events.get(this.events.size() - 1).getCreated() - from;
         }
         return -1;
