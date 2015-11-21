@@ -20,7 +20,8 @@ package net.orzo.service;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 public enum TaskStatus {
-    PENDING(0), RUNNING(1), IDLE(2), FINISHED(3), ERROR(4);
+    PENDING(0), PREPARING(1), RUNNING_MAP(2), RUNNING_MERGE(3),
+    RUNNING_REDUCE(4), RUNNING_FINISH(5), IDLE(6), FINISHED(7), ERROR(8);
 
     private final int id;
 
@@ -29,6 +30,6 @@ public enum TaskStatus {
     }
 
     public boolean hasEnded() {
-        return this.id >= 3;
+        return this.id >= 7;
     }
 }

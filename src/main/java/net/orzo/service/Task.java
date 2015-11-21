@@ -19,15 +19,19 @@ package net.orzo.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
+import java.util.Observer;
 
 import net.orzo.Calculation;
 import net.orzo.CalculationException;
 import net.orzo.CalculationParams;
+import net.orzo.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
-public class Task extends Observable {
+public class Task extends Observable implements Observer {
 
     private final String id;
 
@@ -36,6 +40,9 @@ public class Task extends Observable {
     private final List<TaskEvent> events;
 
     private Object result;
+
+    private static final Logger LOG = LoggerFactory
+            .getLogger(Task.class);
 
     public Task(String id, CalculationParams params) {
         super();
@@ -81,6 +88,16 @@ public class Task extends Observable {
         return -1;
     }
 
+    public long getProcessingTime() {
+        long from = getTimeCreated();
+        if (from > - 1
+                && this.events.size() > 1
+                && this.events.get(this.events.size() - 1).getStatus().hasEnded()) {
+            return this.events.get(this.events.size() - 1).getCreated() - from;
+        }
+        return -1;
+    }
+
     public void addEvent(TaskEvent event) {
         this.events.add(event);
         setChanged();
@@ -88,15 +105,22 @@ public class Task extends Observable {
     }
 
     protected void run() {
-        this.events.add(new TaskEvent(TaskStatus.RUNNING));
+        this.events.add(new TaskEvent(TaskStatus.PREPARING));
         Calculation proc = new Calculation(this.params);
         try {
             this.result = proc.run();
             addEvent(new TaskEvent(TaskStatus.FINISHED));
+            LOG.info("Processing time: " + Util.milliSecondsToHMS(getProcessingTime()));
 
         } catch (CalculationException e) {
             addEvent(new TaskEvent(TaskStatus.ERROR, e));
         }
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg instanceof TaskEvent) {
+            addEvent((TaskEvent)arg);
+        }
+    }
 }

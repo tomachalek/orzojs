@@ -19,13 +19,12 @@ import static net.orzo.Util.normalizePath;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Observable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
 
 import javax.script.ScriptException;
 
@@ -33,9 +32,9 @@ import com.google.common.collect.Lists;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.orzo.scripting.EnvParams;
 import net.orzo.scripting.JsEngineAdapter;
+
 import net.orzo.service.TaskEvent;
 import net.orzo.service.TaskStatus;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
 @SuppressWarnings("restriction")
-public class Calculation {
+public class Calculation extends Observable {
 
     /**
      *
@@ -105,7 +104,6 @@ public class Calculation {
      * functions are registered but no real processing is done yet).
      */
     private ScriptObjectMirror runPrepare() throws CalculationException {
-        LOG.info("Running PREPARE phase.");
         JsEngineAdapter jsEngine = new JsEngineAdapter(createEnvParams());
         jsEngine.beginWork();
         try {
@@ -137,7 +135,8 @@ public class Calculation {
         IntermediateResults mapResults = new IntermediateResults();
         int numWorkers = (int) conf.get("numChunks");
 
-        LOG.info(String.format("Starting %d MAP workers.", numWorkers));
+        setChanged();
+        notifyObservers(new TaskEvent(TaskStatus.RUNNING_MAP));
 
         executor = Executors.newFixedThreadPool(numWorkers);
         EnvParams workerEnvParams;
@@ -176,12 +175,14 @@ public class Calculation {
      */
     private IntermediateResults runReduce(ScriptObjectMirror prepareData,
                                           IntermediateResults mapResults) throws ParallelException {
+        setChanged();
+        notifyObservers(new TaskEvent(TaskStatus.RUNNING_REDUCE));
+
         ExecutorService executor;
         List<Future<IntermediateResults>> threadList = new ArrayList<>();
         IntermediateResults reduceResults = new IntermediateResults();
         int numWorkers = (int) prepareData.get("numReduceWorkers");
         List<List<Object>> splitKeys = groupResults(mapResults, numWorkers);
-        LOG.info(String.format("Starting %d REDUCE workers.", numWorkers));
 
         executor = Executors.newFixedThreadPool(numWorkers);
         for (int i = 0; i < numWorkers; i++) {
@@ -215,12 +216,13 @@ public class Calculation {
 
     private Object runFinish(IntermediateResults reduceResults)
             throws CalculationException {
+        setChanged();
+        notifyObservers(new TaskEvent(TaskStatus.RUNNING_FINISH));
+
         Object ans;
         EnvParams envParams = createEnvParams();
         JsEngineAdapter jse = new JsEngineAdapter(envParams);
         FinalResults fr = new FinalResults(reduceResults);
-
-        LOG.info("Running FINISH phase");
 
         jse.beginWork();
         try {
@@ -244,7 +246,7 @@ public class Calculation {
             IntermediateResults originalResults, int numGroups) {
 
         List<Object> keys = new ArrayList<>(originalResults.keys());
-        int itemsPerChunk = (int)Math.ceil(originalResults.size() / numGroups);
+        int itemsPerChunk = (int) Math.ceil(originalResults.size() / numGroups);
         return Lists.partition(keys, itemsPerChunk);
     }
 

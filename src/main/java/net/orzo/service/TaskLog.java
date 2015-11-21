@@ -39,7 +39,7 @@ public class TaskLog {
         String err = null;
 
         for (TaskEvent event : task.getEvents()) {
-            if (event.getStatus() == TaskStatus.RUNNING) {
+            if (event.getStatus() == TaskStatus.PREPARING) {
                 started = event.getCreated();
 
             } else if (event.getStatus() == TaskStatus.FINISHED) {
