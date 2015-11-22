@@ -85,8 +85,14 @@ public class Calculation extends Observable {
         IntermediateResults reduceResults;
         ScriptObjectMirror prepareData = runPrepare();
         mapResults = runMap(prepareData);
-        reduceResults = runReduce(prepareData, mapResults);
-        return runFinish(reduceResults);
+        if (mapResults.size() > 0) {
+            reduceResults = runReduce(prepareData, mapResults);
+            return runFinish(reduceResults);
+
+        } else {
+            return mapResults;
+        }
+
     }
 
     private EnvParams createEnvParams() {
@@ -182,6 +188,7 @@ public class Calculation extends Observable {
         List<Future<IntermediateResults>> threadList = new ArrayList<>();
         IntermediateResults reduceResults = new IntermediateResults();
         int numWorkers = (int) prepareData.get("numReduceWorkers");
+
         List<List<Object>> splitKeys = groupResults(mapResults, numWorkers);
 
         executor = Executors.newFixedThreadPool(numWorkers);
@@ -246,8 +253,15 @@ public class Calculation extends Observable {
             IntermediateResults originalResults, int numGroups) {
 
         List<Object> keys = new ArrayList<>(originalResults.keys());
-        int itemsPerChunk = (int) Math.ceil(originalResults.size() / numGroups);
-        return Lists.partition(keys, itemsPerChunk);
+        if (keys.size() > 0) {
+            int itemsPerChunk = (int) Math.ceil(originalResults.size() / numGroups);
+            return Lists.partition(keys, itemsPerChunk);
+
+        } else {
+            List<List<Object>> ans = new ArrayList();
+            ans.add(keys);
+            return ans;
+        }
     }
 
 }
