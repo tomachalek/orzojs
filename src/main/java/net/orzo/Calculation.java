@@ -254,7 +254,7 @@ public class Calculation extends Observable {
 
         List<Object> keys = new ArrayList<>(originalResults.keys());
         if (keys.size() > 0) {
-            int itemsPerChunk = (int) Math.ceil(originalResults.size() / numGroups);
+            int itemsPerChunk = (int) Math.ceil(keys.size() / numGroups);
             return Lists.partition(keys, itemsPerChunk);
 
         } else {
