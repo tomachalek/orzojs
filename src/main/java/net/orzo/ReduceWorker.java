@@ -65,6 +65,7 @@ public class ReduceWorker implements Callable<IntermediateResults> {
         this.jsEngine.runCode(this.userScript);
         for (Object key : this.keys) {
             this.jsEngine.runFunction("runReduce", key, this.mapResults.values(key));
+            this.mapResults.remove(key);
         }
         return this.resultData;
     }

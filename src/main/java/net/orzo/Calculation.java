@@ -171,7 +171,7 @@ public class Calculation extends Observable {
         if (errors.size() > 0) {
             throw new ParallelException("Failed to perform MAP", errors);
         }
-        return mapResults.makeImmutableVersion();
+        return mapResults;
     }
 
     /**
@@ -190,6 +190,8 @@ public class Calculation extends Observable {
         int numWorkers = (int) prepareData.get("numReduceWorkers");
 
         List<List<Object>> splitKeys = groupResults(mapResults, numWorkers);
+        numWorkers = splitKeys.size(); // groupResults may have decided to optimize num of groups
+        LOG.info(String.format("Calculated number of reduce workers: %d", numWorkers));
 
         executor = Executors.newFixedThreadPool(numWorkers);
         for (int i = 0; i < numWorkers; i++) {
@@ -251,10 +253,17 @@ public class Calculation extends Observable {
      */
     private List<List<Object>> groupResults(
             IntermediateResults originalResults, int numGroups) {
-
+        /*
+         * Note: In terms of performance, it is essential to split
+         * keys so each worker has roughly the same amount of items to
+         * process. Unfortunately, the current solution does not contain
+         * any such optimization.
+         */
         List<Object> keys = new ArrayList<>(originalResults.keys());
+        int calcNumGroups = Math.min(numGroups, keys.size()); // cannot use more workers than keys
+
         if (keys.size() > 0) {
-            int itemsPerChunk = (int) Math.ceil(keys.size() / numGroups);
+            int itemsPerChunk = (int) Math.ceil(keys.size() / (float)calcNumGroups);
             return Lists.partition(keys, itemsPerChunk);
 
         } else {
