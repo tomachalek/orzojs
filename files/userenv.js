@@ -34,6 +34,8 @@
     }
 
     scope.orzo = {};
+    scope.orzo.fs = {};
+    scope.orzo.html = {};
     scope.env = {};  // contains useful processing environment information
     scope.conf = {}; // modifies behavior of some functions
 
@@ -584,9 +586,30 @@
      *
      * @param path
      */
-    scope.orzo.cleanDirectory = function (path) {
+    scope.orzo.fs.cleanDirectory = function (path) {
         scope._lib.files.cleanDirectory(path);
     };
+
+    /**
+     *
+     */
+    scope.orzo.fs.getLastModified = function (path) {
+        return scope._lib.files.getLastModified(path);
+    };
+
+    /**
+     *
+     */
+    scope.orzo.fs.getSize = function (path) {
+        return scope._lib.files.getSize(path);
+    };
+
+    /**
+     *
+     */
+    scope.orzo.fs.moveFile = function (srcPath, dstPath) {
+        return scope._lib.files.moveFile(srcPath, dstPath);
+    }
 
     /**
      * Fetches a content (as a string) from an HTTP server using GET method.
@@ -613,9 +636,6 @@
         }
         return ans;
     }
-
-
-    scope.orzo.html = {};
 
     /**
      *

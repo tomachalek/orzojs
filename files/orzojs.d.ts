@@ -612,14 +612,6 @@ declare module orzo {
     function fileWriter(path:string):FileWriter;
 
     /**
-     * Recursively deletes all the entries from the directory.
-     * The directory itself is preserved.
-     *
-     * @param path A path to a directory
-     */
-    function cleanDirectory(path):void;
-
-    /**
      * Fetches a content (as a string) via HTTP using GET method.
      *
      * @param url
@@ -751,6 +743,33 @@ declare module orzo.hash {
     function sha384(s:{}|string):string;
 
     function sha512(s:{}|string):string;
+}
+
+declare module orzo.fs {
+    /**
+     * Recursively deletes all the entries from the directory.
+     * The directory itself is preserved.
+     *
+     * @param path A path to a directory
+     */
+    function cleanDirectory(path:string):void;
+
+    /**
+     * Returns the last modification time of a file
+     * (UNIX time in milliseconds).
+     */
+    function getLastModified(path:string):number;
+
+    /**
+     * Returns a size of a file (in bytes)
+     */
+    function getSize(path:string):number;
+
+    /**
+     * Moves a file to a specified destination which
+     * can be either a (non-existing) file or a directory.
+     */
+    function moveFile(srcPath:string, dstPath:string):void;
 }
 
 /**

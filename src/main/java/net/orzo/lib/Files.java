@@ -196,4 +196,29 @@ public class Files {
     public void cleanDirectory(String path) throws IOException {
         FileUtils.cleanDirectory(new File(path));
     }
+
+
+    public void moveFile(String srcPath, String dstPath) throws IOException {
+        File src = new File(srcPath);
+        File dst = new File(dstPath);
+
+        if (src.isFile() && dst.getParentFile().isDirectory() && !dst.exists()) {
+            FileUtils.moveFile(src, dst);
+
+        } else if (src.isFile() && dst.isDirectory()) {
+            FileUtils.moveFileToDirectory(src, dst, false);
+
+        } else {
+            throw new IllegalArgumentException("srcPath must be a file, dstPath must be either a file or a directory");
+        }
+    }
+
+
+    public long getLastModified(String path) {
+        return new File(path).lastModified();
+    }
+
+    public long getSize(String path) {
+        return FileUtils.sizeOf(new File(path));
+    }
 }
