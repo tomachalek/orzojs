@@ -64,10 +64,13 @@ public class Calculation extends Observable {
      */
     private final String[] inputValues;
 
+    private final double startTime;
+
     /**
      *
      */
     public Calculation(CalculationParams params) {
+        this.startTime = System.currentTimeMillis() / 1000.;
         this.params = params;
         this.inputValues = params.inputValues;
         this.modulesPaths = new ArrayList<>();
@@ -90,7 +93,7 @@ public class Calculation extends Observable {
             return runFinish(reduceResults);
 
         } else {
-            return mapResults;
+            return runFinish(mapResults);
         }
 
     }
@@ -102,6 +105,7 @@ public class Calculation extends Observable {
                 .getFullyQualifiedName());
         envParams.inputArgs = this.inputValues;
         envParams.modulesPaths = this.modulesPaths;
+        envParams.startTimestamp = this.startTime;
         return envParams;
     }
 

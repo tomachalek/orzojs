@@ -44,6 +44,7 @@
     scope.env.scriptName = scope._env.scriptName;
     scope.env.cwd = scope._env.workingDir;
     scope.env.inputArgs = []; // arguments passed via command-line
+    scope.env.startTimestamp = scope._env.startTimestamp;
 
     (function () {
         var i;
@@ -518,7 +519,7 @@
      * @param {string} path a path to a file
      * @return {string} file contents or null in case of an error
      */
-    scope.orzo.readText = function (path) {
+    scope.orzo.readTextFile = function (path) {
         return scope._lib.files.readText(path);
     };
 
@@ -529,7 +530,7 @@
      * @return {*} an object as read and decoded from respective JSON data
      */
     scope.orzo.readJsonFile = function (path) {
-        return JSON.parse(scope.orzo.readText(path));
+        return JSON.parse(scope.orzo.readTextFile(path));
     };
 
     /**
@@ -609,7 +610,14 @@
      */
     scope.orzo.fs.moveFile = function (srcPath, dstPath) {
         return scope._lib.files.moveFile(srcPath, dstPath);
-    }
+    };
+
+    /**
+     *
+     */
+    scope.orzo.fs.exists = function (path) {
+        return scope._lib.files.exists(path);
+    };
 
     /**
      * Fetches a content (as a string) from an HTTP server using GET method.
