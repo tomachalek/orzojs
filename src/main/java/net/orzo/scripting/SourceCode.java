@@ -19,6 +19,7 @@ package net.orzo.scripting;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.script.Compilable;
 import javax.script.CompiledScript;
@@ -127,10 +128,13 @@ public class SourceCode {
      */
     public static SourceCode fromResource(String res) throws IOException {
         String id = res.substring(Math.max(0, res.lastIndexOf("/") + 1));
-        String source = new ResourceLoader().getResourceAsString(res);
-        if (source == null) {
-            throw new IOException("Failed to load data from resource " + res);
+        InputStream sourceStream = new ResourceLoader().getResourceStream(res);
+        if (sourceStream == null) {
+            throw new IOException("Empty resource: " + res);
         }
-        return new SourceCode(res, id, source);
+        try (BOMInputStream bis = new BOMInputStream(sourceStream)) {
+            String source = new String(ByteStreams.toByteArray(bis));
+            return new SourceCode(res, id, source);
+        }
     }
 }
