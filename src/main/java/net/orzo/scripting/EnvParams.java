@@ -50,4 +50,6 @@ public class EnvParams {
      */
     public List<String> modulesPaths;
 
+    public double startTimestamp;
+
 }

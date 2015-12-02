@@ -450,6 +450,11 @@ interface Env {
      */
     cwd:string;
 
+    /**
+     * A UNIX time specifying when the calculation started.
+     */
+    startTimestamp:number;
+
 }
 
 /**
@@ -586,7 +591,7 @@ declare module orzo {
      * @param path a path to a file
      * @return file contents or null in case of an error
      */
-    function readText(path):string;
+    function readTextFile(path):string;
 
     /**
      * Imports JSON encoded data from a file.
@@ -770,6 +775,11 @@ declare module orzo.fs {
      * can be either a (non-existing) file or a directory.
      */
     function moveFile(srcPath:string, dstPath:string):void;
+
+    /**
+     * Tests whether a file/directory exists
+     */
+    function exists(path:string):boolean;
 }
 
 /**

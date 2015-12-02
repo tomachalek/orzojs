@@ -186,7 +186,7 @@ public class Files {
      */
     public BufferedWriter createTextFileWriter(String path) throws IOException {
         return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
-                path), "UTF-8"));
+                path, false), "UTF-8"));
     }
 
     /**
@@ -220,5 +220,9 @@ public class Files {
 
     public long getSize(String path) {
         return FileUtils.sizeOf(new File(path));
+    }
+
+    public boolean exists(String path) {
+        return new File(path).exists();
     }
 }
