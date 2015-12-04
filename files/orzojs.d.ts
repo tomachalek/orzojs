@@ -563,6 +563,14 @@ declare module orzo {
      */
     function fileReader(path:string):FileIterator;
 
+
+    /**
+     * Creates an iterator which reads provided gzipped file line by line.
+     *
+     * @param path A path to a gzipped file
+     */
+    function gzipFileReader(path:string):FileIterator;
+
     /**
      * Creates a new or returns an existing file chunk reader
      * identified by the file path and chunkId.
