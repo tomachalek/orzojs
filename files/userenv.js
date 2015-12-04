@@ -429,18 +429,10 @@
     };
 
 
-    /**
-     * Obtains an iterator which reads provided file (specified by path) line by
-     * line. Iterator can be accessed by a classic method pair hasNext()
-     * and next().
-     *
-     * @param  {string} path path to a file
-     * @return a file iterator
-     */
-    scope.orzo.fileReader = function (path) {
+    function createReader(javaReader) {
         var reader = {};
 
-        reader._javaReader = scope._lib.files.fileReader(path);
+        reader._javaReader = javaReader;
 
         reader.hasNext = function () {
             return reader._javaReader.hasNext();
@@ -457,7 +449,25 @@
         reader.path = reader._javaReader.getPath();
 
         return reader;
+    }
+
+
+    /**
+     * Obtains an iterator which reads provided file (specified by path) line by
+     * line. Iterator can be accessed by a classic method pair hasNext()
+     * and next().
+     *
+     * @param  {string} path path to a file
+     * @return a file iterator
+     */
+    scope.orzo.fileReader = function (path) {
+        return createReader(scope._lib.files.fileReader(path));
     };
+
+
+    scope.orzo.gzipFileReader = function (path) {
+        return createReader(scope._lib.files.gzipFileReader(path));
+    }
 
     /**
      * Creates or returns existing file chunk reader identified by the file path and chunkId.

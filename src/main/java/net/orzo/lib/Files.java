@@ -15,14 +15,11 @@
  */
 package net.orzo.lib;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.NoSuchElementException;
+import java.util.zip.GZIPInputStream;
 
 import net.orzo.data.DirectoryReader;
 import net.orzo.data.FilePairGenerator;
@@ -80,6 +77,59 @@ public class Files {
                 } else {
                     return path.replace(File.separator, "/");
                 }
+            }
+        };
+    }
+
+
+    public FileIterator<Object> gzipFileReader(final String path) throws IOException {
+        GZIPInputStream gis = new GZIPInputStream(new FileInputStream(path));
+        Reader reader = new InputStreamReader(gis, "UTF-8");
+
+        return new FileIterator<Object>() {
+
+            private final BufferedReader br = new BufferedReader(reader);
+            private String currLine = br.readLine();
+
+            @Override
+            public boolean hasNext() {
+                return this.currLine != null;
+            }
+
+            @Override
+            public Object next() {
+                String ans;
+
+                if (this.currLine != null) {
+                    ans = this.currLine;
+                    try {
+                        this.currLine = this.br.readLine();
+
+                    } catch (IOException e) {
+                        this.currLine = null;
+                        throw new IllegalStateException(e);
+                    }
+                    return ans;
+
+                } else {
+                    throw new NoSuchElementException();
+                }
+            }
+
+            @Override
+            public void close() {
+                try {
+                    this.currLine = null;
+                    this.br.close();
+
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+
+            @Override
+            public String getPath() {
+                return null;
             }
         };
     }
