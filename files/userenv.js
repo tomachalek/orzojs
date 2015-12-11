@@ -543,7 +543,7 @@
      * @param {string} path a path to a file
      * @return {*} an object as read and decoded from respective JSON data
      */
-    scope.orzo.readJsonFile = function (path) {
+    scope.orzo.readJsonFile = function (path, defaults) {
         return JSON.parse(scope.orzo.readTextFile(path));
     };
 
@@ -1014,6 +1014,10 @@
         doWith(objList, fn, err, 0);
     }
 
+    scope.getAttr = function (obj, name, defaultVal) {
+        defaultVal = defaultVal || null;
+        return obj[name] !== undefined ? obj[name] : defaultVal;
+    };
 
 }(this));
 
