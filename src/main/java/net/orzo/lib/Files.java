@@ -28,6 +28,7 @@ import net.orzo.data.TwoGroupFilePairGenerator;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
+import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +48,7 @@ public class Files {
      * and <i>next()</i>.
      */
     public FileIterator<Object> fileReader(final String path) throws IOException {
-        final LineIterator itr = FileUtils
-                .lineIterator(new File(path), "UTF-8");
+        final LineIterator itr = FileUtils.lineIterator(new File(path), "UTF-8");
         return new FileIterator<Object>() {
 
             @Override
@@ -82,14 +82,12 @@ public class Files {
     }
 
 
-    public FileIterator<Object> gzipFileReader(final String path) throws IOException {
-        GZIPInputStream gis = new GZIPInputStream(new FileInputStream(path));
-        Reader reader = new InputStreamReader(gis, "UTF-8");
-
+    public FileIterator<Object> reversedFileReader(final String path) throws IOException {
         return new FileIterator<Object>() {
 
-            private final BufferedReader br = new BufferedReader(reader);
-            private String currLine = br.readLine();
+            private ReversedLinesFileReader rlf = new ReversedLinesFileReader(new File(path),
+                    1024 * 4, "UTF-8");
+            private String currLine = rlf.readLine();
 
             @Override
             public boolean hasNext() {
@@ -103,11 +101,11 @@ public class Files {
                 if (this.currLine != null) {
                     ans = this.currLine;
                     try {
-                        this.currLine = this.br.readLine();
+                        this.currLine = this.rlf.readLine();
 
-                    } catch (IOException e) {
+                    } catch (IOException ex) {
                         this.currLine = null;
-                        throw new IllegalStateException(e);
+                        throw new IllegalStateException(ex);
                     }
                     return ans;
 
@@ -120,7 +118,7 @@ public class Files {
             public void close() {
                 try {
                     this.currLine = null;
-                    this.br.close();
+                    this.rlf.close();
 
                 } catch (IOException e) {
                     throw new IllegalStateException(e);
@@ -129,9 +127,66 @@ public class Files {
 
             @Override
             public String getPath() {
-                return null;
+                return path;
             }
         };
+    }
+
+
+    public FileIterator<Object> gzipFileReader(final String path) throws IOException {
+        try {
+            final GZIPInputStream gis = new GZIPInputStream(new FileInputStream(path));
+            final Reader reader = new InputStreamReader(gis, "UTF-8");
+            return new FileIterator<Object>() {
+
+                private final BufferedReader br = new BufferedReader(reader);
+                private String currLine = br.readLine();
+
+                @Override
+                public boolean hasNext() {
+                    return this.currLine != null;
+                }
+
+                @Override
+                public Object next() {
+                    String ans;
+
+                    if (this.currLine != null) {
+                        ans = this.currLine;
+                        try {
+                            this.currLine = this.br.readLine();
+
+                        } catch (IOException e) {
+                            this.currLine = null;
+                            throw new IllegalStateException(e);
+                        }
+                        return ans;
+
+                    } else {
+                        throw new NoSuchElementException();
+                    }
+                }
+
+                @Override
+                public void close() {
+                    try {
+                        this.currLine = null;
+                        this.br.close();
+
+                    } catch (IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+
+                @Override
+                public String getPath() {
+                    return path;
+                }
+            };
+
+        } catch (EOFException ex) {
+            return new EmptyFileIterator();
+        }
     }
 
     /**

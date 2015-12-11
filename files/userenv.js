@@ -469,6 +469,10 @@
         return createReader(scope._lib.files.gzipFileReader(path));
     }
 
+    scope.orzo.reversedFileReader = function (path) {
+        return createReader(scope._lib.files.reversedFileReader(path));
+    }
+
     /**
      * Creates or returns existing file chunk reader identified by the file path and chunkId.
      *
