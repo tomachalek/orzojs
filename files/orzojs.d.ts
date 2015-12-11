@@ -572,6 +572,12 @@ declare module orzo {
     function gzipFileReader(path:string):FileIterator;
 
     /**
+     * Creates a an iterator which reads provided file line by line
+     * in reversed order.
+     */
+    function reversedFileReader(path:string):FileIterator;
+
+    /**
      * Creates a new or returns an existing file chunk reader
      * identified by the file path and chunkId.
      *
