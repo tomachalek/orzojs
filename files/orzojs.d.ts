@@ -923,3 +923,9 @@ declare function doWith<T extends Closeable>(obj:T|Array<T>, fn:(v:T)=>void, err
  * @param moduleId
  */
 declare function require<T>(moduleId:string):T;
+
+/**
+ * Returns an attribute of an object. In case there is no such
+ * attribute present a default value is returned (null by default).
+ */
+declare function getAttr<T>(obj:{[key:string]:any}, name:string, defaultVal:T);
