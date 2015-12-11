@@ -17,9 +17,7 @@ package net.orzo.scripting;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import javax.script.Bindings;
@@ -28,10 +26,10 @@ import javax.script.CompiledScript;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
+import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.orzo.IntermediateResults;
 import net.orzo.lib.Lib;
@@ -149,6 +147,8 @@ public class JsEngineAdapter {
         this.envParams = envParams;
         this.intermediateResults = intermediateResults;
         this.modules = new HashMap<>();
+        this.engine = new NashornScriptEngineFactory() // TODO configurable timezone
+                .getScriptEngine(new String[] {"-timezone=" + getCurrentTimezone().getID()});
     }
 
     /**
@@ -165,12 +165,16 @@ public class JsEngineAdapter {
         beginWork(null);
     }
 
+    private TimeZone getCurrentTimezone() {
+        Calendar calendar = new GregorianCalendar();
+        return calendar.getTimeZone();
+    }
+
     /**
      *
      */
     public void beginWork(Map<String, Object> globals) {
-        this.engine = new ScriptEngineManager().getEngineByName("nashorn");
-        this.context = engine.getContext();
+        this.context = this.engine.getContext();
         this.scope = this.context.getBindings(ScriptContext.ENGINE_SCOPE);
         this.system = new Lib();
         if (globals != null) {
