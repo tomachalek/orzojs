@@ -36,6 +36,7 @@
     scope.orzo = {};
     scope.orzo.fs = {};
     scope.orzo.html = {};
+    scope.orzo.db = {}; // database connection and querying
     scope.env = {};  // contains useful processing environment information
     scope.conf = {}; // modifies behavior of some functions
 
@@ -128,8 +129,15 @@
      * Registers a function which specifies how a data chunk will be processed.
      *
      * @param  {function(number)} a function to be applied to each chunk
+     * @deprecated
      */
     scope.applyItems = function (callback) {
+        return scope._mr.applyItems(callback);
+    };
+
+    /**
+     */
+    scope.processChunk = function (callback) {
         return scope._mr.applyItems(callback);
     };
 
@@ -964,6 +972,20 @@
             return instantiateImage(javaImg, path);
         }
         return null;
+    };
+
+    /**
+     * e.g.: mysql://localhost/my_db?user=john&password=foo
+     */
+    scope.orzo.db.connect = function (uri) {
+        var m = /^([\w]+):/.exec(uri);
+
+        if (m) {
+            return scope._lib.connectToDb(m[1], uri);
+
+        } else {
+            throw new Error('Connection URI error: Database type not recognized in ' + uri);
+        }
     };
 
 
