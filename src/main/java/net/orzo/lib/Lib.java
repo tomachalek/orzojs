@@ -17,11 +17,15 @@ package net.orzo.lib;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
+import com.mysql.jdbc.MySQLConnection;
 import jdk.nashorn.internal.runtime.Context;
 import jdk.nashorn.internal.runtime.ScriptFunction;
+import net.orzo.data.Database;
+import net.orzo.data.MySqlDb;
 import net.orzo.data.Web;
 import net.orzo.data.graphics.GreyscalePicture;
 
@@ -119,12 +123,19 @@ public class Lib {
     }
 
     /**
-     * @param path
-     * @return
-     * @throws IOException
      */
     public GreyscalePicture loadImage(String path) throws IOException {
         return GreyscalePicture.load(path);
+    }
+
+
+    public Database connectToDb(String type, String uri) throws SQLException {
+        if (type.equals("mysql")) {
+            return new MySqlDb().connect(uri);
+
+        } else {
+            throw new IllegalArgumentException("Unknown db type " + type);
+        }
     }
 
 }

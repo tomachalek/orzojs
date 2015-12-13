@@ -31,14 +31,14 @@ interface IResults {
      *
      * @param fn
      */
-    each(fn:(key:string, values:Array<any>)=>void):void;
+    each<T>(fn:(key:string, values:Array<T>)=>void):void;
 
     /**
      * Returns all the values emitted with the passed key.
      *
      * @param key
      */
-    get(key:string):Array<any>;
+    get<T>(key:string):Array<T>;
 
     /**
      * Tests whether the passed key has been emitted.
@@ -164,6 +164,16 @@ interface StringDistances {
      * @param s2
      */
     normalizedCompression(s1:string, s2:string):number;
+}
+
+/**
+ * A SQL database querying
+ */
+interface Database {
+
+    select(query:string, ...args:any[]):Iterator<Array<any>>;
+
+    modify(query:string, ...args:string[]):void;
 }
 
 /**
@@ -714,7 +724,7 @@ declare module orzo {
      * @param data
      * @param getValue
      */
-    function uniq<T>(data:Array<any>, getValue:(v:any)=>T);
+    function uniq<T, U>(data:Array<U>, getValue?:(v:U)=>T);
     function uniq<T>(data:Array<T>);
 
     /**
@@ -745,7 +755,17 @@ declare module orzo {
 
     var stringDistance:StringDistances;
 
-    var rest:Rest;
+    var rest:RestMethods;
+}
+
+/**
+ * Databases related functions
+ */
+declare module orzo.db {
+    /**
+     * Connects to a SQL database
+     */
+    function connect(dbType:string, uri:string):Database;
 }
 
 /**
@@ -847,10 +867,14 @@ interface MapFunction<T> {
 declare function map<T>(callback:(v:T)=>void):void;
 
 /**
- *
- * @param callback
+ * @deprecated
  */
 declare function applyItems<T>(callback:(dataChunk:any, map:MapFunction<T>)=>void):void;
+
+/**
+ * Defines how a worker processes its chunk of data
+ */
+declare function processChunk<T>(fn:(dataChunk:any, map:MapFunction<T>)=>void):void;
 
 /**
  * Registers a function specifying how data chunks (= files, parts of a single file etc.)
@@ -864,7 +888,7 @@ declare function dataChunks(numWorkers:number, applyFn:(idx:number)=>void):void;
 /**
  * Registers a REDUCE operation
  *
- * @param numWorkers
+ * @param numWorkers Recommended number of workers (actual number can be smaller)
  * @param fn
  */
 declare function reduce(numWorkers:number, fn:(key:string, values:Array<any>)=>void):void;
@@ -875,7 +899,7 @@ declare function reduce(numWorkers:number, fn:(key:string, values:Array<any>)=>v
  * @param key
  * @param value
  */
-declare function emit(key:string, value:any):void;
+declare function emit<T>(key:string, value:T):void;
 
 /**
  *
@@ -928,4 +952,4 @@ declare function require<T>(moduleId:string):T;
  * Returns an attribute of an object. In case there is no such
  * attribute present a default value is returned (null by default).
  */
-declare function getAttr<T>(obj:{[key:string]:any}, name:string, defaultVal:T);
+declare function getAttr<T>(obj:{[key:string]:any}, name:string, defaultVal:T):T;
