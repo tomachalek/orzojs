@@ -28,4 +28,6 @@ public interface Database {
 
     void modify(String query, Object...args) throws SQLException;
 
+    void close() throws SQLException;
+
 }
