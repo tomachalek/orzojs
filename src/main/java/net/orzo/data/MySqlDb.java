@@ -27,7 +27,7 @@ public class MySqlDb {
 
     public Database connect(final String connectionUri) throws SQLException {
         return new Database() {
-            Connection conn = DriverManager.getConnection(String.format("jdbc:%s", connectionUri));
+            final Connection conn = DriverManager.getConnection(String.format("jdbc:%s", connectionUri));
 
             @Override
             public Iterator<Object[]> select(String query, Object...args) throws SQLException {
@@ -58,6 +58,10 @@ public class MySqlDb {
                     stmt.setString(i + 1, args[i].toString());
                 }
                 stmt.execute();
+            }
+
+            public void close() throws SQLException {
+                conn.close();
             }
         };
     }

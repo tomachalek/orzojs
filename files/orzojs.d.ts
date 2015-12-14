@@ -174,6 +174,8 @@ interface Database {
     select(query:string, ...args:any[]):Iterator<Array<any>>;
 
     modify(query:string, ...args:string[]):void;
+
+    close():void;
 }
 
 /**
