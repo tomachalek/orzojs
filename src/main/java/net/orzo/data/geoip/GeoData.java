@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.orzo.data;
+package net.orzo.data.geoip;
 
 import com.google.gson.Gson;
 

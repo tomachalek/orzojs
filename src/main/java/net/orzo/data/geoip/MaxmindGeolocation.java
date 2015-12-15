@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.orzo.data;
+package net.orzo.data.geoip;
 
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;

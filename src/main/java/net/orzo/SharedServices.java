@@ -16,8 +16,8 @@
 
 package net.orzo;
 
-import net.orzo.data.Ip2Geo;
-import net.orzo.data.MaxmindGeolocation;
+import net.orzo.data.geoip.Ip2Geo;
+import net.orzo.data.geoip.MaxmindGeolocation;
 
 /**
  * @author Tomas Machalek <tomas.machalek@gmail.com>
