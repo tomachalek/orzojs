@@ -17,7 +17,6 @@ package net.orzo;
 
 import java.util.concurrent.Callable;
 
-import net.orzo.scripting.EnvParams;
 import net.orzo.scripting.JsEngineAdapter;
 import net.orzo.scripting.SourceCode;
 
@@ -36,15 +35,12 @@ public class MapWorker implements Callable<IntermediateResults> {
 
     private final SourceCode[] sources;
 
-    private final IntermediateResults intermediateData;
-
     /**
      *
      */
-    public MapWorker(EnvParams envParams, SourceCode userScript,
+    public MapWorker(JsEngineAdapter jsEngine, SourceCode userScript,
             SourceCode... sourceCodes) {
-        this.intermediateData = new IntermediateResults();
-        this.jsEngine = new JsEngineAdapter(envParams, this.intermediateData);
+        this.jsEngine = jsEngine;
         this.userScript = userScript;
         this.sources = sourceCodes;
     }
@@ -60,7 +56,7 @@ public class MapWorker implements Callable<IntermediateResults> {
         this.jsEngine.runCode(this.userScript);
         this.jsEngine.runFunction("runMap");
         this.jsEngine.endWork();
-        return this.intermediateData;
+        return this.jsEngine.getIntermediateResults();
     }
 
 }

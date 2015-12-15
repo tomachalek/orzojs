@@ -284,4 +284,9 @@ public class JsEngineAdapter {
         }
         return ans;
     }
+
+
+    public IntermediateResults getIntermediateResults() {
+        return this.intermediateResults;
+    }
 }

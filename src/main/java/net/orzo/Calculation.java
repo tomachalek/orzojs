@@ -153,7 +153,8 @@ public class Calculation extends Observable {
         for (int i = 0; i < numWorkers; i++) {
             workerEnvParams = createEnvParams();
             workerEnvParams.workerId = i;
-            worker = new MapWorker(workerEnvParams, this.params.userScript,
+            JsEngineAdapter jsEngine = new JsEngineAdapter(workerEnvParams, new IntermediateResults());
+            worker = new MapWorker(jsEngine, this.params.userScript,
                     this.params.calculationScript, this.params.userenvScript,
                     this.params.datalibScript);
             Future<IntermediateResults> submit = executor.submit(worker);
@@ -202,7 +203,8 @@ public class Calculation extends Observable {
             EnvParams workerEnvParams = createEnvParams();
             workerEnvParams.workerId = i;
 
-            ReduceWorker reduceWorker = new ReduceWorker(workerEnvParams,
+            JsEngineAdapter jsEngine = new JsEngineAdapter(workerEnvParams, new IntermediateResults());
+            ReduceWorker reduceWorker = new ReduceWorker(jsEngine,
                     mapResults, splitKeys.get(i), this.params.userScript,
                     this.params.calculationScript, this.params.userenvScript,
                     this.params.datalibScript);

@@ -18,7 +18,6 @@ package net.orzo;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import net.orzo.scripting.EnvParams;
 import net.orzo.scripting.JsEngineAdapter;
 import net.orzo.scripting.SourceCode;
 
@@ -29,8 +28,6 @@ import net.orzo.scripting.SourceCode;
  */
 public class ReduceWorker implements Callable<IntermediateResults> {
 
-    private final EnvParams envParams;
-
     private final SourceCode userScript;
 
     private final SourceCode[] sources;
@@ -39,21 +36,17 @@ public class ReduceWorker implements Callable<IntermediateResults> {
 
     private final List<Object> keys;
 
-    private final IntermediateResults resultData;
-
     private final JsEngineAdapter jsEngine;
 
     /**
      */
-    public ReduceWorker(EnvParams envParams, IntermediateResults mapResults,
+    public ReduceWorker(JsEngineAdapter jsEngine, IntermediateResults mapResults,
                         List<Object> keys, SourceCode userScript,
                         SourceCode... sourceCodes) {
-        this.envParams = envParams;
         this.mapResults = mapResults;
         this.keys = keys;
         this.userScript = userScript;
-        this.resultData = new IntermediateResults();
-        this.jsEngine = new JsEngineAdapter(this.envParams, this.resultData);
+        this.jsEngine = jsEngine;
         this.sources = sourceCodes;
     }
 
@@ -67,7 +60,7 @@ public class ReduceWorker implements Callable<IntermediateResults> {
             this.jsEngine.runFunction("runReduce", key, this.mapResults.values(key));
             this.mapResults.remove(key);
         }
-        return this.resultData;
+        return this.jsEngine.getIntermediateResults();
     }
 
 }
