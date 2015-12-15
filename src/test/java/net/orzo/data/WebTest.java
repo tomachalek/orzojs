@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import javax.script.ScriptException;
 
+import net.orzo.SharedServices;
 import net.orzo.scripting.EnvParams;
 import net.orzo.scripting.JsEngineAdapter;
 import net.orzo.scripting.SourceCode;
@@ -45,7 +46,7 @@ public class WebTest {
 	@BeforeTest
 	public void setUpTest() {
 		EnvParams envParams = new EnvParams();
-		this.engine = new JsEngineAdapter(envParams);
+		this.engine = new JsEngineAdapter(envParams, new SharedServices(null));
 		this.engine.beginWork();
 	}
 

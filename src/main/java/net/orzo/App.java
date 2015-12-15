@@ -70,6 +70,7 @@ public final class App {
         this.cliOptions = new Options();
         this.cliOptions.addOption("v", false, "shows version information");
         this.cliOptions.addOption("d", false, "runs a demo program");
+        this.cliOptions.addOption("p", true, "a path to a geoip2 database");
         this.cliOptions
                 .addOption("g", true,
                         "custom path to a Logback configuration XML file (default is ./logback.xml)");
@@ -205,7 +206,8 @@ public final class App {
                             .fromResource(DEMO_SCRIPT);
                     System.err.printf("Running demo script %s.",
                             demoScript.getName());
-                    CmdConfig conf = new CmdConfig(scriptId, demoScript, null);
+                    CmdConfig conf = new CmdConfig(scriptId, demoScript, null,
+                            cmd.getOptionValue("p", null));
                     TaskManager tm = new TaskManager(conf);
                     tm.startTaskSync(tm.registerTask(scriptId, new String[0]));
 
@@ -229,7 +231,7 @@ public final class App {
 
                     userScript = SourceCode.fromFile(userScriptFile);
                     CmdConfig conf = new CmdConfig(userScript.getName(),
-                            userScript, optionalModulesPath);
+                            userScript, optionalModulesPath, cmd.getOptionValue("p", null));
                     TaskManager tm = new TaskManager(conf);
                     String taskId = tm.registerTask(userScript.getName(), inputValues);
                     tm.startTaskSync(taskId);

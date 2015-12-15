@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Tomas Machalek
+ * Copyright (c) 2015 Tomas Machalek
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-package net.orzo.service;
-
-import java.util.List;
+package net.orzo.data.geoip;
 
 /**
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
-public interface ServiceConfig {
+@FunctionalInterface
+public interface Ip2Geo {
 
-    public boolean isAllowedScript(String id);
-
-    public ScriptConfig getScriptConfig(String id);
-
-    public List<String> getScriptsIds();
-
-    public AmqpConf getAmqpConfig();
-
-    public AmqpConf getAmqpResponseConfig();
-
-    public RedisConf getRedisConf();
-
-    public String getGeoipDbPath();
-
+    GeoData getLocation(String ipAddress);
 }

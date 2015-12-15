@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import javax.script.ScriptException;
 
+import net.orzo.SharedServices;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -41,7 +42,7 @@ public class JsEngineAdapterTest {
 	@BeforeMethod
 	public void setUp() {
 		EnvParams envParams = new EnvParams();
-		this.js = new JsEngineAdapter(envParams);
+		this.js = new JsEngineAdapter(envParams, new SharedServices(null));
 	}
 
 	/**
