@@ -66,10 +66,12 @@ public class Calculation extends Observable {
 
     private final double startTime;
 
+    private final SharedServices sharedServices;
+
     /**
      *
      */
-    public Calculation(CalculationParams params) {
+    public Calculation(CalculationParams params, SharedServices sharedServices) {
         this.startTime = System.currentTimeMillis() / 1000.;
         this.params = params;
         this.inputValues = params.inputValues;
@@ -78,6 +80,7 @@ public class Calculation extends Observable {
         if (params.optionalModulesPath != null) {
             this.modulesPaths.add(params.optionalModulesPath);
         }
+        this.sharedServices = sharedServices;
     }
 
     /**
@@ -114,7 +117,8 @@ public class Calculation extends Observable {
      * functions are registered but no real processing is done yet).
      */
     private ScriptObjectMirror runPrepare() throws CalculationException {
-        JsEngineAdapter jsEngine = new JsEngineAdapter(createEnvParams());
+        JsEngineAdapter jsEngine = new JsEngineAdapter(createEnvParams(),
+                this.sharedServices);
         jsEngine.beginWork();
         try {
             jsEngine.runCode(this.params.calculationScript,
@@ -153,7 +157,8 @@ public class Calculation extends Observable {
         for (int i = 0; i < numWorkers; i++) {
             workerEnvParams = createEnvParams();
             workerEnvParams.workerId = i;
-            JsEngineAdapter jsEngine = new JsEngineAdapter(workerEnvParams, new IntermediateResults());
+            JsEngineAdapter jsEngine = new JsEngineAdapter(workerEnvParams,
+                    this.sharedServices, new IntermediateResults());
             worker = new MapWorker(jsEngine, this.params.userScript,
                     this.params.calculationScript, this.params.userenvScript,
                     this.params.datalibScript);
@@ -203,7 +208,8 @@ public class Calculation extends Observable {
             EnvParams workerEnvParams = createEnvParams();
             workerEnvParams.workerId = i;
 
-            JsEngineAdapter jsEngine = new JsEngineAdapter(workerEnvParams, new IntermediateResults());
+            JsEngineAdapter jsEngine = new JsEngineAdapter(workerEnvParams,
+                    this.sharedServices, new IntermediateResults());
             ReduceWorker reduceWorker = new ReduceWorker(jsEngine,
                     mapResults, splitKeys.get(i), this.params.userScript,
                     this.params.calculationScript, this.params.userenvScript,
@@ -236,7 +242,7 @@ public class Calculation extends Observable {
 
         Object ans;
         EnvParams envParams = createEnvParams();
-        JsEngineAdapter jse = new JsEngineAdapter(envParams);
+        JsEngineAdapter jse = new JsEngineAdapter(envParams, this.sharedServices);
         FinalResults fr = new FinalResults(reduceResults);
 
         jse.beginWork();

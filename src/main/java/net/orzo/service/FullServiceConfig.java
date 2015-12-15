@@ -44,6 +44,8 @@ public class FullServiceConfig implements ServiceConfig {
 
     private RedisConf redis;
 
+    private String geoip2DbPath;
+
     @Override
     public boolean isAllowedScript(String id) {
         return this.allowedScripts.containsKey(id);
@@ -89,6 +91,11 @@ public class FullServiceConfig implements ServiceConfig {
     @Override
     public RedisConf getRedisConf() {
         return this.redis;
+    }
+
+    @Override
+    public String getGeoipDbPath() {
+        return this.geoip2DbPath;
     }
 
 }

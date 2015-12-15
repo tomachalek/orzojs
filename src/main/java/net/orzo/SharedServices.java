@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Tomas Machalek
+ * Copyright (c) 2015 Tomas Machalek
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,30 @@
  * limitations under the License.
  */
 
-package net.orzo.service;
+package net.orzo;
 
-import java.util.List;
+import net.orzo.data.Ip2Geo;
+import net.orzo.data.MaxmindGeolocation;
 
 /**
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
-public interface ServiceConfig {
+public class SharedServices {
 
-    public boolean isAllowedScript(String id);
+    private final String geoip2DbPath;
 
-    public ScriptConfig getScriptConfig(String id);
+    private SharedService<Ip2Geo> geoip2Db;
 
-    public List<String> getScriptsIds();
 
-    public AmqpConf getAmqpConfig();
+    public SharedServices(String geoip2DbPath) {
+        this.geoip2DbPath = geoip2DbPath;
+    }
 
-    public AmqpConf getAmqpResponseConfig();
 
-    public RedisConf getRedisConf();
-
-    public String getGeoipDbPath();
-
+    public synchronized Ip2Geo getGeoip2Db() throws Exception {
+        if (this.geoip2Db == null) {
+            this.geoip2Db = new MaxmindGeolocation(this.geoip2DbPath);
+        }
+        return this.geoip2Db.exportApi();
+    }
 }

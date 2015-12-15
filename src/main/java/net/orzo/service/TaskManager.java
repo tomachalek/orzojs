@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import net.orzo.SharedServices;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import com.google.inject.Inject;
@@ -52,6 +53,8 @@ public class TaskManager implements Observer {
 
     private final TaskLog execLog;
 
+    private final SharedServices sharedServices;
+
     /**
      */
     @Inject
@@ -61,6 +64,7 @@ public class TaskManager implements Observer {
         this.scheduler = Executors.newScheduledThreadPool(1); // TODO size
         this.schedules = new HashMap<>();
         this.execLog = new TaskLog();
+        this.sharedServices = new SharedServices(this.conf.getGeoipDbPath());
     }
 
     /**
@@ -126,7 +130,7 @@ public class TaskManager implements Observer {
             params.userScript = scriptConf.getScript();
             params.workingDirModulesPath = userScriptFile.getParent();
             params.inputValues = args != null && args.length > 0 ? args : scriptConf.getDefaultArgs();
-            task = new Task(taskId, params);
+            task = new Task(taskId, params, this.sharedServices);
             task.addObserver(this);
             if (onFinished != null) {
                 task.addObserver(onFinished);

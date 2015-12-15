@@ -32,6 +32,7 @@ import javax.script.SimpleScriptContext;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.orzo.IntermediateResults;
+import net.orzo.SharedServices;
 import net.orzo.lib.Lib;
 
 import com.google.common.base.Joiner;
@@ -84,6 +85,28 @@ public class JsEngineAdapter {
     private final Map<String, Object> modules;
 
     private static final String MODULE_SEPARATOR = "/";
+
+    private final SharedServices sharedServices;
+
+    /**
+     */
+    public JsEngineAdapter(EnvParams envParams,
+                           SharedServices sharedServices,
+                           IntermediateResults intermediateResults) {
+        this.envParams = envParams;
+        this.sharedServices = sharedServices;
+        this.intermediateResults = intermediateResults;
+        this.modules = new HashMap<>();
+        this.engine = new NashornScriptEngineFactory() // TODO configurable timezone
+                .getScriptEngine(new String[] {"-timezone=" + getCurrentTimezone().getID()});
+    }
+
+    /**
+     *
+     */
+    public JsEngineAdapter(EnvParams envParams, SharedServices sharedServices) {
+        this(envParams, sharedServices, null);
+    }
 
     /**
      *
@@ -141,24 +164,6 @@ public class JsEngineAdapter {
     }
 
     /**
-     */
-    public JsEngineAdapter(EnvParams envParams,
-            IntermediateResults intermediateResults) {
-        this.envParams = envParams;
-        this.intermediateResults = intermediateResults;
-        this.modules = new HashMap<>();
-        this.engine = new NashornScriptEngineFactory() // TODO configurable timezone
-                .getScriptEngine(new String[] {"-timezone=" + getCurrentTimezone().getID()});
-    }
-
-    /**
-     *
-     */
-    public JsEngineAdapter(EnvParams envParams) {
-        this(envParams, null);
-    }
-
-    /**
      *
      */
     public void beginWork() {
@@ -189,6 +194,7 @@ public class JsEngineAdapter {
         // within javascript
         this.scope.put("_lib", this.system);
         this.scope.put("_env", this.envParams);
+        this.scope.put("_shared", this.sharedServices);
         if (this.intermediateResults != null) {
             this.scope.put("_result", this.intermediateResults);
         }

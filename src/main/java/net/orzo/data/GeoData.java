@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Tomas Machalek
+ * Copyright (c) 2015 Tomas Machalek
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,33 @@
  * limitations under the License.
  */
 
-package net.orzo.service;
+package net.orzo.data;
 
-import java.util.List;
+import com.google.gson.Gson;
 
 /**
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
-public interface ServiceConfig {
+public class GeoData {
 
-    public boolean isAllowedScript(String id);
+    public String countryISO;
 
-    public ScriptConfig getScriptConfig(String id);
+    public String countryName;
 
-    public List<String> getScriptsIds();
+    public String subdivisionName;
 
-    public AmqpConf getAmqpConfig();
+    public String subdivisionISO;
 
-    public AmqpConf getAmqpResponseConfig();
+    public String cityName;
 
-    public RedisConf getRedisConf();
+    public String postalCode;
 
-    public String getGeoipDbPath();
+    public double latitude;
 
+    public double longitude;
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
+    }
 }

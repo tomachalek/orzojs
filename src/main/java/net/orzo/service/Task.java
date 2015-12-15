@@ -21,10 +21,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import net.orzo.Calculation;
-import net.orzo.CalculationException;
-import net.orzo.CalculationParams;
-import net.orzo.Util;
+import net.orzo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,15 +36,18 @@ public class Task extends Observable implements Observer {
 
     private final List<TaskEvent> events;
 
+    private final SharedServices sharedServices;
+
     private Object result;
 
     private static final Logger LOG = LoggerFactory
             .getLogger(Task.class);
 
-    public Task(String id, CalculationParams params) {
+    public Task(String id, CalculationParams params, SharedServices sharedServices) {
         super();
         this.id = id;
         this.params = params;
+        this.sharedServices = sharedServices;
         this.events = new ArrayList<>();
         this.events.add(new TaskEvent(TaskStatus.PENDING));
     }
@@ -106,7 +106,7 @@ public class Task extends Observable implements Observer {
 
     protected void run() {
         this.events.add(new TaskEvent(TaskStatus.PREPARING));
-        Calculation proc = new Calculation(this.params);
+        Calculation proc = new Calculation(this.params, this.sharedServices);
         try {
             this.result = proc.run();
             addEvent(new TaskEvent(TaskStatus.FINISHED));

@@ -178,6 +178,17 @@ interface Database {
     close():void;
 }
 
+interface GeoInfo {
+    countryISO:string;
+    countryName:string;
+    subdivisionName:string;
+    subdivisionISO:string;
+    cityName:string;
+    postalCode:string;
+    latitude:number;
+    longitude:number;
+}
+
 /**
  * A library containing function to work with array-like
  * data with heterogeneous items.
@@ -754,6 +765,15 @@ declare module orzo {
      * @param path
      */
     function loadImage(path:string):Image;
+
+    /**
+     * Creates a function which transforms an IP address into a
+     * geographic location. Orzo.js uses a Maxmind GeoIP version 2
+     * database which must be specified explicitly (either via
+     * -p parameter in CMD mode or via 'geoipDbPath' in the "service"
+     * mode).
+     */
+    function createIp2Geo():(ip:string)=>GeoInfo;
 
     var stringDistance:StringDistances;
 

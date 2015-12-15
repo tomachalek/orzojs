@@ -989,6 +989,11 @@
     };
 
 
+    scope.orzo.createIp2Geo = function () {
+        return scope._shared.getGeoip2Db();
+    };
+
+
     function doWith(objList, fn, err, i) {
         try {
             if (i < objList.length - 1) {

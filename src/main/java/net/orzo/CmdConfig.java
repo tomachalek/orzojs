@@ -33,9 +33,13 @@ public class CmdConfig implements ServiceConfig {
 
     private final InternalScriptConfig scriptConfig;
 
-    public CmdConfig(String scriptId, SourceCode userScript, String libPath) {
+    private final String geoipDbPath;
+
+    public CmdConfig(String scriptId, SourceCode userScript, String libPath,
+                     String geoipDbPath) {
         this.scriptId = scriptId;
         this.scriptConfig = new InternalScriptConfig(userScript, libPath);
+        this.geoipDbPath = geoipDbPath;
     }
 
     @Override
@@ -71,6 +75,11 @@ public class CmdConfig implements ServiceConfig {
     @Override
     public RedisConf getRedisConf() {
         return null;
+    }
+
+    @Override
+    public String getGeoipDbPath() {
+        return this.geoipDbPath;
     }
 
 
