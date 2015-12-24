@@ -44,6 +44,9 @@ public class MaxmindGeolocation implements SharedService<Ip2Geo> {
         File dbFile = new File(this.dbPath);
         this.geoip2Db = new DatabaseReader.Builder(dbFile).build();
 
+        /**
+         * @throws GeolocationException
+         */
         return (String ipString) -> {
             InetAddress ipAddress;
             GeoData ans = new GeoData();
@@ -68,8 +71,8 @@ public class MaxmindGeolocation implements SharedService<Ip2Geo> {
                 ans.longitude = location.getLongitude();
 
             } catch (GeoIp2Exception | IOException e) {
-                e.printStackTrace(); // TODO
-                return ans;
+                throw new GeolocationException("Failed to fetch geoip information for IP "
+                        + ipString, e);
             }
 
             return ans;
