@@ -38,6 +38,8 @@ public class FilePartReaderFactory {
 
     private final int startFromLine;
 
+    private static int DEFAULT_CHUNK_SIZE = 1000;
+
     /**
      * * Creates a chunked file reading handler with manually set chunk size.
      *
@@ -46,14 +48,20 @@ public class FilePartReaderFactory {
      * @param numReaders
      *            how many chunks we want to define
      * @param chunkSize
-     *            length of a chunk (in lines)
+     *            how many consecutive lines should reader process at a time
+     *            (e.g. chunkSize=4 means: read 4 lines, skip N, read another 4, skip N,...).
+     *            If null then an automatic estimation is performed (which should be sufficient
+     *            in most cases).
+     * @param startFromLine
+     *            a minimum line where a respective reader should start reading; please nothe
+     *            that this has nothing to do with chunk processing internals (where offsets and
+     *            skipping are used too). This is intended to be used in cases a user actually wants
+     *            to skip a part of a file.
      */
-    public FilePartReaderFactory(File file, int numReaders, Integer chunkSize,
-            Integer startFromLine) {
+    public FilePartReaderFactory(File file, int numReaders, Integer chunkSize, Integer startFromLine) {
         this.file = file;
         this.numReaders = numReaders;
-        this.linesPerChunk = chunkSize != null ? chunkSize
-                : estimateChunkSize();
+        this.linesPerChunk = chunkSize != null ? chunkSize : DEFAULT_CHUNK_SIZE;
         this.startFromLine = startFromLine;
     }
 
@@ -118,12 +126,5 @@ public class FilePartReaderFactory {
                     "Failed to get chunk iterator [%s]", readerId), ex);
         }
         return new FilePartReader(itr, this.numReaders, this.linesPerChunk);
-    }
-
-    /**
-     *
-     */
-    private int estimateChunkSize() {
-        return 1000; // TODO
     }
 }

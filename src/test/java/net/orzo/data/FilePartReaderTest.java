@@ -50,7 +50,7 @@ public class FilePartReaderTest {
 		PositionAwareLineIterator lit = createFilePartReader();
 		FilePartReader rf = new FilePartReader(lit, 4, 2); // text-file.txt has
 															// 24 lines
-		List<String> data = new ArrayList<String>();
+		List<String> data = new ArrayList<>();
 
 		while (rf.hasNext()) {
 			data.add(rf.next());

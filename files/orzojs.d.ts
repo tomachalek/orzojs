@@ -602,14 +602,15 @@ declare module orzo {
 
     /**
      * Creates a new or returns an existing file chunk reader
-     * identified by the file path and chunkId.
+     * identified by the file path and workerId.
      *
      * @param path A path to a file we want to read
-     * @param chunkId An index of the required chunk (starts from zero)
-     * @param chunkSize A chunk size in lines; if omitted then automatic estimation is performed
-     * @param startLine The first line to read (should be 0 by default)
+     * @param workerId An ID of a worker the reader will be available to (starts from zero)
+     * @param chunkSize A chunk size (= how many consecutive lines a reader processes in one run) in lines; default is 1000
+     * @param startLine A minimum line to start from (0 by default). Use this if you want to skip
+     * an initial part of a file
      */
-    function fileChunkReader<T>(path:string, chunkId:number, chunkSize?:number,
+    function fileChunkReader<T>(path:string, workerId:number, chunkSize?:number,
           startLine?:number):Iterator<T>;
 
     /**

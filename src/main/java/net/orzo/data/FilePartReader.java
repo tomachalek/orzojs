@@ -26,30 +26,29 @@ import org.apache.commons.io.LineIterator;
  * to use) but only a fraction of it. It is best suited to situations where a
  * number of {@link FilePartReader} instances read a (large) file.
  * 
- * Example: we can define 3 {@link FilePartReader} instances with properly
- * initialized line iterators (an initial offset must be set) then the first
- * iterator will read 0th, 3rd, 6th,..., chunks:
+ * Example: Let's say we define chunkSize = 2 and numReaders = 3 {@link FilePartReader}
+ * instances along with properly initialized line iterators (an initial offset must be set).
+ * Then the first iterator will read 0th, 3rd, 6th,..., chunks (each 2 lines long):
  * 
  * <pre>
- * xxx --- --- xxx --- --- xxx --- ---
+ * xx -- -- xx -- -- xx -- --
  * </pre>
  * 
  * the second iterator will read 1st, 4th, 7th, ... chunks:
  * 
  * <pre>
- * --- xxx --- --- xxx --- --- xxx ---
+ * -- xx -- -- xx -- -- xx --
  * </pre>
  * 
- * and the third:
+ * and the third will read 2nd, 5th, 8th, ... chunks:
  * 
  * <pre>
- * --- --- xxx --- --- xxx --- --- xxx
+ * -- -- xx -- -- xx -- -- xx
  * </pre>
  * 
  * The easiest way to instantiate this class is via
- * {@link FilePartReaderFactory} which provides proper iterator initalization
- * and can also provide an estimation of a chunk size to offer decent
- * performance.
+ * {@link FilePartReaderFactory} which provides proper iterator initialization
+ * (initial offset calculation!) with some default values (chunk size).
  * 
  * 
  * @author Tomas Machalek <tomas.machalek@gmail.com>

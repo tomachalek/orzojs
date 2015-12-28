@@ -481,23 +481,14 @@
         return createReader(scope._lib.files.reversedFileReader(path));
     }
 
-    /**
-     * Creates or returns existing file chunk reader identified by the file path and chunkId.
-     *
-     * @param {string} path path to the file we want to read
-     * @param {number} chunkId index of required chunk (starts from zero)
-     * @param {number} [chunkSize=null] chunk size in lines; if omitted then automatic estimation is performed
-     * @param {number} [startLine=0] first line to read (0 by default)
-     * @return {BaseIterator}
-     */
-    scope.orzo.fileChunkReader = function (path, chunkId, chunkSize, startLine) {
+    scope.orzo.fileChunkReader = function (path, workerId, chunkSize, startLine) {
         var iterator = {},
             fcrFactory;
 
         fcrFactory = scope._lib.files.filePartReaderFactory(path, scope.env.numChunks,
             chunkSize ? chunkSize : null, startLine ? startLine : 0);
 
-        iterator._javaIterator = fcrFactory.createInstance(chunkId);
+        iterator._javaIterator = fcrFactory.createInstance(workerId);
 
         iterator.hasNext = function () {
             return iterator._javaIterator.hasNext();
