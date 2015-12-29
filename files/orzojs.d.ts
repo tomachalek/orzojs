@@ -975,3 +975,8 @@ declare function require<T>(moduleId:string):T;
  * attribute present a default value is returned (null by default).
  */
 declare function getAttr<T>(obj:{[key:string]:any}, name:string, defaultVal:T):T;
+
+/**
+ * Calls a function for a defined number of times.
+ */
+declare function repeat(numRepeat:number, fn:(i:number)=>void):void;
