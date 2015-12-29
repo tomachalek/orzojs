@@ -18,7 +18,6 @@ package net.orzo;
 import java.util.concurrent.Callable;
 
 import net.orzo.scripting.JsEngineAdapter;
-import net.orzo.scripting.SourceCode;
 
 /**
  * Handles a processing thread of a single data chunk. The result is returned as
@@ -31,18 +30,14 @@ public class MapWorker implements Callable<IntermediateResults> {
 
     private final JsEngineAdapter jsEngine;
 
-    private final SourceCode userScript;
-
-    private final SourceCode[] sources;
+    private final CalculationParams params;
 
     /**
      *
      */
-    public MapWorker(JsEngineAdapter jsEngine, SourceCode userScript,
-            SourceCode... sourceCodes) {
+    public MapWorker(JsEngineAdapter jsEngine, CalculationParams params) {
         this.jsEngine = jsEngine;
-        this.userScript = userScript;
-        this.sources = sourceCodes;
+        this.params = params;
     }
 
     /**
@@ -51,9 +46,10 @@ public class MapWorker implements Callable<IntermediateResults> {
     @Override
     public IntermediateResults call() throws Exception {
         this.jsEngine.beginWork();
-        this.jsEngine.runCode(this.sources);
+        this.jsEngine.runCode(this.params.calculationScript, this.params.userenvScript,
+                this.params.datalibScript);
         this.jsEngine.runFunction("initMap");
-        this.jsEngine.runCode(this.userScript);
+        this.jsEngine.runCode(this.params.userScript);
         this.jsEngine.runFunction("runMap");
         this.jsEngine.endWork();
         return this.jsEngine.getIntermediateResults();

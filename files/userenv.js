@@ -1021,14 +1021,6 @@
         }
     }
 
-
-    /**
-     * Provides python-like 'with' guarded block
-     *
-     * @param {{}} obj an object with 'close()' method
-     * @param {function} fn an action to be done with 'obj' as an argument
-     * @param {function} [err]
-     */
     scope.doWith = function (obj, fn, err) {
         var objList;
 
@@ -1039,11 +1031,18 @@
             objList = obj;
         }
         doWith(objList, fn, err, 0);
-    }
+    };
 
     scope.getAttr = function (obj, name, defaultVal) {
         defaultVal = defaultVal || null;
         return obj[name] !== undefined ? obj[name] : defaultVal;
+    };
+
+    scope.repeat = function (num, fn) {
+        var i;
+        for (i = 0; i < num; i += 1) {
+            fn.call(scope, i);
+        }
     };
 
 }(this));
