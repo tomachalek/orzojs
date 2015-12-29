@@ -87,17 +87,15 @@ public class Calculation extends Observable {
      * Starts and controls the calculation.
      */
     public Object run() throws CalculationException {
-        IntermediateResults mapResults;
-        IntermediateResults reduceResults;
+        IntermediateResults currentResults;
         ScriptObjectMirror prepareData = runPrepare();
-        mapResults = runMap(prepareData);
-        if (mapResults.size() > 0) {
-            reduceResults = runReduce(prepareData, mapResults);
-            return runFinish(reduceResults);
+        int numReduceFunctions = ((Double)prepareData.get("numReduceFunctions")).intValue();
+		currentResults = runMap(prepareData);
 
-        } else {
-            return runFinish(mapResults);
-        }
+        for (int i = 0; i < numReduceFunctions && currentResults.size() > 0; i++) {
+			currentResults = runReduce(prepareData, currentResults, i);
+		}
+		return runFinish(currentResults);
 
     }
 
@@ -190,7 +188,7 @@ public class Calculation extends Observable {
      * @return key => "object" for all emitted keys and values
      */
     private IntermediateResults runReduce(ScriptObjectMirror prepareData,
-                                          IntermediateResults mapResults) throws ParallelException {
+            IntermediateResults mapResults, int functionIdx) throws ParallelException {
         setChanged();
         notifyObservers(new TaskEvent(TaskStatus.RUNNING_REDUCE));
 
@@ -211,7 +209,7 @@ public class Calculation extends Observable {
             JsEngineAdapter jsEngine = new JsEngineAdapter(workerEnvParams,
                     this.sharedServices, new IntermediateResults());
             ReduceWorker reduceWorker = new ReduceWorker(jsEngine,
-                    mapResults, splitKeys.get(i), this.params.userScript,
+                    mapResults, splitKeys.get(i), functionIdx, this.params.userScript,
                     this.params.calculationScript, this.params.userenvScript,
                     this.params.datalibScript);
             Future<IntermediateResults> submit = executor.submit(reduceWorker);

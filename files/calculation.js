@@ -39,7 +39,7 @@
         this.applyItemsFn = null;
         this.dataChunksFn = null;
         this.mapFn = null;
-        this.reduceFn = null;
+        this.reduceFn = [];
     }
 
     /**
@@ -80,10 +80,10 @@
      */
     Worker.prototype.reduce = function (arg0, arg1) {
         if (arg1 === undefined) {
-            this.reduceFn = arg0;
+            this.reduceFn.push(arg0);
 
         } else {
-            this.reduceFn = arg1;
+            this.reduceFn.push(arg1);
         }
     };
 
@@ -103,6 +103,7 @@
         this.numChunks = null;
         this.finishFn = null;
         this.numReduceWorkers = null;
+        this.numReduceFunctions = 0;
     }
 
     /**
@@ -138,6 +139,7 @@
         } else {
             this.numReduceWorkers = this.numChunks;
         }
+        this.numReduceFunctions += 1;
     };
 
     /**
@@ -180,8 +182,9 @@
         scope.getParams = function () {
             return {
                 numReduceWorkers : scope._mr.numReduceWorkers,
-                numChunks : scope._mr.numChunks
-            }
+                numChunks : scope._mr.numChunks,
+                numReduceFunctions : scope._mr.numReduceFunctions
+            };
         };
     };
 
@@ -219,9 +222,10 @@
      *
      * @param key emitted key
      * @param data list of items belonging to the key
+     * @param funcIdx An index of a reduce function
      */
-    scope.runReduce = function (key, data) {
-        scope._mr.reduceFn(key, data);
+    scope.runReduce = function (key, data, funcIdx) {
+        scope._mr.reduceFn[funcIdx](key, data);
     };
 
     /**
@@ -291,6 +295,6 @@
      */
     scope.runFinish = function (results, info) {
         return scope._mr.finishFn(new FinalResults(results), info);
-    }
+    };
 
 }(this));

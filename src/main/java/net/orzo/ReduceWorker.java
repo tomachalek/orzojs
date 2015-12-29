@@ -36,15 +36,31 @@ public class ReduceWorker implements Callable<IntermediateResults> {
 
     private final List<Object> keys;
 
+    private final int functionIdx;
+
     private final JsEngineAdapter jsEngine;
 
     /**
+     * @param jsEngine
+     *      a JS engine the worker will be using to process its task
+     * @param mapResults
+     *      an object holding all the merged results from map phase
+     * @param keys
+     *      a subset of keys from mapResults which will be processed by this worker
+     * @param functionIdx
+     *      which reduce function will be used (user may define one or more reduce functions
+     *      to be able to perform re-reduce)
+     * @param userScript
+     *      a JS wrapper code
+     * @param sourceCodes
+     *      task and user libs scripts
      */
     public ReduceWorker(JsEngineAdapter jsEngine, IntermediateResults mapResults,
-                        List<Object> keys, SourceCode userScript,
+                        List<Object> keys, int functionIdx, SourceCode userScript,
                         SourceCode... sourceCodes) {
         this.mapResults = mapResults;
         this.keys = keys;
+        this.functionIdx = functionIdx;
         this.userScript = userScript;
         this.jsEngine = jsEngine;
         this.sources = sourceCodes;
@@ -57,7 +73,7 @@ public class ReduceWorker implements Callable<IntermediateResults> {
         this.jsEngine.runFunction("initReduce");
         this.jsEngine.runCode(this.userScript);
         for (Object key : this.keys) {
-            this.jsEngine.runFunction("runReduce", key, this.mapResults.values(key));
+            this.jsEngine.runFunction("runReduce", key, this.mapResults.values(key), this.functionIdx);
             this.mapResults.remove(key);
         }
         return this.jsEngine.getIntermediateResults();
