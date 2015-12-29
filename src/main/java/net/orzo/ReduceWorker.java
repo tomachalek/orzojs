@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import net.orzo.scripting.JsEngineAdapter;
-import net.orzo.scripting.SourceCode;
 
 /**
  * Handles a processing thread of the REDUCE phase.
@@ -28,9 +27,7 @@ import net.orzo.scripting.SourceCode;
  */
 public class ReduceWorker implements Callable<IntermediateResults> {
 
-    private final SourceCode userScript;
-
-    private final SourceCode[] sources;
+    private final CalculationParams params;
 
     private final IntermediateResults mapResults;
 
@@ -50,28 +47,24 @@ public class ReduceWorker implements Callable<IntermediateResults> {
      * @param functionIdx
      *      which reduce function will be used (user may define one or more reduce functions
      *      to be able to perform re-reduce)
-     * @param userScript
-     *      a JS wrapper code
-     * @param sourceCodes
-     *      task and user libs scripts
+     * @param params
      */
     public ReduceWorker(JsEngineAdapter jsEngine, IntermediateResults mapResults,
-                        List<Object> keys, int functionIdx, SourceCode userScript,
-                        SourceCode... sourceCodes) {
+                        List<Object> keys, int functionIdx, CalculationParams params) {
         this.mapResults = mapResults;
         this.keys = keys;
         this.functionIdx = functionIdx;
-        this.userScript = userScript;
         this.jsEngine = jsEngine;
-        this.sources = sourceCodes;
+        this.params = params;
     }
 
     @Override
     public IntermediateResults call() throws Exception {
         this.jsEngine.beginWork();
-        this.jsEngine.runCode(this.sources);
+        this.jsEngine.runCode(this.params.calculationScript, this.params.userenvScript,
+                this.params.datalibScript);
         this.jsEngine.runFunction("initReduce");
-        this.jsEngine.runCode(this.userScript);
+        this.jsEngine.runCode(this.params.userScript);
         for (Object key : this.keys) {
             this.jsEngine.runFunction("runReduce", key, this.mapResults.values(key), this.functionIdx);
             this.mapResults.remove(key);

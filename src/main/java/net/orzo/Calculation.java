@@ -157,9 +157,7 @@ public class Calculation extends Observable {
             workerEnvParams.workerId = i;
             JsEngineAdapter jsEngine = new JsEngineAdapter(workerEnvParams,
                     this.sharedServices, new IntermediateResults());
-            worker = new MapWorker(jsEngine, this.params.userScript,
-                    this.params.calculationScript, this.params.userenvScript,
-                    this.params.datalibScript);
+            worker = new MapWorker(jsEngine, this.params);
             Future<IntermediateResults> submit = executor.submit(worker);
             threadList.add(submit);
         }
@@ -209,9 +207,7 @@ public class Calculation extends Observable {
             JsEngineAdapter jsEngine = new JsEngineAdapter(workerEnvParams,
                     this.sharedServices, new IntermediateResults());
             ReduceWorker reduceWorker = new ReduceWorker(jsEngine,
-                    mapResults, splitKeys.get(i), functionIdx, this.params.userScript,
-                    this.params.calculationScript, this.params.userenvScript,
-                    this.params.datalibScript);
+                    mapResults, splitKeys.get(i), functionIdx, this.params);
             Future<IntermediateResults> submit = executor.submit(reduceWorker);
             threadList.add(submit);
         }
