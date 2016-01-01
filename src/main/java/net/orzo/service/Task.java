@@ -107,6 +107,7 @@ public class Task extends Observable implements Observer {
     protected void run() {
         this.events.add(new TaskEvent(TaskStatus.PREPARING));
         Calculation proc = new Calculation(this.params, this.sharedServices);
+        proc.addObserver(this);
         try {
             this.result = proc.run();
             addEvent(new TaskEvent(TaskStatus.FINISHED));
