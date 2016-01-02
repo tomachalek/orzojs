@@ -58,8 +58,8 @@ export class ScriptsStore extends GeneralStore {
                 self.notifyChangeListeners('SCRIPTS_LOAD');
             },
             function (err) {
-                self.notifyChangeListeners('ERROR', err);
-                self.mainStore.addMessage('error', err);
+                self.notifyChangeListeners('ERROR', err.statusText || err);
+                self.mainStore.addMessage('error', err.statusText || err);
             }
         );
     }
