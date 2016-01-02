@@ -68,6 +68,7 @@ export class TasksStore extends GeneralStore {
         prom.then(
             function (data) {
                 self.notifyChangeListeners('TASK_RUN');
+                self.updateStatusLoop(true);
             },
             function (err) {
                 self.notifyChangeListeners('ERROR', err);
@@ -141,18 +142,18 @@ export class TasksStore extends GeneralStore {
     }
 
     _hasRunningTasks() {
-        console.log('tasks: ', this.tasks);
-        return false;
+        return this.tasks.some((item)=>(item.status === 'PREPARING' || item.status.indexOf('RUNNING') === 0));
     }
 
-    updateStatusLoop() {
+    updateStatusLoop(forceUpdate=false) {
+        let self = this;
         if (this.statusLoopInterval) {
             clearTimeout(this.statusLoopInterval);
         }
-        if (this._hasRunningTasks()) {
-            setInterval(()=> {
-
-            }, 1000);
+        if (this._hasRunningTasks() || forceUpdate) {
+            this.statusLoopInterval = setTimeout(()=> {
+                self.synchronize();
+            }, 2000);
         }
     }
 
