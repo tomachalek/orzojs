@@ -19,15 +19,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 
 import com.google.inject.Inject;
 
@@ -106,7 +98,7 @@ public class TaskHandler extends JsonProvider
 	@DELETE
 	@Path("{task}")
 	@Produces("application/json; charset=UTF-8")
-	public String deleteResult(@PathParam("task") String taskId) {
+	public String deleteTask(@PathParam("task") String taskId) {
 		try {
 			this.taskManager.deleteTask(taskId);
 			return toJson(new StatusResponse(
@@ -117,5 +109,12 @@ public class TaskHandler extends JsonProvider
 					StatusResponse.Status.ERROR, e.getMessage(), e));
 
 		}
+	}
+
+	@GET
+	@Path("{task}")
+	@Produces("application/json; charset=UTF-8")
+	public String getTask(@PathParam("task") String taskId) {
+		return toJson(new TaskInfo(this.taskManager, this.taskManager.getTask(taskId)));
 	}
 }

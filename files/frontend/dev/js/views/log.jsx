@@ -20,7 +20,7 @@ import {PopupBox} from './common';
 export function logTableFactory(dispatcher, logStore) {
 
     return React.createClass({
-    
+
         _handleLogStoreEvent : function (store, type, err) {
             if (type === 'LOG_LOAD') {
                 this.setState({data: logStore.getList(), detail: null});
@@ -35,27 +35,27 @@ export function logTableFactory(dispatcher, logStore) {
                 });
             }
         },
-        
+
         _handleStatusClick : function () {
-        
+
         },
-        
+
         getInitialState : function () {
             return {'data' : [], 'detail': null};
         },
-        
+
         componentDidMount : function () {
             logStore.addChangeListener(this._handleLogStoreEvent);
         },
-        
+
         componentWillUnmount : function () {
             logStore.removeChangeListener(this._handleLogStoreEvent);
         },
-        
+
         _openDetail : function (item) {
             this.setState({data: this.state.data, detail: item.err});
         },
-        
+
         _renderStatus : function (item) {
             if (item.status === 'ERROR') {
                 return <a className="action"
@@ -65,37 +65,35 @@ export function logTableFactory(dispatcher, logStore) {
                 return <span>{item.status}</span>;
             }
         },
-        
+
         _closeDetail : function () {
             this.setState({data: this.state.data, detail: null});
         },
-        
+
     	render : function () {
             let self = this;
             let rows = this.state.data.map(
                   item =>
-                  <tr key={item.id.substr(0, 7) + String(item.started)}>
-                    <td data-id={item.id}>{item.id.substr(0, 8)}</td>
-                    <td>{item.name}</td>
+                  <tr key={item.row}>
                     <td>{new Date(item.started).toLocaleString()}</td>
-                    <td>{new Date(item.finished).toLocaleString()}</td>
+                    <td>{item.name}</td>
+                    <td data-id={item.id}>{item.id.substr(0, 8)}</td>
                     <td>{self._renderStatus(item)}</td>
                   </tr>
                   );
     	   return (
                 <div>
-                    {this.state.detail ? 
-                        <PopupBox closeAction={this._closeDetail}><div>{this.state.detail}</div></PopupBox> 
+                    {this.state.detail ?
+                        <PopupBox closeAction={this._closeDetail}><div>{this.state.detail}</div></PopupBox>
                         : null
                     }
                     <table>
                         <tbody>
                             <tr>
+                                <th>date and time</th>
+                                <th>script</th>
                                 <th>task id</th>
-                                <th>script name</th>
-                                <th>started</th>
-                                <th>finished</th>
-                                <th>status</th>
+                                <th>event</th>
                             </tr>
                             {rows}
                         </tbody>

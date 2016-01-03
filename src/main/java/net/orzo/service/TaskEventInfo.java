@@ -19,15 +19,15 @@ package net.orzo.service;
 /**
  * @author Tomas Machalek <tomas.machalek@gmail.com>
  */
-public class TaskExecInfo {
+public class TaskEventInfo {
+
+    public final int row;
 
     public final String id;
 
     public final String name;
 
     public final long started;
-
-    public final long finished;
 
     public final TaskStatus status;
 
@@ -38,13 +38,13 @@ public class TaskExecInfo {
      * "TaskExecInfo->Task" as it would produce unnecessarily high
      * memory consumption when running as a service for some time.
      */
-    public TaskExecInfo(String id, String name, long started, long finished,
-                        TaskStatus status, String err) {
+    public TaskEventInfo(int row, String id, String name, long started,
+                         TaskStatus status, String err) {
         super();
+        this.row = row;
         this.id = id;
         this.name = name;
         this.started = started;
-        this.finished = finished;
         this.status = status;
         this.err = err;
     }

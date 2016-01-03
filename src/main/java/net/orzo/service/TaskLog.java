@@ -27,37 +27,33 @@ import java.util.List;
  */
 public class TaskLog {
 
-    private final List<TaskExecInfo> rows;
+    private final List<TaskEventInfo> rows;
 
     public TaskLog() {
         this.rows = new ArrayList<>();
     }
 
     public void logTask(Task task) {
-        long started = -1;
-        long finished = -1;
+        Long created = null;
         String err = null;
 
         for (TaskEvent event : task.getEvents()) {
-            if (event.getStatus() == TaskStatus.PREPARING) {
-                started = event.getCreated();
-
-            } else if (event.getStatus() == TaskStatus.FINISHED) {
-                finished = event.getCreated();
-
-            } else if (event.getStatus() == TaskStatus.ERROR) {
-                finished = event.getCreated();
+            if (event.getStatus() == TaskStatus.ERROR) {
+                created = event.getCreated();
                 TaskEvent errEvent = task.getFirstError();
                 if (errEvent.getErrors().size() > 0) {
                     err = errEvent.getErrors().get(0).getMessage();
                 }
+
+            } else {
+                created = event.getCreated();
             }
         }
-        this.rows.add(new TaskExecInfo(task.getId(), task.getName(), started,
-                finished, task.getStatus(), err));
+        this.rows.add(new TaskEventInfo(this.rows.size(), task.getId(), task.getName(), created,
+                task.getStatus(), err));
     }
 
-    public List<TaskExecInfo> getData() {
+    public List<TaskEventInfo> getData() {
         return this.rows;
     }
 }

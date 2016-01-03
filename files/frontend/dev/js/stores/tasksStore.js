@@ -26,6 +26,7 @@ export class TasksStore extends GeneralStore {
         this.results = {};
         this.currentResult = null;
         this.mainStore = mainStore;
+        this.statusLoopInterval = null;
     }
 
     _handleEvents(payload) {
@@ -67,6 +68,7 @@ export class TasksStore extends GeneralStore {
         prom.then(
             function (data) {
                 self.notifyChangeListeners('TASK_RUN');
+                self.updateStatusLoop(true);
             },
             function (err) {
                 self.notifyChangeListeners('ERROR', err);
@@ -139,6 +141,22 @@ export class TasksStore extends GeneralStore {
         );
     }
 
+    _hasRunningTasks() {
+        return this.tasks.some((item)=>(item.status === 'PREPARING' || item.status.indexOf('RUNNING') === 0));
+    }
+
+    updateStatusLoop(forceUpdate=false) {
+        let self = this;
+        if (this.statusLoopInterval) {
+            clearTimeout(this.statusLoopInterval);
+        }
+        if (this._hasRunningTasks() || forceUpdate) {
+            this.statusLoopInterval = setTimeout(()=> {
+                self.synchronize();
+            }, 2000);
+        }
+    }
+
     synchronize() {
         var self = this;
         var prom = $.ajax('/api/tasks', {
@@ -149,6 +167,7 @@ export class TasksStore extends GeneralStore {
         prom.then(
             function (data) {
                 self.tasks = data;
+                self.updateStatusLoop();
                 self.notifyChangeListeners('TASKS_LOAD');
 
             },
