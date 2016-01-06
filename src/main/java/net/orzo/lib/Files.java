@@ -21,6 +21,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.NoSuchElementException;
 import java.util.zip.GZIPInputStream;
 
+import ch.qos.logback.core.util.FileUtil;
 import net.orzo.data.DirectoryReader;
 import net.orzo.data.FilePairGenerator;
 import net.orzo.data.FilePartReaderFactory;
@@ -314,7 +315,22 @@ public class Files {
             FileUtils.moveFileToDirectory(src, dst, false);
 
         } else {
-            throw new IllegalArgumentException("srcPath must be a file, dstPath must be either a file or a directory");
+            throw new IllegalArgumentException("srcPath must be a file, dstPath must be either a (non-existing) file or a directory");
+        }
+    }
+
+    public void copyFile(String srcPath, String dstPath) throws IOException {
+        File src = new File(srcPath);
+        File dst = new File(dstPath);
+
+        if (src.isFile() && dst.getParentFile().isDirectory() && !dst.exists()) {
+            FileUtils.copyFile(src, dst);
+
+        } else if (src.isFile() && dst.isDirectory()) {
+            FileUtils.copyFileToDirectory(src, dst);
+
+        } else {
+            throw new IllegalArgumentException("srcPath must be a file, dstPath must be either a (non-existing) file or a directory");
         }
     }
 

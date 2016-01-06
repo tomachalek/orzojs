@@ -613,30 +613,22 @@
         scope._lib.files.cleanDirectory(path);
     };
 
-    /**
-     *
-     */
     scope.orzo.fs.getLastModified = function (path) {
         return scope._lib.files.getLastModified(path);
     };
 
-    /**
-     *
-     */
     scope.orzo.fs.getSize = function (path) {
         return scope._lib.files.getSize(path);
     };
 
-    /**
-     *
-     */
     scope.orzo.fs.moveFile = function (srcPath, dstPath) {
         return scope._lib.files.moveFile(srcPath, dstPath);
     };
 
-    /**
-     *
-     */
+    scope.orzo.fs.copyFile = function (srcPath, dstPath) {
+        return scope._lib.files.copyFile(srcPath, dstPath);
+    };
+
     scope.orzo.fs.exists = function (path) {
         return scope._lib.files.exists(path);
     };
