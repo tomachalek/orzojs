@@ -833,6 +833,12 @@ declare module orzo.fs {
     function moveFile(srcPath:string, dstPath:string):void;
 
     /**
+     * Copies a file to a specified destination which
+     * can be either a (non-existing) file or a directory.
+     */
+    function copyFile(srcPath:string, dstPath:string):void;
+
+    /**
      * Tests whether a file/directory exists
      */
     function exists(path:string):boolean;
