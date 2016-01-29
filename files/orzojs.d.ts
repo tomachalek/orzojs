@@ -266,6 +266,13 @@ declare module datalib {
          * @param other
          */
         correl<T>(other:Data<T>):number;
+
+        /**
+         * Calculates a median of the dataset. This function
+         * alters the order of the original data (yet does not sort them)
+         * to prevent exhausting RAM by creating auxiliary arrays.
+         */
+        median():number;
     }
 
 

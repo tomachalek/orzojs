@@ -338,5 +338,31 @@
         deepEqual(tst, ['bar', 'foo', 'hi']);
     });
 
+    test("median() test for an array of odd and even sizes", function () {
+        var values = [
+            70.24, 60.83, 85.13, 73.07, 95.93, 98.36, 25.59, 60.73, 32.21, 57.72,
+            98.39, 42.23, 47.39, 61.58, 64.78, 66.71, 21.44, 61.58, 51.21, 18.78,
+            69.33, 83.71, 72.75, 96.07, 59.69, 85.14, 89.58, 66.86, 22.29, 7.72,
+            69.11, 48.53, 77.52, 10.23, 10.06, 18.04, 81.4, 3.46, 6.74, 10.9,
+            88.57, 93.28, 75.38, 3.57, 40.93, 70.64, 13.98, 23.06, 44.94, 87.38
+        ];
+
+        equal(D(values).median(), 61.205);
+        equal(D(values.slice(0, values.length - 1)).median(), 60.83);
+    });
+
+
+    test("median() test for an array of size 1", function () {
+        var values = [70.7];
+
+        equal(D(values).median(), 70.7);
+    });
+
+        test("median() test for an empty array", function () {
+        var values = [];
+
+        ok(isNaN(D(values).median()));
+    });
+
 
 }(this));
