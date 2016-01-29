@@ -60,6 +60,13 @@
     };
 
     /**
+     *
+     */
+    Data.prototype.set = function (idx, v) {
+        this.data[idx] = v;
+    };
+
+    /**
      * Iterates over data and applies passed function.
      * To break the iteration function must return false.
      *
@@ -206,6 +213,74 @@
             return Math.NaN;
         }
     };
+
+    /**
+     * Calculates a median of the dataset. This function
+     * alters the order of the data (but does not sort them)
+     * to prevent exhausting RAM.
+     */
+    Data.prototype.median = function () {
+        var self = this;
+
+        if (this.size() === 0) {
+            return NaN;
+        }
+
+        function swap(i, j) {
+            var tmp = self.data[i];
+            self.data[i] = self.data[j];
+            self.data[j] = tmp;
+        }
+
+        function partition(left, right, pivotIdx) {
+            var pivotValue = self.get(pivotIdx);
+            var realPivotIdx = left;
+            var i;
+
+            swap(pivotIdx, right);
+            for (i = left; i <= right; i += 1) {
+                if (self.get(i) < pivotValue) {
+                    swap(i, realPivotIdx);
+                    realPivotIdx += 1;
+                }
+            }
+            swap(right, realPivotIdx);
+            return realPivotIdx;
+        }
+
+        function quickSelect(n) {
+            var left = 0;
+            var right = self.size() - 1;
+            var pivotIdx;
+
+            while (true) {
+                if (left == right) {
+                    return self.get(left);
+                }
+                pivotIdx = Math.floor((left + right) / 2);
+                pivotIdx = partition(left, right, pivotIdx);
+                if (n == pivotIdx) {
+                    return self.get(n);
+
+                } else if (n < pivotIdx) {
+                    right = pivotIdx - 1;
+
+                } else {
+                    left = pivotIdx + 1;
+                }
+            }
+        }
+        var halfIdx = Math.floor(self.size() / 2);
+        var m = quickSelect(halfIdx);
+        var m2;
+        if (self.size() % 2 == 0) {
+            m2 = quickSelect(halfIdx - 1);
+            return (m2 + m) / 2;
+
+        } else {
+            return m;
+        }
+    }
 
 
     /**
