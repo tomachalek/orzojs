@@ -28,7 +28,7 @@ public class FilesTest {
     @Test
     public void testFileReader() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.fileReader("./test-data/text-file.txt");
+        FileIterator<Object> f = files.fileReader("./test-data/text-file.txt", "UTF-8");
         int i = 0;
         while (f.hasNext()) {
             Assert.assertEquals(f.next(), String.format("this is line %d", i));
@@ -39,13 +39,13 @@ public class FilesTest {
     @Test(expectedExceptions = FileNotFoundException.class)
     public void testFileReaderNonExistingFile() throws IOException {
         Files files = new Files();
-        files.fileReader("./test-data/text-file___zzz.txt");
+        files.fileReader("./test-data/text-file___zzz.txt", "UTF-8");
     }
 
     @Test(expectedExceptions = NoSuchElementException.class)
     public void testFileReaderPrematureCloseNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.fileReader("./test-data/text-file.txt");
+        FileIterator<Object> f = files.fileReader("./test-data/text-file.txt", "UTF-8");
         f.next();
         f.close();
         f.next();
@@ -54,7 +54,7 @@ public class FilesTest {
     @Test
     public void testFileReaderPrematureCloseHasNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.fileReader("./test-data/text-file.txt");
+        FileIterator<Object> f = files.fileReader("./test-data/text-file.txt", "UTF-8");
         f.next();
         f.close();
         Assert.assertFalse(f.hasNext());
@@ -63,14 +63,14 @@ public class FilesTest {
     @Test
     public void testFileReaderEmptyFileHasNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.fileReader("./test-data/empty.txt");
+        FileIterator<Object> f = files.fileReader("./test-data/empty.txt", "UTF-8");
         Assert.assertFalse(f.hasNext());
     }
 
     @Test(expectedExceptions = NoSuchElementException.class)
     public void testFileReaderEmptyFileNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.fileReader("./test-data/empty.txt");
+        FileIterator<Object> f = files.fileReader("./test-data/empty.txt", "UTF-8");
         f.next();
     }
 
@@ -79,7 +79,7 @@ public class FilesTest {
     @Test
     public void testGzipFileReader() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.gzipFileReader("./test-data/lines.txt.gz");
+        FileIterator<Object> f = files.gzipFileReader("./test-data/lines.txt.gz", "UTF-8");
         int i = 0;
         while (f.hasNext()) {
             Assert.assertEquals(f.next(), String.format("line %d", i));
@@ -90,13 +90,13 @@ public class FilesTest {
     @Test(expectedExceptions = FileNotFoundException.class)
     public void testGzipFileReaderNonExistingFile() throws IOException {
         Files files = new Files();
-        files.gzipFileReader("./test-data/text-file___zzz.txt");
+        files.gzipFileReader("./test-data/text-file___zzz.txt", "UTF-8");
     }
 
     @Test(expectedExceptions = NoSuchElementException.class)
     public void testGzipFileReaderPrematureCloseNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.gzipFileReader("./test-data/lines.txt.gz");
+        FileIterator<Object> f = files.gzipFileReader("./test-data/lines.txt.gz", "UTF-8");
         f.next();
         f.close();
         f.next();
@@ -105,14 +105,14 @@ public class FilesTest {
     @Test
     public void testGzipFileReaderEmptyFileHasNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.gzipFileReader("./test-data/empty.txt");
+        FileIterator<Object> f = files.gzipFileReader("./test-data/empty.txt", "UTF-8");
         Assert.assertFalse(f.hasNext());
     }
 
     @Test(expectedExceptions = NoSuchElementException.class)
     public void testGzipFileReaderEmptyFileNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.gzipFileReader("./test-data/empty.txt");
+        FileIterator<Object> f = files.gzipFileReader("./test-data/empty.txt", "UTF-8");
         f.next();
     }
 
@@ -122,7 +122,7 @@ public class FilesTest {
     @Test
     public void testGzipFileReaderPrematureCloseHasNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.gzipFileReader("./test-data/lines.txt.gz");
+        FileIterator<Object> f = files.gzipFileReader("./test-data/lines.txt.gz", "UTF-8");
         f.next();
         f.close();
         Assert.assertFalse(f.hasNext());
@@ -131,7 +131,7 @@ public class FilesTest {
     @Test
     public void testReversedFileReader() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.reversedFileReader("./test-data/text-file.txt");
+        FileIterator<Object> f = files.reversedFileReader("./test-data/text-file.txt", "UTF-8");
         int i = 23;
         while (f.hasNext()) {
             Assert.assertEquals((String)f.next(), String.format("this is line %d", i));
@@ -143,13 +143,13 @@ public class FilesTest {
     @Test(expectedExceptions = FileNotFoundException.class)
     public void testReversedFileReaderNonExistingFile() throws IOException {
         Files files = new Files();
-        files.reversedFileReader("./test-data/text-file___zzz.txt");
+        files.reversedFileReader("./test-data/text-file___zzz.txt", "UTF-8");
     }
 
     @Test(expectedExceptions = NoSuchElementException.class)
     public void testReversedFileReaderPrematureCloseNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.reversedFileReader("./test-data/text-file.txt");
+        FileIterator<Object> f = files.reversedFileReader("./test-data/text-file.txt", "UTF-8");
         f.next();
         f.close();
         f.next();
@@ -158,7 +158,7 @@ public class FilesTest {
     @Test
     public void testReversedFileReaderPrematureCloseHasNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.reversedFileReader("./test-data/text-file.txt");
+        FileIterator<Object> f = files.reversedFileReader("./test-data/text-file.txt", "UTF-8");
         f.next();
         f.close();
         Assert.assertFalse(f.hasNext());
@@ -167,14 +167,14 @@ public class FilesTest {
     @Test
     public void testReversedFileReaderEmptyFileHasNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.reversedFileReader("./test-data/empty.txt");
+        FileIterator<Object> f = files.reversedFileReader("./test-data/empty.txt", "UTF-8");
         Assert.assertFalse(f.hasNext());
     }
 
     @Test(expectedExceptions = NoSuchElementException.class)
     public void testReversedFileReaderEmptyFileNext() throws IOException {
         Files files = new Files();
-        FileIterator<Object> f = files.reversedFileReader("./test-data/empty.txt");
+        FileIterator<Object> f = files.reversedFileReader("./test-data/empty.txt", "UTF-8");
         f.next();
     }
 

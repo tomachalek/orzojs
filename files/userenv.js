@@ -468,17 +468,17 @@
      * @param  {string} path path to a file
      * @return a file iterator
      */
-    scope.orzo.fileReader = function (path) {
-        return createReader(scope._lib.files.fileReader(path));
+    scope.orzo.fileReader = function (path, encoding) {
+        return createReader(scope._lib.files.fileReader(path, encoding || 'UTF-8'));
     };
 
 
-    scope.orzo.gzipFileReader = function (path) {
-        return createReader(scope._lib.files.gzipFileReader(path));
+    scope.orzo.gzipFileReader = function (path, encoding) {
+        return createReader(scope._lib.files.gzipFileReader(path, encoding || 'UTF-8'));
     }
 
-    scope.orzo.reversedFileReader = function (path) {
-        return createReader(scope._lib.files.reversedFileReader(path));
+    scope.orzo.reversedFileReader = function (path, encoding) {
+        return createReader(scope._lib.files.reversedFileReader(path, encoding || 'UTF-8'));
     }
 
     /**
@@ -551,7 +551,7 @@
      * @param {string} path a path to a file
      * @return {*} an object as read and decoded from respective JSON data
      */
-    scope.orzo.readJsonFile = function (path, defaults) {
+    scope.orzo.readJsonFile = function (path) {
         return JSON.parse(scope.orzo.readTextFile(path));
     };
 
@@ -874,6 +874,21 @@
      */
     scope.orzo.flattenMatrix = function (matrix) {
         return scope._lib.dataStructures.flattenMatrix(matrix);
+    };
+
+    /**
+     * Create a new HashMap with predefined capacity.
+     */
+    scope.orzo.hashMap = function (initialCapacity) {
+        return scope._lib.dataStructures.hashMap(initialCapacity);
+    };
+
+    scope.orzo.serialize = function (obj, path) {
+        return scope._lib.dataStructures.serialize(obj, path);
+    };
+
+    scope.orzo.deserialize = function (path) {
+        return scope._lib.dataStructures.deserialize(path);
     };
 
     /**
