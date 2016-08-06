@@ -15,11 +15,10 @@
  */
 package net.orzo.lib;
 
+import java.io.*;
 import java.lang.invoke.MethodHandle;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+
+import java.util.*;
 
 import com.google.gson.Gson;
 import jdk.nashorn.internal.runtime.ScriptFunction;
@@ -114,6 +113,28 @@ public class DataStructures {
 
         } catch (Throwable ex) {
             throw new LibException(ex);
+        }
+    }
+
+    public Object hashMap(int initialCapacity) {
+        return new HashTable(initialCapacity);
+    }
+
+    public void serialize(Object obj, String path) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path))) {
+            oos.writeObject(obj);
+
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public Object deserialize(String path) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path))) {
+            return ois.readObject();
+
+        } catch (IOException | ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
         }
     }
 

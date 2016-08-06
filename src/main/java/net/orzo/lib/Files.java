@@ -21,7 +21,6 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.NoSuchElementException;
 import java.util.zip.GZIPInputStream;
 
-import ch.qos.logback.core.util.FileUtil;
 import net.orzo.data.DirectoryReader;
 import net.orzo.data.FilePairGenerator;
 import net.orzo.data.FilePartReaderFactory;
@@ -48,8 +47,8 @@ public class Files {
      * line. Iterator can be accessed by a classic method pair <i>hasNext()</li>
      * and <i>next()</i>.
      */
-    public FileIterator<Object> fileReader(final String path) throws IOException {
-        final LineIterator itr = FileUtils.lineIterator(new File(path), "UTF-8");
+    public FileIterator<Object> fileReader(final String path, final String encoding) throws IOException {
+        final LineIterator itr = FileUtils.lineIterator(new File(path), encoding);
         return new FileIterator<Object>() {
 
             @Override
@@ -83,11 +82,11 @@ public class Files {
     }
 
 
-    public FileIterator<Object> reversedFileReader(final String path) throws IOException {
+    public FileIterator<Object> reversedFileReader(final String path, final String encoding) throws IOException {
         return new FileIterator<Object>() {
 
             private ReversedLinesFileReader rlf = new ReversedLinesFileReader(new File(path),
-                    1024 * 4, "UTF-8");
+                    1024 * 4, encoding);
             private String currLine = rlf.readLine();
 
             @Override
@@ -134,10 +133,10 @@ public class Files {
     }
 
 
-    public FileIterator<Object> gzipFileReader(final String path) throws IOException {
+    public FileIterator<Object> gzipFileReader(final String path, final String encoding) throws IOException {
         try {
             final GZIPInputStream gis = new GZIPInputStream(new FileInputStream(path));
-            final Reader reader = new InputStreamReader(gis, "UTF-8");
+            final Reader reader = new InputStreamReader(gis, encoding);
             return new FileIterator<Object>() {
 
                 private final BufferedReader br = new BufferedReader(reader);
@@ -271,6 +270,8 @@ public class Files {
     }
 
     /**
+     * Read a whole utf-8 text file at once.
+     *
      * @param path
      * @return
      */

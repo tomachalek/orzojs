@@ -21,6 +21,21 @@ interface MapFunction<T> {
     (callback:(v:T)=>void):void
 }
 
+interface HashTable {
+
+    hasKey(key:string):boolean;
+
+    hasValue(value:any):boolean;
+
+    get(key:string):any;
+
+    put(key:string, value:any):any;
+
+    remove(key:string):any;
+
+    size():number;
+}
+
 
 interface IResults {
 
@@ -590,22 +605,27 @@ declare module orzo {
      * line.
      *
      * @param path A path to a file
+     * @param encoding (default is UTF-8)
      */
-    function fileReader(path:string):FileIterator;
+    function fileReader(path:string, encoding?:string):FileIterator;
 
 
     /**
      * Creates an iterator which reads provided gzipped file line by line.
      *
      * @param path A path to a gzipped file
+     * @param encoding (default is UTF-8)
      */
-    function gzipFileReader(path:string):FileIterator;
+    function gzipFileReader(path:string, encoding?:string):FileIterator;
 
     /**
      * Creates a an iterator which reads provided file line by line
      * in reversed order.
+     *
+     * @param path A path to a gzipped file
+     * @param encoding (default is UTF-8)
      */
-    function reversedFileReader(path:string):FileIterator;
+    function reversedFileReader(path:string, encoding?:string):FileIterator;
 
     /**
      * Creates a new or returns an existing file chunk reader
@@ -754,6 +774,21 @@ declare module orzo {
      * @returns {array} output 1D vector
      */
     function flattenMatrix<T>(matrix:Array<Array<T>>):Array<T>;
+
+    /**
+     * Create a Java-based Hash Map with predefined initial capacity.
+     */
+    function hashMap(initialCapacity:number):HashTable;
+
+    /**
+     * Serialize object using Java serialization
+     */
+    function serialize(obj:any, path:string):void;
+
+    /**
+     * Deserialize Java object
+     */
+    function deserialize(path:string):any;
 
     /**
      * Measures the execution time of the provided function. Please note that in
