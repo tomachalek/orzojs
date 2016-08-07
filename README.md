@@ -79,7 +79,7 @@ file, we have to read it somehow. Orzo.js offers a simple line-by-line reader
 
 
 ```js
-applyItems(function (fileList, map) {
+processChunk(function (fileList, map) {
     var fr; 
     while (fileList.hasNext()) {
         fr = orzo.fileReader(fileList.next()); // next file path in a group
