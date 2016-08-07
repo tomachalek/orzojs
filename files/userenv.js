@@ -1007,7 +1007,7 @@
                 doWith(objList, fn, err, i + 1);
 
             } else {
-                fn.apply(scope, objList);
+                fn.call(scope, objList);
             }
 
         } catch (e) {

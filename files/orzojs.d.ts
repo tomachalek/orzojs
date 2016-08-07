@@ -1006,7 +1006,7 @@ declare function iterator<T>(data:Array<any>, next:(item:any)=>T, hasNext:(item:
 * @param fn A function wrapping the actions we want to perform on the object
 * @param err A function to be called in case of an exception
 */
-declare function doWith<T extends Closeable>(obj:T|Array<T>, fn:(v:T)=>void, err?:(e:Error)=>void):void;
+declare function doWith<T extends Closeable>(obj:T|Array<T>, fn:(...v:T[])=>void, err?:(e:Error)=>void):void;
 
 /**
  * Loads a module. Orzo.js supports only sandboxed module loading.
