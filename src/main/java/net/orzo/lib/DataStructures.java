@@ -21,6 +21,8 @@ import java.lang.invoke.MethodHandle;
 import java.util.*;
 
 import com.google.gson.Gson;
+import jdk.nashorn.api.scripting.ScriptUtils;
+import jdk.nashorn.internal.objects.NativeArray;
 import jdk.nashorn.internal.runtime.ScriptFunction;
 
 /**
@@ -96,7 +98,8 @@ public class DataStructures {
             origData = Arrays.asList(jsArray);
 
         } else {
-            origData = (Collection<?>) jsArray; // TODO wrapping???
+            NativeArray tmp = (NativeArray)ScriptUtils.unwrap(jsArray);
+            origData = Arrays.asList(tmp.asObjectArray());
         }
 
         try {
