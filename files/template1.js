@@ -7,11 +7,16 @@
 (function () {
     'use strict';
 
-    dataChunks(4, function (idx, stateData) {
+    var numChunks = 4;
+    var numReduceWorkers = 4;
+    var outputFile = './results.txt';
+    // input file is read from the command-line (env.inputArgs[0])
+
+    dataChunks(numChunks, function (idx) {
         return orzo.directoryReader(env.inputArgs[0], idx);
     });
 
-    applyItems(function (fileList, map) {
+    processChunk(function (fileList, map) {
         var fr;
         while (fileList.hasNext()) {
             fr = orzo.fileReader(fileList.next());
@@ -33,13 +38,13 @@
         }
     });
 
-    reduce(6, function (key,  values) {
+    reduce(numReduceWorkers, function (key,  values) {
         emit(key, D(values).size());
     });
 
     finish(function (results) {
         doWith(
-            orzo.fileWriter('results.txt'),
+            orzo.fileWriter(outputFile),
             function (fw) {
                 results.each(function (key, values) {
                     fw.writeln(orzo.sprintf('Number of lines starting with "%s": %s\n',

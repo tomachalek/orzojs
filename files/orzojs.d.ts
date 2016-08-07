@@ -953,7 +953,7 @@ declare function processChunk<T>(fn:(dataChunk:any, map:MapFunction<T>)=>void):v
  * @param numWorkers
  * @param applyFn A function which defines how idx-th chunk looks like
  */
-declare function dataChunks(numWorkers:number, applyFn:(idx:number)=>void):void;
+declare function dataChunks<T>(numWorkers:number, applyFn:(idx:number)=>T):void;
 
 /**
  * Registers a REDUCE operation
