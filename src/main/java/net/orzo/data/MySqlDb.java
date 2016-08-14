@@ -51,11 +51,26 @@ public class MySqlDb {
                 return ans.iterator();
             }
 
+            private void setArg(int i, Object v, PreparedStatement stmt) throws SQLException {
+                if (v instanceof String) {
+                    stmt.setString(i, (String)v);
+
+                } else if (v instanceof Integer) {
+                    stmt.setInt(i, (Integer)v);
+
+                } else if (v instanceof Double) {
+                    stmt.setDouble(i, (Double)v);
+
+                } else {
+                    stmt.setObject(i, v);
+                }
+            }
+
             @Override
             public void modify(String query, Object...args) throws SQLException {
                 PreparedStatement stmt = this.conn.prepareStatement(query);
                 for (int i = 0; i < args.length; i++) {
-                    stmt.setString(i + 1, args[i].toString());
+                    this.setArg(i + 1, args[i], stmt);
                 }
                 stmt.execute();
             }

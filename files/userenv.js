@@ -1007,7 +1007,7 @@
                 doWith(objList, fn, err, i + 1);
 
             } else {
-                fn.call(scope, objList);
+                fn.apply(scope, objList);
             }
 
         } catch (e) {
@@ -1030,7 +1030,6 @@
 
     scope.doWith = function (obj, fn, err) {
         var objList;
-
         if (Object.prototype.toString.call(obj) !== '[object Array]') {
             objList = [obj];
 

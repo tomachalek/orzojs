@@ -116,7 +116,7 @@ public class SourceCode {
     public static SourceCode fromFile(File f) throws IOException {
         try (BOMInputStream bis = new BOMInputStream(new FileInputStream(f))) {
             return new SourceCode(f.getAbsolutePath(), f.getName(), new String(
-                    ByteStreams.toByteArray(bis)));
+                    ByteStreams.toByteArray(bis), "UTF-8"));
         }
     }
 
