@@ -195,7 +195,7 @@ public class Calculation extends Observable {
         IntermediateResults reduceResults = new IntermediateResults();
         int numWorkers = (int) prepareData.get("numReduceWorkers");
 
-        List<List<Object>> splitKeys = groupResults(mapResults, numWorkers);
+        List<List<String>> splitKeys = groupResults(mapResults, numWorkers);
         numWorkers = splitKeys.size(); // groupResults may have decided to optimize num of groups
         LOG.info(String.format("Calculated number of reduce workers: %d", numWorkers));
 
@@ -203,7 +203,6 @@ public class Calculation extends Observable {
         for (int i = 0; i < numWorkers; i++) {
             EnvParams workerEnvParams = createEnvParams();
             workerEnvParams.workerId = i;
-
             JsEngineAdapter jsEngine = new JsEngineAdapter(workerEnvParams,
                     this.sharedServices, new IntermediateResults());
             ReduceWorker reduceWorker = new ReduceWorker(jsEngine,
@@ -257,7 +256,7 @@ public class Calculation extends Observable {
 
     /**
      */
-    private List<List<Object>> groupResults(
+    private List<List<String>> groupResults(
             IntermediateResults originalResults, int numGroups) {
         /*
          * Note: In terms of performance, it is essential to split
@@ -265,7 +264,7 @@ public class Calculation extends Observable {
          * process. Unfortunately, the current solution does not contain
          * any such optimization.
          */
-        List<Object> keys = new ArrayList<>(originalResults.keys());
+        List<String> keys = new ArrayList<>(originalResults.keys());
         int calcNumGroups = Math.min(numGroups, keys.size()); // cannot use more workers than keys
 
         if (keys.size() > 0) {
@@ -273,7 +272,7 @@ public class Calculation extends Observable {
             return Lists.partition(keys, itemsPerChunk);
 
         } else {
-            List<List<Object>> ans = new ArrayList();
+            List<List<String>> ans = new ArrayList();
             ans.add(keys);
             return ans;
         }

@@ -33,7 +33,7 @@ public class IntermediateResults {
     /**
      *
      */
-    private final ListMultimap<Object, Object> data;
+    private final ListMultimap<String, Object> data;
 
     /**
      *
@@ -43,7 +43,7 @@ public class IntermediateResults {
         return this.data.toString();
     }
 
-    public IntermediateResults(ListMultimap<Object, Object> data) {
+    public IntermediateResults(ListMultimap<String, Object> data) {
         this.data = data;
     }
 
@@ -69,14 +69,14 @@ public class IntermediateResults {
      * @param value any value as required by user's script
      * @throws NullPointerException if a null key is used
      */
-    public void add(Object key, Object value) {
+    public void add(String key, Object value) {
         if (key == null) {
             throw new NullPointerException("Cannot add null key");
         }
         this.data.put(key, value);
     }
 
-    public void addMultiple(Object key, List<?> values) {
+    public void addMultiple(String key, List<?> values) {
         this.data.putAll(key, values);
     }
 
@@ -84,14 +84,14 @@ public class IntermediateResults {
      * @param key
      * @return
      */
-    public List<?> remove(Object key) {
+    public List<?> remove(String key) {
         return new ArrayList<>(this.data.removeAll(key));
     }
 
     /**
      * Returns set of all keys (i.e. values are unique)
      */
-    public Set<Object> keys() {
+    public Set<String> keys() {
         return this.data.keySet();
     }
 
@@ -105,20 +105,15 @@ public class IntermediateResults {
     /**
      * Returns all results attached to the specified key
      */
-    public List<Object> values(Object key) {
+    public List<Object> values(String key) {
         return this.data.get(key);
     }
 
     /**
      *
      */
-    public Multimap<Object, Object> getData() {
+    public Multimap<String, Object> getData() {
         return this.data;
-    }
-
-    public IntermediateResults makeImmutableVersion() {
-        return new IntermediateResults(
-                Multimaps.unmodifiableListMultimap(this.data));
     }
 
     /**

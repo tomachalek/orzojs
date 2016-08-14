@@ -31,7 +31,7 @@ public class ReduceWorker implements Callable<IntermediateResults> {
 
     private final IntermediateResults mapResults;
 
-    private final List<Object> keys;
+    private final List<String> keys;
 
     private final int functionIdx;
 
@@ -50,7 +50,7 @@ public class ReduceWorker implements Callable<IntermediateResults> {
      * @param params
      */
     public ReduceWorker(JsEngineAdapter jsEngine, IntermediateResults mapResults,
-                        List<Object> keys, int functionIdx, CalculationParams params) {
+                        List<String> keys, int functionIdx, CalculationParams params) {
         this.mapResults = mapResults;
         this.keys = keys;
         this.functionIdx = functionIdx;
@@ -65,11 +65,10 @@ public class ReduceWorker implements Callable<IntermediateResults> {
                 this.params.datalibScript);
         this.jsEngine.runFunction("initReduce");
         this.jsEngine.runCode(this.params.userScript);
-        for (Object key : this.keys) {
+        for (String key : this.keys) {
             this.jsEngine.runFunction("runReduce", key, this.mapResults.values(key), this.functionIdx);
             this.mapResults.remove(key);
         }
         return this.jsEngine.getIntermediateResults();
     }
-
 }
