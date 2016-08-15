@@ -61,8 +61,11 @@ public class MySqlDb {
                 } else if (v instanceof Double) {
                     stmt.setDouble(i, (Double)v);
 
+                } else if (v instanceof jdk.nashorn.internal.runtime.Undefined) {
+                    stmt.setNull(i, Types.VARCHAR); // TODO
+
                 } else {
-                    stmt.setObject(i, v);
+                    stmt.setObject(i, v); // TODO
                 }
             }
 
